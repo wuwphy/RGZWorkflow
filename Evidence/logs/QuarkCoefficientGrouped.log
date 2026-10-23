@@ -1,0 +1,13 @@
+PairedMassFactorsEliminateRedundantMass : True
+MassPolynomialRelationIsExactZero : True
+OddMassSquareIsRetained : True
+NestedRationalCoefficient : True
+SharedDenominatorCollectionIsExact : True
+DegenerateCoordinateDenominatorStops : True
+ZeroOverZeroRelationIsNotCertifiedAsZero : True
+NonPolynomialMassDependenceNotDiscarded : True
+GenericDimensionKept : True
+NoForcedCancellation : True
+RationalDenominatorUnit : True
+NegativeNumericFactorExponent : True
+<|Passed -> 12, Failed -> 0|>

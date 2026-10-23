@@ -1,0 +1,45 @@
+
+FrontEndObject::notavail: A front end is not available; certain operations require a front end.
+
+FrontEndObject::notavail: A front end is not available; certain operations require a front end.
+VacuumDoublePoleDetected : True
+LightlikeBubbleDetected : True
+OppositeRouteSignsDetected : True
+OffshellBubbleExcluded : True
+MassiveTadpoleExcluded : True
+NoDenominatorExcluded : True
+HorizonMassMapping : True
+CondensateRelations : True
+NoKinematicFit : True
+FiniteMasslessBubble : True
+FiniteComplexTadpoleBranchPreserved : True
+MultiscaleMasterRetained : True
+EpsilonTimesPoleRationalTermRetained : True
+FiniteCoefficientValue : True
+LoopRationalTermNotTree : True
+UnsupportedGaugeRejected : True
+MissingInputsRejected : True
+NonpositiveScaleRejected : True
+DifferentSourceRefused : True
+GeneralGaugeNotPretendedImplemented : True
+LegacyMissingJacobianRefused : True
+IncompletePolePacketRefused : True
+ColorSubsetRenumberingInvariant : True
+DifferentColorsNeverConflated : True
+CompleteFiniteCacheReusable : True
+ExtraJacobianInsertionNotReusable : True
+ChangedSourceKeyNotReusable : True
+IncompleteRowCountNotReusable : True
+InterruptedFiniteCacheNotReusable : True
+TreeDoubleCountNotReusable : True
+MissingFiniteRowNotReusable : True
+DefaultTwoDynamicalFlavors : True
+QuarkBetaFunctionShift : True
+QuarkMassCountertermShift : True
+AuxiliaryMassNoQuarkShift : True
+NoPostprocessingJacobianFunction : True
+TwoFlavorNativeBubbleUVMatchesLocalCT : True
+IndependentGhostTensorProjection : True
+DimensionalMeasureFiniteShift : True
+MSbarConstantFromPVConvention : True
+<|Passed -> 40, Failed -> 0|>

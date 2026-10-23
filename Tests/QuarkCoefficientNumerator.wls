@@ -1,0 +1,31 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
+project=DirectoryName[DirectoryName[$InputFileName]];Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];RGZInitialize[FileNameJoin[{$TemporaryDirectory,"qq-numerator-"<>CreateUUID[]}],"Display"->"Quiet"];
+checks=<||>;record[n_,v_]:=(AssociateTo[checks,n->TrueQ[v]];Print[n," : ",TrueQ[v]]);
+e=((a+b)^4 x^2+(a-b) y)^3+(x+y)^5;
+r=RGZWorkflow`Private`qqNumeratorSparseRules[e,{x,y}];
+record["SparsePolynomialReconstructsExactly",Expand[Total[(Last[#] Times@@MapThread[Power,{{x,y},First[#]}]& /@r)]-e]===0];
+record["SparseZero",RGZWorkflow`Private`qqNumeratorSparseRules[0,{x,y}]==={}];
+record["NonPolynomialIsRejected",RGZWorkflow`Private`qqNumeratorSparseRules[Sin[x],{x}]===$Failed];
+dir=FileNameJoin[{$TemporaryDirectory,"qq-numerator-nodes-"<>CreateUUID[]}];CreateDirectory[dir];RGZWorkflow`Private`qqProgressUpdate[<|"CheckpointFile"->FileNameJoin[{dir,"root.wxf"}]|>];
+alpha=Symbol["RGZWorkflow`Gauge`Unit`alpha"];polys={(alpha-1)D(u+v)^5,(alpha^2-1)D^2(u-v)^3};
+r=RGZWorkflow`Private`qqNumeratorBlocked[polys,u,v,h,g,"Blocked"];
+record["BlockedNumeratorIsExact",Expand[r-Total[polys]]===0];
+record["IndividualCoefficientsAreCheckpointed",Lookup[RGZResult["QQProgress"],"NumeratorCacheSaved",0]>0];
+r2=RGZWorkflow`Private`qqNumeratorBlocked[polys,u,v,h,g,"Blocked"];
+record["NumeratorCoefficientsResumeExactly",r2===r&&Lookup[RGZResult["QQProgress"],"NumeratorCacheReused",0]>0&&Lookup[RGZResult["QQProgress"],"NumeratorCacheSaved",-1]===0];
+r3=RGZWorkflow`Private`qqNumeratorBlocked[polys/.{u->u2,v->v2},u2,v2,h,g,"Blocked"];
+record["SpectralSymbolRenamingDoesNotInvalidateCache",Expand[r3-(r/.{u->u2,v->v2})]===0&&Lookup[RGZResult["QQProgress"],"NumeratorCacheReused",0]>0];
+z=(u^2-h^2)(v^2-h^2);r4=RGZWorkflow`Private`qqNumeratorBlocked[{(alpha-1)D(g^4-z)},u,v,h,g,"Blocked"];
+record["MassRelationCancelsWithinEachCoefficient",r4===0];
+record["NoCanonicalCoordinateLeak",FreeQ[r3,RGZWorkflow`Private`qqNumeratorU|RGZWorkflow`Private`qqNumeratorV]];
+restart=FileNameJoin[{dir,"restart"}];CreateDirectory[restart];RGZWorkflow`Private`qqProgressUpdate[<|"CheckpointFile"->FileNameJoin[{restart,"root.wxf"}]|>];
+DownValues[testAtomic]=DownValues[RGZWorkflow`Private`atomicWXF]/.RGZWorkflow`Private`atomicWXF->testAtomic;
+saved=0;tag=Unique["interrupt"];
+interrupted=Block[{RGZWorkflow`Private`atomicWXF},Clear[RGZWorkflow`Private`atomicWXF];
+ RGZWorkflow`Private`atomicWXF[f_,v_]:=Module[{p=testAtomic[f,v]},saved++;If[saved===1,Throw["Interrupted",tag]];p];
+ Catch[RGZWorkflow`Private`qqNumeratorBlocked[polys,u,v,h,g,"Blocked"],tag]];
+record["InterruptionLeavesCompletedNumeratorCoefficient",interrupted==="Interrupted"&&Length[FileNames["*.wxf",restart,Infinity]]===1];
+resumed=RGZWorkflow`Private`qqNumeratorBlocked[polys,u,v,h,g,"Blocked"];
+record["InterruptedNumeratorResumesExactly",Expand[resumed-r]===0&&Lookup[RGZResult["QQProgress"],"NumeratorCacheReused",0]>0];
+Print[<|"Passed"->Count[Values[checks],True],"Failed"->Count[Values[checks],False]|>];Exit[If[Length[checks]===11&&And@@Values[checks],0,1]];

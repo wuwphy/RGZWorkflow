@@ -1,0 +1,33 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
+project=DirectoryName[DirectoryName[$InputFileName]];Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+RGZInitialize[FileNameJoin[{$TemporaryDirectory,"rgz-loop-order-"<>CreateUUID[]}],"Display"->"Quiet"];
+Quiet[RGZLoadFeynCalc[],FrontEndObject::notavail];
+checks=<||>;record[n_,v_]:=(AssociateTo[checks,n->TrueQ[v]];Print[n," : ",TrueQ[v]]);
+color=First[RGZWorkflow`Private`qqFFColors[]];
+spin=FeynCalc`FCI[FeynCalc`SpinorUBarD[RGZWorkflow`Engine`qqK3,0].FeynCalc`GAD[testMu].FeynCalc`SpinorUD[RGZWorkflow`Engine`qqK1,0] FeynCalc`SpinorUBarD[RGZWorkflow`Engine`qqK4,0].FeynCalc`GAD[testMu].FeynCalc`SpinorUD[RGZWorkflow`Engine`qqK2,0]];
+base=color spin;pv=FeynCalc`B0[testT,testA,testB];
+packet=<|"Fingerprint"->"loop-order-fixture","AssemblyConvention"->"QQPhysicalLoopMeasure/1","Gauge"->0,"RegulatorMass"->0,"Tree"->I 3 base,"OneLoop"->I (7+11 pv) base,"Amplitude"->(10+11 pv) base|>;
+RGZWorkflow`Private`storeResult["QQAmplitude",packet];
+reconstruct[ff_]:=Total[(ff["ColorBasis"][[#["ColorID"]]] ff["SpinStructures"][[#["SpinID"]]] #["FormFactor"])&/@ff["Rows"]];
+results=<||>;
+Do[r=RGZQQFormFactors[60,"LoopOrder"->order,"CoefficientSeconds"->2];ff=RGZResult["QQFormFactors"];AssociateTo[results,ToString[order]->ff];
+ record["PublicOrder"<>ToString[order],AssociationQ[r]&&ff["LoopOrder"]===order&&TrueQ[ff["ReconstructionVerified"]]];
+ record["ReconstructOrder"<>ToString[order],RGZWorkflow`Private`qqFFSpinReduce[reconstruct[ff]-Switch[order,0,3 base,1,(7+11 pv) base,All,(10+11 pv) base]]===0],{order,{0,1,All}}];
+record["LoopRationalTermPreserved",MemberQ[results["1"]["Rows"][[1]]["MasterCoefficients"],{1,7}]];
+record["TreePVAbsent",FreeQ[results["0"]["Rows"],FeynCalc`B0]];
+record["SeparateOrderCacheFiles",Length[DeleteDuplicates[Lookup[Values[results],"File"]]]===3];
+record["AssemblyConventionPreserved",results["1"]["AssemblyConvention"]==="QQPhysicalLoopMeasure/1"];
+record["UVIRNotInferred",results["1"]["UVIRSeparated"]===False&&results["1"]["Renormalized"]===False];
+r=RGZQQFormFactors[60,"LoopOrder"->1,"CoefficientSeconds"->2];record["LoopCacheReused",TrueQ[r["Statistics"]["Reused"]]&&RGZResult["QQFormFactors"]["LoopOrder"]===1];
+record["InvalidOrderRejected",MatchQ[RGZQQFormFactors[10,"LoopOrder"->2],Failure["QQFFLoopOrder",_]]];
+RGZWorkflow`Private`storeResult["QQAmplitude",KeyDrop[packet,"OneLoop"]];
+record["MissingLoopCannotFallBackToFull",MatchQ[RGZQQFormFactors[10,"LoopOrder"->1],Failure["QQFFComponentMissing",_]]&&MatchQ[RGZResult["QQFormFactors"],_Missing]];
+RGZWorkflow`Private`storeResult["QQAmplitude",Join[packet,<|"OneLoop"->0|>]];
+r=RGZQQFormFactors[60,"LoopOrder"->1];ff=RGZResult["QQFormFactors"];
+record["ZeroLoopSupported",AssociationQ[r]&&ff["Rows"]==={}&&reconstruct[ff]===0];
+file=FileNameJoin[{RGZWorkflow`Private`dataDirectory[],"fixture.wxf"}];Export[file,packet,"WXF"];
+r=RGZQQFormFactors[60,"File"->file,"LoopOrder"->1,"CoefficientSeconds"->2];record["ExplicitFileOrderSelection",AssociationQ[r]&&RGZResult["QQFormFactors"]["SelectedComponent"]==="OneLoop"];
+RGZWorkflow`Private`storeResult["QQAmplitude",packet];r=RGZQQFormFactors[60,"CoefficientSeconds"->2];
+record["DefaultStillFullAmplitude",AssociationQ[r]&&RGZResult["QQFormFactors"]["LoopOrder"]===All];
+Print[<|"Passed"->Count[Values[checks],True],"Failed"->Count[Values[checks],False]|>];Exit[If[And@@Values[checks],0,1]];

@@ -1,0 +1,86 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
+project=DirectoryName[DirectoryName[$InputFileName]];
+Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+dir=FileNameJoin[{$TemporaryDirectory,"rgz-ff-test-"<>CreateUUID[]}];
+RGZInitialize[dir,"Display"->"Quiet"];
+Quiet[RGZLoadFeynCalc[],FrontEndObject::notavail];
+checks=<||>;record[n_,v_]:=(AssociateTo[checks,n->TrueQ[v]];Print[n," : ",TrueQ[v]]);
+(* All tests keep symbolic D and SU(N), and use independently known identities. *)
+c=RGZWorkflow`Private`qqFFColors[];
+gen=FeynCalc`FCI[FeynCalc`SUNTF[{ffA},RGZWorkflow`Engine`qqC3,RGZWorkflow`Engine`qqC1] FeynCalc`SUNTF[{ffA},RGZWorkflow`Engine`qqC4,RGZWorkflow`Engine`qqC2]];
+record["SU_N_Completeness",RGZWorkflow`Private`qqFFProjectColor[gen,c]==={-1/(2 FeynCalc`SUNN),1/2}];
+record["ColorFlowGramIsInvertible",And@@Table[RGZWorkflow`Private`qqFFProjectColor[c[[i]],c]===UnitVector[2,i],{i,2}]];
+j[mu_]:=FeynCalc`SpinorUBarD[RGZWorkflow`Engine`qqK3,0].FeynCalc`GAD[mu].FeynCalc`SpinorUD[RGZWorkflow`Engine`qqK1,0] FeynCalc`SpinorUBarD[RGZWorkflow`Engine`qqK4,0].FeynCalc`GAD[mu].FeynCalc`SpinorUD[RGZWorkflow`Engine`qqK2,0];
+x=gen ((ffA+ffB) FeynCalc`B0[ffT,ffM1,ffM2]+ffC) j[ffMu1]+2 gen FeynCalc`B0[ffT,ffM1,ffM2] j[ffMu2];
+p=<|"Fingerprint"->"test","Gauge"->0,"RegulatorMass"->0,"Amplitude"->x|>;
+RGZWorkflow`Private`storeResult["QQAmplitude",p];
+r=RGZQQFormFactors[120,"CoefficientSeconds"->2];Print[r];
+ff=RGZResult["QQFormFactors"];
+record["PublicAPIProducesVerifiedExactDecomposition",AssociationQ[r]&&r["Status"]==="Complete"&&TrueQ[ff["ReconstructionVerified"]]];
+If[AssociationQ[ff],
+y=Total[(ff["ColorBasis"][[#["ColorID"]]] ff["SpinStructures"][[#["SpinID"]]] #["FormFactor"])& /@ ff["Rows"]];
+diff=Table[FeynCalc`DiracSimplify[RGZWorkflow`Private`qqFFCanon[FeynCalc`SUNSimplify[FeynCalc`FCI[FeynCalc`PaVeOrder[x-y] c[[i]]],FeynCalc`SUNNToCACF->False]],FeynCalc`SirlinSimplify->False],{i,2}];
+record["IndependentWholeExpressionReconstruction",diff==={0,0}];
+record["DummyNamesMergeToOneSpinStructure",Length[ff["SpinStructures"]]===1&&Length[ff["Rows"]]===2];
+record["ScalarFormFactorsContainNoColorOrSpin",FreeQ[ff["Rows"][[All,Key["FormFactor"]]],RGZWorkflow`Private`qqFFColorHeads|RGZWorkflow`Private`qqFFSpinHeads]];
+record["MastersAndRationalRemainderKept",And@@(Length[#["MasterCoefficients"]]===2& /@ ff["Rows"])];
+record["NotMislabelledRenormalizedOrIndependentSpinBasis",!ff["Renormalized"]&&!ff["GaugeIndependenceVerified"]&&!ff["SpinBasisIndependent"]];
+r2=RGZQQFormFactors[120,"CoefficientSeconds"->2];record["CompletedCacheReused",TrueQ[r2["Statistics"]["Reused"]]]];
+RGZWorkflow`Private`storeResult["QQAmplitude",<|"Amplitude"->TerminatedEvaluation["IterationLimit"]|>];
+record["TerminatedEvaluationNeverBecomesFormFactor",FailureQ[RGZQQFormFactors[30]]];
+RGZWorkflow`Private`storeResult["QQ",<|"SelfPrepared"->True,"Tree"->1,"OnShellSigmaV"->0,"MixedSelfEnergy"->TerminatedEvaluation["IterationLimit"],"Reduced"-><||>|>];
+record["AssemblyRejectsOldIncompleteSelf",MatchQ[RGZQQAmplitude[],Failure["QQAmplitudeIncomplete",_]]];
+record["MasslessTransferBecomesT",RGZWorkflow`Private`qqFFScalarKinematics[FeynCalc`FCI[FeynCalc`SPD[RGZWorkflow`Engine`qqK3-RGZWorkflow`Engine`qqK1,RGZWorkflow`Engine`qqK3-RGZWorkflow`Engine`qqK1]]]===RGZWorkflow`Engine`qqT];
+record["CanonicalizationIsIdempotent",RGZWorkflow`Private`qqFFCanon[RGZWorkflow`Private`qqFFCanon[FeynCalc`FCI[j[ffMu1]]]]===RGZWorkflow`Private`qqFFCanon[FeynCalc`FCI[j[ffMu1]]]];
+record["InvalidTensorCoreRejected",RGZWorkflow`Private`qqFFInvalidQ[TerminatedEvaluation["IterationLimit"]]];
+record["NonlinearMasterProductsRejected",FailureQ[RGZWorkflow`Private`qqFFCollectMasters[FeynCalc`B0[ffT,ffM1,ffM2]^2,False,1]]];
+badDir=FileNameJoin[{dir,"invalid-checkpoint"}];CreateDirectory[badDir];
+Export[FileNameJoin[{badDir,"bad.wxf"}],<|"Key"->"test","Value"->TerminatedEvaluation["IterationLimit"]|>,"WXF"];
+badCheckpoint=RGZWorkflow`Private`qqSelfCheckpoint[badDir,"bad","test",123,10];
+record["LegacySelfCheckpointIsRejectedNotReused",FailureQ[badCheckpoint]];
+Export[FileNameJoin[{RGZWorkflow`Private`dataDirectory[],"RGZ_all_raw.wxf"}],<||>,"WXF"];
+repairDir=FileNameJoin[{dir,"repair"}];CreateDirectory[repairDir];CreateDirectory[FileNameJoin[{repairDir,"self"}]];
+repairFingerprint=RGZWorkflow`Private`qqJobFingerprint[0,0];repairKey=Hash[{repairFingerprint,42},"SHA256"];
+Do[Export[FileNameJoin[{repairDir,"self","m0-sum-"<>ToString[i]<>".wxf"}],<|"Key"->repairKey,"Value"->0|>,"WXF"],{i,3}];
+Do[Export[FileNameJoin[{repairDir,"self",n<>".wxf"}],<|"Key"->repairKey,"Value"->TerminatedEvaluation["IterationLimit"]|>,"WXF"],{n,{"gauge-pairs","gauge-1","connected"}}];
+partNames={"AV1","AV2","Box1","Box2","NAV1","NAV2"};
+Do[Export[FileNameJoin[{repairDir,n<>"-reduced.wxf"}],<|"Fingerprint"->repairFingerprint,"Part"->n,"Expression"->1|>,"WXF"],{n,partNames}];
+validPartHash=FileHash[FileNameJoin[{repairDir,"AV1-reduced.wxf"}],"SHA256"];
+repairJob=<|"Directory"->repairDir,"Fingerprint"->repairFingerprint,"Gauge"->0,"RegulatorMass"->0,"MixedSourceHash"->42,"SelfPrepared"->True,
+ "Tree"->2,"OnShellSigmaV"->0,"MixedSelfEnergy"->TerminatedEvaluation["IterationLimit"],"Reduced"->AssociationThread[partNames,ConstantArray[1,6]]|>;
+RGZWorkflow`Private`storeResult["QQ",repairJob];iterationBefore=$IterationLimit;
+rr=RGZQQRepairIncomplete[30];
+record["FiniteZeroCheckpointRecoversIncompleteSelf",AssociationQ[rr]&&RGZResult["QQ"]["MixedSelfEnergy"]===0];
+record["RecoveryPreservesValidPartBytes",FileHash[FileNameJoin[{repairDir,"AV1-reduced.wxf"}],"SHA256"]===validPartHash];
+record["RecoveryArchivesInvalidCheckpoints",Length[FileNames["*.invalid-*",FileNameJoin[{repairDir,"self"}]]]===3];
+record["IterationOverrideIsScoped",$IterationLimit===iterationBefore];
+(* Exact on-shell identities, with D left symbolic. *)
+k1=RGZWorkflow`Engine`qqK1;k2=RGZWorkflow`Engine`qqK2;k3=RGZWorkflow`Engine`qqK3;k4=RGZWorkflow`Engine`qqK4;
+u[gs__]:=FeynCalc`SpinorUBarD[k3,0].gs.FeynCalc`SpinorUD[k1,0];
+v[gs__]:=FeynCalc`SpinorUBarD[k4,0].gs.FeynCalc`SpinorUD[k2,0];
+s1=FeynCalc`FCI[u[FeynCalc`GAD[ffL]] v[FeynCalc`GAD[ffL]]];
+s2=FeynCalc`FCI[u[FeynCalc`GSD[k2]] v[FeynCalc`GSD[k3]]];
+s8=FeynCalc`FCI[u[FeynCalc`GSD[k4]] v[FeynCalc`GSD[k3]]];
+s13=FeynCalc`FCI[u[FeynCalc`GSD[k2]] v[FeynCalc`GSD[k1]]];
+s18=FeynCalc`FCI[u[FeynCalc`GAD[ffL]] v[FeynCalc`GAD[ffL],FeynCalc`GSD[k3],FeynCalc`GSD[k3]]];
+record["MasslessZeroSpinRemoved",RGZWorkflow`Private`qqFFSpinReduce[s18]===0];
+record["MomentumConservationMergesSpin8And13",RGZWorkflow`Private`qqFFSpinReduce[s8-s2]===0&&RGZWorkflow`Private`qqFFSpinReduce[s13-s2]===0];
+s3=FeynCalc`FCI[u[FeynCalc`GAD[ffL]] v[FeynCalc`GAD[ffL],FeynCalc`GSD[k3],FeynCalc`GSD[k1]]];
+s17=FeynCalc`FCI[u[FeynCalc`GAD[ffL]] v[FeynCalc`GAD[ffL],FeynCalc`GSD[k1],FeynCalc`GSD[k3]]];
+record["DdimensionalAnticommutatorIdentity",RGZWorkflow`Private`qqFFSpinReduce[s3+s17+RGZWorkflow`Engine`qqT s1]===0];
+record["SpinReductionIsStable",RGZWorkflow`Private`qqFFSpinReduce[RGZWorkflow`Private`qqFFSpinReduce[s3]]===RGZWorkflow`Private`qqFFSpinReduce[s3]];
+record["PVScalarSymmetryMerges",Expand[RGZWorkflow`Private`qqFFPrepareMasters[FeynCalc`B0[ffT,ffM1,ffM2]-FeynCalc`B0[ffT,ffM2,ffM1],False,3]]===0];
+record["RationalCoefficientReductionIsExact",Together[RGZWorkflow`Private`qqFFRationalReduce[ffA/(ffB+1)+ffC/(ffB+1)+ffA/(ffB-1)]-(ffA/(ffB+1)+ffC/(ffB+1)+ffA/(ffB-1))]===0];
+record["TensorReductionOptInProducesScalars",FreeQ[RGZWorkflow`Private`qqFFPrepareMasters[FeynCalc`PaVe[1,{ffT},{ffM1,ffM2}],True,10],FeynCalc`PaVe[1,___]]];
+combined=c[[1]] (FeynCalc`B0[ffT,ffM1,ffM2] s1+3 s2-s8-2 s13+ffA (s3+s17+RGZWorkflow`Engine`qqT s1)+ffB s18);
+(* Independent algebra fixture; detach the earlier recovery task before importing it. *)
+RGZWorkflow`Private`$results=KeyDrop[RGZWorkflow`Private`$results,{"QQ"}];
+RGZWorkflow`Private`storeResult["QQAmplitude",<|"Amplitude"->combined|>];
+combinedResult=RGZQQFormFactors[120,"CoefficientSeconds"->2];combinedFF=RGZResult["QQFormFactors"];
+record["CrossSpinCancellationBeforeIntegralCollection",AssociationQ[combinedResult]&&Length[combinedFF["Rows"]]===1&&Length[combinedFF["SpinStructures"]]===1];
+combinedReconstruction=Total[(combinedFF["ColorBasis"][[#["ColorID"]]] combinedFF["SpinStructures"][[#["SpinID"]]] #["FormFactor"])&/@combinedFF["Rows"]];
+combinedDifference=Table[RGZWorkflow`Private`qqFFSpinReduce[FeynCalc`SUNSimplify[FeynCalc`PaVeOrder[(combined-combinedReconstruction) c[[i]]],FeynCalc`SUNNToCACF->False]],{i,2}];
+record["IndependentOnShellReconstructionAfterCrossSpinCancellation",combinedDifference==={0,0}];
+Print[<|"Passed"->Count[Values[checks],True],"Failed"->Count[Values[checks],False]|>];
+Exit[If[And@@Values[checks],0,1]];

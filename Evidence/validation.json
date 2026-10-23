@@ -1,0 +1,182 @@
+{
+  "release": "0.3.0-dev.1",
+  "suite": "all",
+  "date_utc": "20261023T084531",
+  "tests": [
+    {
+      "suite": "environment",
+      "script": "Tests/ReleaseEnvironment.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 4.189,
+      "log": "logs/ReleaseEnvironment.log"
+    },
+    {
+      "suite": "core",
+      "script": "Tests/RunTests.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.45,
+      "log": "logs/RunTests.log"
+    },
+    {
+      "suite": "core",
+      "script": "Tests/QuarkMasses.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.034,
+      "log": "logs/QuarkMasses.log"
+    },
+    {
+      "suite": "core",
+      "script": "Tests/ResultGuards.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.101,
+      "log": "logs/ResultGuards.log"
+    },
+    {
+      "suite": "algebra",
+      "script": "Tests/QuarkCoefficientGrouped.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.07,
+      "log": "logs/QuarkCoefficientGrouped.log"
+    },
+    {
+      "suite": "algebra",
+      "script": "Tests/QuarkCoefficientNumerator.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.023,
+      "log": "logs/QuarkCoefficientNumerator.log"
+    },
+    {
+      "suite": "algebra",
+      "script": "Tests/QuarkCoefficientSubgroups.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.385,
+      "log": "logs/QuarkCoefficientSubgroups.log"
+    },
+    {
+      "suite": "algebra",
+      "script": "Tests/QuarkSpectralBranches.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 2.054,
+      "log": "logs/QuarkSpectralBranches.log"
+    },
+    {
+      "suite": "integration",
+      "script": "Tests/FeynRules.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 5.696,
+      "log": "logs/FeynRules.log"
+    },
+    {
+      "suite": "integration",
+      "script": "Tests/ReleaseTreeChecks.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 25.664,
+      "log": "logs/ReleaseTreeChecks.log"
+    },
+    {
+      "suite": "physics",
+      "script": "Tests/QuarkScattering.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 25.362,
+      "log": "logs/QuarkScattering.log"
+    },
+    {
+      "suite": "physics",
+      "script": "Tests/QuarkFormFactors.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 6.582,
+      "log": "logs/QuarkFormFactors.log"
+    },
+    {
+      "suite": "physics",
+      "script": "Tests/QuarkLoopOrder.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 5.069,
+      "log": "logs/QuarkLoopOrder.log"
+    },
+    {
+      "suite": "physics",
+      "script": "Tests/QuarkGaugeEarly.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 4.202,
+      "log": "logs/QuarkGaugeEarly.log"
+    },
+    {
+      "suite": "physics",
+      "script": "Tests/QuarkMSbar.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 4.673,
+      "log": "logs/QuarkMSbar.log"
+    },
+    {
+      "suite": "notebooks",
+      "script": "Tools/check_notebooks.wls",
+      "exit_code": 0,
+      "passed": true,
+      "seconds": 1.917,
+      "log": "logs/check_notebooks.log"
+    },
+    {
+      "suite": "syntax",
+      "script": "Tools/check_sources.wls",
+      "exit_code": 0,
+      "passed": true,
+      "log": "logs/source-syntax.log"
+    }
+  ],
+  "production_data_used": false,
+  "full_amplitude_recomputed": false,
+  "passed": true,
+  "environment": {
+    "WolframVersion": "13.3.1 for Mac OS X ARM (64-bit) (July 24, 2023)",
+    "SystemID": "MacOSX-ARM64",
+    "FeynCalcVersion": "10.1.0",
+    "FeynArtsVersion": "FeynArts 3.12 (27 Mar 2025)",
+    "PackageVersion": "0.3.0",
+    "FeynRulesVersion": "2.3.49"
+  },
+  "status": "selected-development-gates-passed",
+  "scope": {
+    "default_model": "eta plus Nf=2, masses zero",
+    "propagator_report_rows": 69,
+    "propagator_report_covers_all_free_fields": false,
+    "vertices": 48,
+    "labelled_orders": 702,
+    "full_updated_model_amplitude_recomputed": false,
+    "full_updated_model_gauge_verified": false,
+    "full_updated_model_uvir_closed": false,
+    "experimental_horizon_in_default_suite": false
+  },
+  "optional_experimental_model_checks": [
+    {
+      "script": "Tests/Experimental/FermionicHorizon/export.wls",
+      "passed": true,
+      "log": "logs/experimental-fh-fr.log"
+    },
+    {
+      "script": "Tests/Experimental/FermionicHorizon/check-fa.wls",
+      "passed": true,
+      "log": "logs/experimental-fh-fa.log"
+    },
+    {
+      "script": "Tests/Experimental/FermionicHorizon/check-quadratic.wls",
+      "passed": true,
+      "log": "logs/experimental-fh-quad.log"
+    }
+  ]
+}

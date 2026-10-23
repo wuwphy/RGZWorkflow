@@ -1,0 +1,44 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
+project=DirectoryName[DirectoryName[$InputFileName]];
+Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+RGZInitialize[FileNameJoin[{$TemporaryDirectory,"qq-coefficient-"<>CreateUUID[]}],"Display"->"Quiet"];
+checks=<||>;record[n_,v_]:=(AssociateTo[checks,n->TrueQ[v]];Print[n," : ",TrueQ[v]]);
+x=Unique["x"];y=Unique["y"];
+c=Total[Table[(x^i-y^i)/(x-y),{i,1,12}]];
+r=RGZWorkflow`Private`qqCoefficientReduce[c];
+record["BalancedMergesPreserveRationalFunction",Cancel[Together[r-c]]===0];
+record["Zero",RGZWorkflow`Private`qqCoefficientReduce[0]===0];
+record["Constant",RGZWorkflow`Private`qqCoefficientReduce[7]===7];
+record["ExactCancellation",RGZWorkflow`Private`qqCoefficientReduce[1/x+1/(x+1)-(2 x+1)/(x (x+1))]===0];
+record["ComplexRootsPreserved",Module[{v=1/(x+I Sqrt[y])+1/(x-I Sqrt[y])},Cancel[Together[RGZWorkflow`Private`qqCoefficientReduce[v]-v]]===0]];
+r2=RGZWorkflow`Private`qqCoefficientReduce[c];
+record["CompletedBlocksReused",r2===r&&Lookup[RGZResult["QQProgress"],"CoefficientCacheReused",0]>0&&Lookup[RGZResult["QQProgress"],"CoefficientCacheSaved",-1]===0];
+record["GaugeComparisonUsesBalancedReducer",!FreeQ[DownValues[RGZWorkflow`Private`qqGaugeCompare],RGZWorkflow`Private`qqCoefficientReduce]];
+Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+record["ReloadKeepsOneReducer",Count[DownValues[RGZWorkflow`Private`qqGaugeCompare],HoldPattern[RGZWorkflow`Private`qqCoefficientReduce[_]],Infinity]===1];
+factored=(x+y)^60/(x+1)-(x+y)^60/(x+2);
+factoredResult=RGZWorkflow`Private`qqCoefficientReduce[factored];
+record["FactoredNumeratorPreservesExactValue",Cancel[Together[factoredResult-factored]]===0];
+record["FactoredCoefficientCancellation",RGZWorkflow`Private`qqCoefficientReduce[factored-factoredResult]===0];
+diagnostic=RGZWorkflow`Private`qqCoefficientStopDetails[$TimedOut,"CoverageBridge","test.wxf",120];
+record["StoppedCoefficientIdentifiesTimeout",FailureQ[diagnostic]&&diagnostic[[2]]["Reason"]==="CoefficientTimeout"&&diagnostic[[2]]["Seconds"]===120];
+record["ComparisonIncludesStopDiagnostics",!FreeQ[DownValues[RGZWorkflow`Private`qqGaugeCompare],RGZWorkflow`Private`qqCoefficientStopDetails]];
+printed={};Block[{Print},Print[a___]:=AppendTo[printed,{a}];RGZReport[diagnostic]];
+record["ReportDisplaysCoefficientReasonAndProgress",Length[printed]===2&&AssociationQ[printed[[2,1]]]&&KeyExistsQ[printed[[2,1]],"Reason"]&&KeyExistsQ[printed[[2,1]],"Progress"]];
+RGZWorkflow`Private`qqProgressUpdate[<|"CoefficientCacheReused"->3,"CoefficientCacheSaved"->2|>];
+record["PanelDisplaysCoefficientCheckpointCounters",!FreeQ[RGZWorkflow`Private`qqSelfProgressPanel[],"Coefficient blocks"]];
+(* A timed-out optional PV operation must not poison a later retry. *)
+Block[{FeynCalc`PaVeOrder},Clear[FeynCalc`PaVeOrder];FeynCalc`PaVeOrder[a_,___]:=(Pause[0.2];a);
+ RGZWorkflow`Private`qqFFPVCache=<||>;
+ pv=FeynCalc`PaVe[1,{x,y,x+y},{x,y,2 x}];
+ r=RGZWorkflow`Private`qqFFPVNormalize[pv,False,0.01];
+ record["PVTimeoutRetainsInput",r===pv];
+ record["PVTimeoutNotMemoized",!KeyExistsQ[RGZWorkflow`Private`qqFFPVCache,{pv,False}]];
+ r=RGZWorkflow`Private`qqFFPVNormalize[pv,False,2];
+ record["PVCanRetryWithLargerBudget",r===RGZWorkflow`Private`qqPVCanonical[pv]&&KeyExistsQ[RGZWorkflow`Private`qqFFPVCache,{pv,False}]];
+ RGZWorkflow`Private`qqFFPVCache=<||>;
+ Block[{RGZWorkflow`Private`atomicWXF},RGZWorkflow`Private`atomicWXF[___]:=$Failed;
+ r=RGZWorkflow`Private`qqFFPVNormalize[pv,False,0.01];
+ record["PVSuccessfulIdentityRestoredFromDisk",r===RGZWorkflow`Private`qqPVCanonical[pv]&&KeyExistsQ[RGZWorkflow`Private`qqFFPVCache,{pv,False}]]]];
+Print[<|"Passed"->Count[Values[checks],True],"Failed"->Count[Values[checks],False]|>];Exit[If[And@@Values[checks],0,1]];

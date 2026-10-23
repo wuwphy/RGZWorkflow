@@ -1,0 +1,78 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later
+   Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
+project=DirectoryName[DirectoryName[$InputFileName]];Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+RGZInitialize[FileNameJoin[{$TemporaryDirectory,"qq-early-tests-"<>CreateUUID[]}],"Display"->"Quiet"];
+loaded=Quiet[RGZLoadFeynCalc[],FrontEndObject::notavail];If[FailureQ[loaded],Print[loaded];Exit[1]];
+checks=<||>;record[n_,v_]:=(AssociateTo[checks,n->TrueQ[v]];Print[n," : ",TrueQ[v]]);
+p=FeynCalc`FCI[FeynCalc`SpinorUBarD[k3,0].FeynCalc`GSD[q].FeynCalc`GSD[q].FeynCalc`GAD[mu].FeynCalc`SpinorUD[k1,0]];
+co=(a+b)^8/(x-y);r=RGZWorkflow`Private`qqGaugeEarlyWard[co p,1];
+expected=co FeynCalc`FCI[FeynCalc`SPD[q,q] FeynCalc`SpinorUBarD[k3,0].FeynCalc`GAD[mu].FeynCalc`SpinorUD[k1,0]];
+record["DdimensionalSlashSquare",FeynCalc`DiracSimplify[FeynCalc`Contract[r["Expression"]-expected]]===0];
+record["ScalarPolynomialNotExpanded",LeafCount[r["Expression"]]<200];
+p0=FeynCalc`FCI[FeynCalc`SpinorUBarD[k3,0].FeynCalc`GAD[mu].FeynCalc`GSD[k1].FeynCalc`SpinorUD[k1,0]];
+record["ExternalMasslessWardZero",RGZWorkflow`Private`qqGaugeEarlyWard[co p0,1]["Expression"]===0];
+record["ZeroInput",RGZWorkflow`Private`qqGaugeEarlyWard[0,1]["Expression"]===0];
+d=RGZWorkflow`Private`qqGaugeLinearDifference[(alpha-1) co p+independent,alpha,1];
+record["GaugeIndependentBlockRemoved",FreeQ[d,independent]];
+record["ScalarReferenceDifference",RGZWorkflow`Private`qqGaugeEarlyWard[d/.alpha->1,1]["Expression"]===0];
+core=FeynCalc`FCI[FeynCalc`SPD[RGZWorkflow`Engine`q,qext] FeynCalc`FAD[{RGZWorkflow`Engine`q+shift,mass}]];
+anchored=RGZWorkflow`Private`qqTensorAnchor[core];
+expectedAnchor=FeynCalc`MomentumCombine[core/.RGZWorkflow`Engine`q->RGZWorkflow`Engine`q-shift];
+record["RouteShiftIncludesNumerator",anchored===expectedAnchor];
+q0=RGZWorkflow`Engine`q;k0=RGZWorkflow`Engine`qqK1;
+expandedDen=FeynCalc`FCI[(FeynCalc`SPD[q0,q0]-2 FeynCalc`SPD[q0,k0]+FeynCalc`SPD[k0,k0])^-1];
+restoredDen=RGZWorkflow`Private`qqGaugeEarlyRestoreSquares[expandedDen];
+record["ExpandedAffineDenominatorRestored",restoredDen===FeynCalc`FCI[FeynCalc`SPD[q0-k0,q0-k0]^-1]];
+RGZWorkflow`Private`engineGet["RGZ_Quark_Amplitude.wl",False];
+factorBefore=DownValues[RGZWorkflow`Engine`rgzQQPoleFactor];
+bubble=FeynCalc`FCI[(a+b)/(FeynCalc`SPD[q0,q0]-RGZWorkflow`Engine`\[Mu]^2)];
+split=RGZWorkflow`Private`qqGaugeEarlyPoleSplit[bubble,0,0];
+expectedSplit=FeynCalc`FCI[(a+b) FeynCalc`FAD[{q0,RGZWorkflow`Engine`\[Mu]}]];
+record["DistinctPoleSplitIsExact",Expand[split-expectedSplit]===0];
+record["PoleMemoDoesNotChangeBackend",DownValues[RGZWorkflow`Engine`rgzQQPoleFactor]===factorBefore];
+defs=DownValues /@ {RGZWorkflow`Private`qqLinearizeChains,RGZWorkflow`Private`qqRouteApart,RGZWorkflow`Private`qqCancelRoutePowers,RGZWorkflow`Private`qqTensorPieces};
+routeExample=FeynCalc`FCI[(a+b)^15 FeynCalc`FAD[{q0,m1},{q0,m2}]];
+protectedApart=RGZWorkflow`Private`qqGaugeEarlyWithProtectedAlgebra[RGZWorkflow`Private`qqRouteApart[routeExample]];
+apartExpected=FeynCalc`FCI[(a+b)^15 (FeynCalc`FAD[{q0,m1}]-FeynCalc`FAD[{q0,m2}])/(m1^2-m2^2)];
+record["ProtectedRouteApartIsExact",Expand[protectedApart-apartExpected]===0];
+record["ProtectedRouteApartKeepsScalarFactored",LeafCount[protectedApart]<200];
+record["ProtectedAlgebraRestoresDefinitions",defs===(DownValues /@ {RGZWorkflow`Private`qqLinearizeChains,RGZWorkflow`Private`qqRouteApart,RGZWorkflow`Private`qqCancelRoutePowers,RGZWorkflow`Private`qqTensorPieces})];
+remainder=RGZWorkflow`Private`qqGaugeEarlyIntegratedRemainder[<|"Gauge"->alpha,"LoopMeasureConversion"->measure,"MixedSelfEnergy"->alpha self,"OnShellSigmaV"->alpha sigma,"Tree"->born|>,1];
+record["SelfMeasureAppliedOnceResiduesNotRescaled",Expand[remainder-(alpha-1)(measure self+2 sigma born)]===0];
+Block[{RGZWorkflow`Private`qqBoxWardPrecondition},Clear[RGZWorkflow`Private`qqBoxWardPrecondition];
+ RGZWorkflow`Private`qqBoxWardPrecondition[x_,n_]:={x,n};
+ record["BoxUsesSameWardPreconditionAsFullGraphPath",RGZWorkflow`Private`qqGaugeEarlyWardInput[delta,"Box2"]==={delta,"Box2"}];
+ record["NAVDoesNotReceiveBoxRouting",RGZWorkflow`Private`qqGaugeEarlyWardInput[delta,"NAV1"]===delta]];
+toy=(a+b) FeynCalc`FCI[FeynCalc`SpinorUBarD[k3,0].FeynCalc`GSD[q].FeynCalc`SpinorUD[k1,0]];
+Block[{RGZWorkflow`Private`qqFFCanon},Clear[RGZWorkflow`Private`qqFFCanon];
+ RGZWorkflow`Private`qqFFCanon[v_]:=v/.HoldPattern[Times[c_RGZWorkflow`Private`qqFFScalarSlot,d_Dot]]:>Dot[c First[List@@d],Sequence@@Rest[List@@d]];
+ moved=RGZWorkflow`Private`qqGaugeEarlyWard[toy,1]];
+record["ScalarMovedIntoSpinFactorRestored",AssociationQ[moved]&&!RGZWorkflow`Private`qqFFUnresolvedScalarQ[moved["Expression"]]];
+record["MovedScalarRestorationPreservesAmplitude",AssociationQ[moved]&&FeynCalc`DiracSimplify[Expand[moved["Expression"]-toy]]===0];
+oldSlot=Symbol["RGZWorkflow`Private`slot$987654321"];
+record["LegacySerializedScalarSlotRejected",RGZWorkflow`Private`qqFFUnresolvedScalarQ[oldSlot[1]]];
+record["NewUnrestoredMarkerRejected",RGZWorkflow`Private`qqFFInvalidQ[RGZWorkflow`Private`qqFFScalarSlot[tag,1]]];
+record["FormFactorEntryRejectsLegacySlots",FailureQ[RGZWorkflow`Private`qqFFBuild[<|"Amplitude"->oldSlot[1]|>,False,1]]];
+Do[
+ route=Switch[name,"NAV1",q0-RGZWorkflow`Engine`qqK1+RGZWorkflow`Engine`qqK3,
+ "NAV2",q0-RGZWorkflow`Engine`qqK2+RGZWorkflow`Engine`qqK4,
+ "Box1",q0-RGZWorkflow`Engine`qqK1+RGZWorkflow`Engine`qqK3,"Box2",q0-RGZWorkflow`Engine`qqK3];
+ square=FeynCalc`FCI[FeynCalc`SPD[route,route]];
+ numerator=RGZWorkflow`Private`qqFFScalarKinematics[square];
+ normalized=RGZWorkflow`Private`qqGaugeEarlyCoordinateNormalize[(alpha-1) numerator/square^3,name,alpha,2];
+ difference=RGZWorkflow`Private`qqFFScalarKinematics[normalized-(alpha-1)/square^2];
+ record["ExactCoordinateCancellation:"<>name,!FailureQ[normalized]&&Cancel[Together[difference]]===0];
+ record["NoTemporaryScalar:"<>name,FreeQ[normalized,_RGZWorkflow`Private`qqFFScalarSlot]],
+ {name,{"NAV1","NAV2","Box1","Box2"}}];
+spinCalls=0;
+Block[{RGZWorkflow`Private`qqFFSpinReduce},Clear[RGZWorkflow`Private`qqFFSpinReduce];
+ RGZWorkflow`Private`qqFFSpinReduce[v_]:=(spinCalls++;v);
+ iterated=RGZWorkflow`Private`qqGaugeEarlyWard[toy,1,True]];
+record["BoxModeInvokesIterativeSpinReduction",spinCalls===1&&AssociationQ[iterated]];
+record["PrepareNeedsSymbolicJob",FailureQ[RGZQQGaugeEarlyPrepare[]]];
+Block[{RGZWorkflow`Private`qqGaugeValidJob},Clear[RGZWorkflow`Private`qqGaugeValidJob];RGZWorkflow`Private`qqGaugeValidJob[]:=<|"Fingerprint"->1|>;
+ RGZWorkflow`Private`storeResult["QQGaugeEarlyPrepared",<|"Fingerprint"->1,"Parts"->{"AV1"},"ReferenceGauge"->1|>];
+ record["PartialPreparationCannotVerifyFullAmplitude",MatchQ[RGZQQGaugeEarlyCheck[],Failure["QQEarlyPrepareAllFirst",_]]];
+ record["InvalidPartsRejected",MatchQ[RGZQQGaugeEarlyPrepare[10,"Parts"->{"bogus"}],Failure["QQEarlyParts",_]]]];
+record["DoesNotSetExistingGaugeProof",MissingQ[RGZResult["QQGaugeDirect"]]&&MissingQ[RGZResult["QQWardCoverage"]]];
+Print[<|"Passed"->Count[Values[checks],True],"Failed"->Count[Values[checks],False]|>];Exit[If[And@@Values[checks],0,1]];

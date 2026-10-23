@@ -1,0 +1,15 @@
+NestedDiscriminantRootExact : True
+NegativeHalfPowerExact : True
+GenericSquareBranchPreserved : True
+NegativeScalingNotExtracted : True
+PrincipalBranchAt0 : True
+PrincipalBranchAt1 : True
+PrincipalBranchAt2 : True
+PrincipalBranchAtI : True
+PrincipalBranchAt1 + I : True
+ExactZeroComparisonRetagged : True
+NonzeroComparisonNotOverridden : True
+FailuresPreserved : True
+ComparisonCanonicalizerInstalledOnce : True
+ReloadDoesNotDuplicateCanonicalizer : True
+<|Passed -> 14, Failed -> 0|>

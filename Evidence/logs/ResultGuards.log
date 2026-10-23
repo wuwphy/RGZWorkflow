@@ -1,0 +1,25 @@
+RejectOtherTaskInMemory : True
+AcceptSameTaskInMemory : True
+FailedPublicReadClearsPreviousFormFactors : True
+ExplicitFileRemainsIndependent : True
+RejectOtherTaskOnDisk : True
+AcceptSameTaskOnDisk : True
+MissingFingerprintCannotMatchActiveTask : True
+StandaloneAmplitudeStillSupported : True
+GaugeRestoreKeepsMatchingPacket : True
+MissingHandReferenceAllowed : True
+NonzeroDifferenceRejected : True
+FailedDifferenceRejected : True
+HandMismatchRejected : True
+OrderZeroAccepted : True
+OrderMismatchRejected : True
+PublicVertexMismatchReturnsFailure : True
+PublicVertexRowsPreservedForInspection : True
+PublicVertexPassStillComplete : True
+PublicPropagatorMismatchReturnsFailure : True
+PublicPropagatorRowsPreserved : True
+PublicPropagatorPassStillComplete : True
+GenerateFailureCannotReturnComplete : True
+PublicOrderMismatchReturnsFailure : True
+PublicOrderPassStillComplete : True
+<|Passed -> 24, Failed -> 0|>

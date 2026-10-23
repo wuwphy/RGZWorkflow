@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "Please cite this exact development snapshot and the external physics/software references used."
+type: software
+title: RGZWorkflow
+version: 0.3.0-dev.1
+date-released: "2026-10-23"
+license: GPL-3.0-or-later
+authors:
+  - family-names: Wu
+    given-names: Wan
+repository-code: https://github.com/wuwphy/RGZ-PT-gauge-invariant
+abstract: "Development snapshot for auditable local RGZ tree and one-loop quark-scattering calculations; full updated-model results remain to be reproduced."

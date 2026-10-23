@@ -1,0 +1,9 @@
+Work/
+Evidence/runs/
+output/
+artifacts/
+*.wxf
+*.mx
+*.pending*
+.DS_Store
+__pycache__/
