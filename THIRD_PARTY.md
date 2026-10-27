@@ -10,4 +10,4 @@ No external software source or binaries are bundled. The GPL-3.0-or-later grant 
 | FeynArts | Fields, topologies, amplitudes and statistics | https://feynarts.de/ ; arXiv:hep-ph/0012260 |
 | FeynHelpers / Package-X | Optional supported analytic pole evaluation | https://feyncalc.github.io/helpers/ ; arXiv:1611.06793, arXiv:1503.01469 |
 
-The model/algorithm provenance is recorded in SOURCE_SNAPSHOT.json and the original project source headers. Generated FeynRules tensor structures remain traceable to the supplied Lagrangians. This snapshot does not claim to redistribute upstream programs or license a manuscript under the code license.
+The model/algorithm provenance is retained in the original project source headers, citation metadata and paper provenance. Generated FeynRules tensor structures remain traceable to the supplied Lagrangians. This snapshot does not claim to redistribute upstream programs or license a manuscript under the code license.

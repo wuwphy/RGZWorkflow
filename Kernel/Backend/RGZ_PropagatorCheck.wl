@@ -46,7 +46,7 @@ rgzNormalizeParameters[x_] := FixedPoint[
 
 If[!MatrixQ[KT] || Dimensions[KT] =!= {5, 5} ||
    !MatrixQ[KL] || Dimensions[KL] =!= {8, 8},
-  Print["\:8bf7\:5148\:8fd0\:884c\:4e8c\:6b21\:9879\:63d0\:53d6\:4ee3\:7801\:ff0c\:5f97\:5230\:539f\:59cb List \:77e9\:9635 KT\:3001KL\:ff1b\:4e0d\:8981\:4fdd\:5b58 MatrixForm \:663e\:793a\:5bf9\:8c61\:3002"];
+  Print["Run quadratic extraction first to obtain KT and KL as raw Lists; do not save MatrixForm display objects."];
   Abort[]
 ];
 
@@ -60,18 +60,18 @@ rgzNormalizeKernel[x_] := rgzNormalizeParameters[x] /. {
 rgzKernelNotation = DeleteDuplicates[Cases[{KT, KL},
   _Superscript | _Subsuperscript | _String, Infinity]];
 If[Length[rgzKernelNotation] > 0,
-  Print["\:4e8c\:6b21\:6838\:4e2d\:7684\:663e\:793a\:5bf9\:8c61\:5df2\:8f6c\:4e3a\:8ba1\:7b97\:8868\:8fbe\:5f0f\:ff1a", InputForm[rgzKernelNotation]]];
+  Print["Converted quadratic-kernel display objects to computational expressions: ", InputForm[rgzKernelNotation]]];
 rgzKT = rgzNormalizeKernel[KT];
 rgzKL = rgzNormalizeKernel[KL];
 rgzDT = FullSimplify[I Inverse[rgzKT]];
 rgzDL = FullSimplify[I Inverse[rgzKL]];
 
-Print["\:6a2a\:5411\:53cd\:6f14\:68c0\:67e5\:ff1a", FullSimplify[rgzKT.rgzDT-I IdentityMatrix[5]]];
-Print["\:7eb5\:5411\:53cd\:6f14\:68c0\:67e5\:ff1a", FullSimplify[rgzKL.rgzDL-I IdentityMatrix[8]]];
+Print["TransverseinverseCheck: ", FullSimplify[rgzKT.rgzDT-I IdentityMatrix[5]]];
+Print["LongitudinalinverseCheck: ", FullSimplify[rgzKL.rgzDL-I IdentityMatrix[8]]];
 
 modelRGZ = RGZWorkflow`Private`modelBase[];
 If[!And @@ (FileExistsQ[modelRGZ <> #] & /@ {".gen", ".mod"}),
-  Print["\:6a21\:578b\:6587\:4ef6\:672a\:627e\:5230\:ff1a", modelRGZ, ".gen / .mod"]; Abort[]
+  Print["ModelFileNotfind : ", modelRGZ, ".gen / .mod"]; Abort[]
 ];
 topRGZ = CreateTopologies[0, 1 -> 1, CTOrder -> 1,
   ExcludeTopologies -> TadpoleCTs];
@@ -135,12 +135,12 @@ RGZTwoPoint[fin_, fout_, i_, j_] := Module[{ins, fa, fc},
     InsertionLevel -> {Particles}, Model -> modelRGZ,
     GenericModel -> modelRGZ];
   If[Length[ins] == 0,
-    Return[<|"FeynArts\:632f\:5e45" -> 0, "FeynCalc\:632f\:5e45" -> 0,
-      "\:751f\:6210\:72b6\:6001" -> "\:65e0\:63d2\:5165\:56fe"|>]];
+    Return[<|"FeynArtsAmplitude" -> 0, "FeynCalcAmplitude" -> 0,
+      "GenerateStatus" -> "without InsertionDiagram"|>]];
   fa = Check[CreateFeynAmp[ins, Truncated -> True, GaugeRules -> {},
     PreFactor -> 1], $Failed, {CreateFeynAmp::nocoupl, CreateFeynAmp::noprop}];
   If[fa === $Failed || Length[fa] == 0,
-    Return[Failure["NoAmplitude", <|"\:63d2\:5165\:56fe" -> ins|>]]];
+    Return[Failure["NoAmplitude", <|"InsertionDiagram" -> ins|>]]];
   fc = FCFAConvert[rgzPrepareFA[fa], IncomingMomenta -> {p},
     OutgoingMomenta -> {p}, LorentzIndexNames -> rgzLorentzNames[i, j],
     UndoChiralSplittings -> True, ChangeDimension -> D,
@@ -148,9 +148,9 @@ RGZTwoPoint[fin_, fout_, i_, j_] := Module[{ins, fa, fc},
   If[!FreeQ[fc, a_ /; MemberQ[
       {"G", "C", "AnalyticalCoupling", "FAFourVector", "FAMetricTensor",
        "FAScalarProduct", "FASUNF", "RGZUPropagator"}, rgzName[Head[a]]]],
-    Return[Failure["Unresolved", <|"\:632f\:5e45" -> fc|>]]];
-  <|"FeynArts\:632f\:5e45" -> fa, "FeynCalc\:632f\:5e45" -> fc,
-    "\:751f\:6210\:72b6\:6001" -> "\:5df2\:751f\:6210"|>
+    Return[Failure["Unresolved", <|"Amplitude" -> fc|>]]];
+  <|"FeynArtsAmplitude" -> fa, "FeynCalcAmplitude" -> fc,
+    "GenerateStatus" -> "Generate"|>
 ];
 
 rgzT = rgzS-\[Mu]^2;
@@ -168,7 +168,7 @@ rgzColor[i_, j_] := Which[
   True, SUNDelta[Glu1, Glu2]
 ];
 
-(* \:72ec\:7acb\:5199\:51fa\:7684\:5f53\:524d\:95f5\:6c0f\:53c2\:8003\:ff0c\:4fdd\:7559\:6240\:6709\:989c\:8272\:6307\:6807\:3002 *)
+
 rgzAnalytic[i_, j_] := Module[{d = SUNDelta[Glu1, Glu2],
     v = FCI[FVD[p, \[Mu]]], free, core},
   Which[
@@ -212,7 +212,7 @@ rgzGhostSource = \[Rho];
 (* Antisymmetric ghost kernel: its bilinear is s bar c' c. *)
 rgzKF = {{0, rgzGhostK}, {-rgzGhostK, 0}};
 rgzDF = FullSimplify[I Inverse[rgzKF]];
-Print["\:9b3c\:573a\:6838\:53cd\:6f14\:68c0\:67e5\:ff1a",
+Print["GhostKernelinverseCheck: ",
   FullSimplify[rgzKF.rgzDF-I IdentityMatrix[2]]];
 
 rgzGhostKernelReference[j_Integer] := Module[
@@ -224,14 +224,14 @@ rgzGhostKernelReference[j_Integer] := Module[
       If[j === 1,
         xiX *= FCI[FVD[p, \[Mu]]]/Sqrt[rgzS]];
       rgzReduce[-rgzGhostSource/rgzGhostK xiX],
-    True, Missing["\:672a\:7eb3\:5165\:9b3c\:573a\:6bd4\:8f83"]
+    True, Missing["GhostComparisonNotIncluded"]
   ]
 ];
 
 rgzKernelReference[i_, j_] := Module[{ti, tj, free, core},
   If[i === 9 && MemberQ[{1, 2, 3, 4, 10}, j],
     Return[rgzGhostKernelReference[j]]];
-  If[i > 8 || j > 8, Return[Missing["\:4e0d\:5728\:5f53\:524d\:4e8c\:6b21\:90e8\:95e8\:4e2d"]]];
+  If[i > 8 || j > 8, Return[Missing["NotInCurrentquadraticSectorIn"]]];
   If[rgzIsAux[i] && rgzIsAux[j],
     ti=i-3; tj=j-3;
     free=If[MemberQ[{{5,6},{6,5},{7,8},{8,7}}, {i,j}], I/rgzT, 0];
@@ -249,7 +249,7 @@ rgzKernelReference[i_, j_] := Module[{ti, tj, free, core},
   rgzReduce[rgzColor[i,j] core]
 ];
 
-(* \:4fdd\:7559\:65e7\:4ee3\:7801\:4e2d\:7684 PDF \:8f6c\:5f55\:503c\:ff1b\:4e0d\:628a\:5b83\:4eec\:5f53\:4f5c\:5df2\:7edf\:4e00\:7684\:95f5\:6c0f\:516c\:5f0f\:3002 *)
+
 rgzOldPDF=<||>; rgzEquation=<||>;
 rgzOldPut[key_, eq_, val_] := (
   AssociateTo[rgzOldPDF,key->val]; AssociateTo[rgzEquation,key->eq]);
@@ -283,22 +283,22 @@ rgzSpecs=Join[Flatten[Table[{i,j,rgzIncoming[[i]],rgzOutgoing[[j]]},
 
 rgzMakeRow[{i_,j_,fin_,fout_}] := Module[{key,result,raw,model,ref,kernel,old},
   key=ToString[i]<>":"<>ToString[j];
-  Print["\:6b63\:5728\:68c0\:67e5 ",key,"\:ff1a",Row[{rgzNames[[i]]," -> ",rgzNames[[j]]}]];
+  Print["Checking ",key,"：",Row[{rgzNames[[i]]," -> ",rgzNames[[j]]}]];
   ref=rgzReduce[rgzAnalytic[i,j]]; kernel=rgzKernelReference[i,j];
-  old=Lookup[rgzOldPDF,key,Missing["\:65e7\:4ee3\:7801\:672a\:9010\:9879\:5217\:51fa"]];
+  old=Lookup[rgzOldPDF,key,Missing["Not enumerated in the legacy code"]];
   result=CheckAbort[RGZTwoPoint[fin,fout,i,j],$Failed];
-  raw=If[AssociationQ[result],result["FeynCalc\:632f\:5e45"],$Failed];
+  raw=If[AssociationQ[result],result["FeynCalcAmplitude"],$Failed];
   model=If[raw===$Failed,$Failed,rgzRational[rgzInsertionToCovariance[raw]]];
-  <|"\:7f16\:53f7"->key,"\:573a"->Row[{rgzNames[[i]]," -> ",rgzNames[[j]]}],
-    "PDF\:5f0f\:53f7"->Lookup[rgzEquation,key,"\:672a\:5217\:51fa"],
-    "\:751f\:6210\:72b6\:6001"->If[AssociationQ[result],result["\:751f\:6210\:72b6\:6001"],"\:8ba1\:7b97\:5931\:8d25"],
+  <|"ID"->key,"Field"->Row[{rgzNames[[i]]," -> ",rgzNames[[j]]}],
+    "PDFEquation"->Lookup[rgzEquation,key,"NotListed"],
+    "GenerateStatus"->If[AssociationQ[result],result["GenerateStatus"],"ComputeFailed"],
     "InsertionMomentumConvention"->"Incoming insertion momentum is minus covariance momentum",
-    "FeynCalc\:632f\:5e45"->raw,"\:6709\:7406\:5f0f"->model,"\:95f5\:6c0f\:53c2\:8003"->ref,"\:4e8c\:6b21\:6838\:516c\:5f0f"->kernel,
-    "\:65e7PDF\:53c2\:8003"->old,
-    "\:6a21\:578b\:51cf\:95f5\:6c0f"->If[model===$Failed,$Failed,rgzDifference[model,ref]],
-    "\:6a21\:578b\:51cf\:4e8c\:6b21\:6838"->If[Head[kernel]===Missing,kernel,
+    "FeynCalcAmplitude"->raw,"RationalExpression"->model,"MinkowskiReference"->ref,"QuadraticKernelformula"->kernel,
+    "LegacyPDFReference"->old,
+    "ModelMinusMinkowski"->If[model===$Failed,$Failed,rgzDifference[model,ref]],
+    "ModelMinusQuadraticKernel"->If[Head[kernel]===Missing,kernel,
       If[model===$Failed,$Failed,rgzDifference[model,kernel]]],
-    "\:6a21\:578b\:51cf\:65e7PDF"->If[Head[old]===Missing,old,
+    "ModelminusLegacyPDF"->If[Head[old]===Missing,old,
       If[model===$Failed,$Failed,rgzDifference[model,old]]]|>
 ];
 rgzRows=rgzMakeRow /@ rgzSpecs;
@@ -308,8 +308,8 @@ rgzRows=rgzMakeRow /@ rgzSpecs;
    p.A + I p^2 xi vanishes against every field except tau: the multiplier
    supplies the -delta contact term for the engineering tau convention. *)
 rgzConnectedAh[j_Integer] := Module[{a,xi,expected=0},
-  a=rgzRows[[j]]["\:6709\:7406\:5f0f"];
-  xi=rgzRows[[24+j]]["\:6709\:7406\:5f0f"];
+  a=rgzRows[[j]]["RationalExpression"];
+  xi=rgzRows[[24+j]]["RationalExpression"];
   If[MemberQ[{1,5,6,7,8},j],xi=xi /. \[Mu]->\[Nu]];
   If[j===3,expected=-SUNDelta[Glu1,Glu2]];
   rgzRational[Contract[FCI[FVD[p,\[Mu]]] a+I rgzS xi]-expected]
@@ -318,8 +318,8 @@ rgzConnectionChecks=Association@Table["Ah:"<>ToString[j]->rgzConnectedAh[j],{j,8
 
 
 (* ============================================================ *)
-(* \:6781\:70b9\:5206\:89e3\:ff1a\:4ece\:5b9e\:9645\:6709\:7406\:5f0f\:8ba1\:7b97\:7559\:6570\:ff0c\:652f\:6301\:91cd\:6781\:70b9\:3002                 *)
-(* \:8fd4\:56de\:503c\:4fdd\:7559 m1,m2,m3,m4\:ff0c\:4f7f\:7528\:524d\:4e0d\:8981\:7ed9\:8fd9\:56db\:4e2a\:7b26\:53f7\:8d4b\:503c\:3002          *)
+
+
 (* ============================================================ *)
 
 RGZInsertPoleMasses[x_] := Module[{avg=(m^2+\[Mu]^2)/2,
@@ -336,7 +336,7 @@ RGZSplitPropagator[x_,q_:p] := Module[
     {dim1} === {dim2} :> z);
   r=Cancel[Together[r]]; num=Numerator[r]; den=Denominator[r];
   If[!PolynomialQ[num,z] || !PolynomialQ[den,z],
-    Return[Failure["NonRational",<|"\:8868\:8fbe\:5f0f"->r|>]]];
+    Return[Failure["NonRational",<|"Expression"->r|>]]];
   poly=PolynomialQuotient[num,den,z];
   poles={{0,0},{\[Mu]^2,\[Mu]},
     {-I Sqrt[\[Alpha] M^4],m1},{I Sqrt[\[Alpha] M^4],m2},
@@ -359,51 +359,49 @@ RGZSplitPropagator[x_,q_:p] := Module[
         {k,order}]
     ],{pole,poles}];
   check=FullSimplify[Cancel[Together[r-poly-part]]];
-  If[!TrueQ[check===0],Return[Failure["IncompleteSplit",<|"\:4f59\:9879"->check|>]]];
+  If[!TrueQ[check===0],Return[Failure["IncompleteSplit",<|"Remainder"->check|>]]];
   FCI[out]
 ];
 
 (* ============================================================ *)
-(* \:663e\:793a\:4e0e\:9010\:9879\:68c0\:67e5                                               *)
+
 (* ============================================================ *)
 
-rgzState[x_] := Which[Head[x]===Missing,"\:672a\:6bd4\:8f83",x===$Failed||FailureQ[x],
-  "\:8ba1\:7b97\:5931\:8d25",TrueQ[x===0],"\:901a\:8fc7",True,"\:5dee\:503c\:672a\:5f52\:96f6"];
-rgzPane[x_] := Which[Head[x]===Missing,"\:672a\:6bd4\:8f83",x===$Failed||FailureQ[x],x,
+rgzState[x_] := Which[Head[x]===Missing,"NotCompared",x===$Failed||FailureQ[x],
+  "ComputeFailed",TrueQ[x===0],"Passed",True,"DifferenceNonzero"];
+rgzPane[x_] := Which[Head[x]===Missing,"NotCompared",x===$Failed||FailureQ[x],x,
   True,Pane[TraditionalForm[x],ImageSize->{950,Automatic},Scrollbars->{True,False}]];
 rgzCountTable=Grid[Prepend[Map[Function[spec,With[
   {states=rgzState /@ Lookup[rgzRows,spec[[2]]]},
-  {spec[[1]],Count[states,"\:901a\:8fc7"],Count[states,"\:5dee\:503c\:672a\:5f52\:96f6"],
-   Count[states,"\:672a\:6bd4\:8f83"],Count[states,"\:8ba1\:7b97\:5931\:8d25"]}]],
-  {{"\:6a21\:578b\:4e0e\:5f53\:524d\:95f5\:6c0f\:516c\:5f0f","\:6a21\:578b\:51cf\:95f5\:6c0f"},{"\:6a21\:578b\:4e0e\:4e8c\:6b21\:6838\:ff08\:542b\:9b3c\:573a\:ff09","\:6a21\:578b\:51cf\:4e8c\:6b21\:6838"}}],
-  {"\:6bd4\:8f83\:9879\:76ee","\:901a\:8fc7","\:5dee\:503c\:672a\:5f52\:96f6","\:672a\:6bd4\:8f83","\:8ba1\:7b97\:5931\:8d25"}],Frame->All,Alignment->Left];
+  {spec[[1]],Count[states,"Passed"],Count[states,"DifferenceNonzero"],
+   Count[states,"NotCompared"],Count[states,"ComputeFailed"]}]],
+  {{"ModelAndCurrentMinkowskiFormula","ModelMinusMinkowski"},{"ModelAndQuadraticKernelIncludingGhosts","ModelMinusQuadraticKernel"}}],
+  {"CompareParts","Passed","DifferenceNonzero","NotCompared","ComputeFailed"}],Frame->All,Alignment->Left];
 Print[rgzCountTable];
 Print[Grid[Prepend[MapIndexed[Function[{row,n},
-  {First[n],row["\:573a"],row["\:751f\:6210\:72b6\:6001"],rgzState[row["\:6a21\:578b\:51cf\:95f5\:6c0f"]],
-   rgzState[row["\:6a21\:578b\:51cf\:4e8c\:6b21\:6838"]]}],rgzRows],
-  {"\:5e8f\:53f7","\:573a\:5bf9","\:751f\:6210\:60c5\:51b5","\:5f53\:524d\:95f5\:6c0f\:516c\:5f0f","\:4e8c\:6b21\:6838"}],Frame->All,Alignment->Left]];
+  {First[n],row["Field"],row["GenerateStatus"],rgzState[row["ModelMinusMinkowski"]],
+   rgzState[row["ModelMinusQuadraticKernel"]]}],rgzRows],
+  {"index","FieldPair","Generatestate","CurrentMinkowskiFormula","QuadraticKernel"}],Frame->All,Alignment->Left]];
 
 rgzShowPropagator[n_Integer] := Module[{row,split,exact,diff,state},
   If[n<1||n>Length[rgzRows],Return[$Failed]];row=rgzRows[[n]];
-  split=If[row["\:6709\:7406\:5f0f"]===$Failed,$Failed,RGZSplitPropagator[rgzInsertionToCovariance[row["FeynCalc\:632f\:5e45"]]]];
+  split=If[row["RationalExpression"]===$Failed,$Failed,RGZSplitPropagator[rgzInsertionToCovariance[row["FeynCalcAmplitude"]]]];
   exact=If[split===$Failed||FailureQ[split],$Failed,
     rgzRational[RGZInsertPoleMasses[split]]];
-  diff=If[exact===$Failed,$Failed,rgzDifference[exact,row["\:6709\:7406\:5f0f"]]];
-  Print[Style[Row[{"\:7b2c ",n," \:9879\:ff1a",row["\:573a"]}],Bold,14]];
+  diff=If[exact===$Failed,$Failed,rgzDifference[exact,row["RationalExpression"]]];
+  Print[Style[Row[{"number  ",n," Term: ",row["Field"]}],Bold,14]];
   Print[Grid[{
-    {"\:9879\:76ee","\:8868\:8fbe\:5f0f"},{"\:539f\:59cb FeynCalc \:632f\:5e45",rgzPane[row["FeynCalc\:632f\:5e45"]]},
-    {"\:6a21\:578b\:6709\:7406\:5f0f",rgzPane[row["\:6709\:7406\:5f0f"]]},{"\:5f53\:524d\:95f5\:6c0f\:53c2\:8003",rgzPane[row["\:95f5\:6c0f\:53c2\:8003"]]},
-    {"\:4e8c\:6b21\:6838\:53c2\:8003",rgzPane[row["\:4e8c\:6b21\:6838\:516c\:5f0f"]]},
-    {"\:6a21\:578b\:51cf\:95f5\:6c0f",rgzPane[row["\:6a21\:578b\:51cf\:95f5\:6c0f"]]},
-    {"\:6a21\:578b\:51cf\:4e8c\:6b21\:6838",rgzPane[row["\:6a21\:578b\:51cf\:4e8c\:6b21\:6838"]]},
-    {"\:6781\:70b9\:5206\:89e3\:ff08\:4fdd\:7559 m1--m4\:ff09",rgzPane[split]},
-    {"\:4ee3\:5165\:6781\:70b9\:8d28\:91cf",rgzPane[exact]},{"\:6781\:70b9\:5206\:89e3\:5dee\:503c",rgzPane[diff]},
-    {"\:6781\:70b9\:5206\:89e3\:68c0\:67e5",rgzState[diff]},
-    {"\:65e7\:4ee3\:7801 PDF \:8f6c\:5f55\:5f0f\:53f7",row["PDF\:5f0f\:53f7"]},
-    {"\:65e7\:4ee3\:7801 PDF \:8f6c\:5f55\:503c\:ff08\:7ea6\:5b9a\:672a\:7edf\:4e00\:ff09",rgzPane[row["\:65e7PDF\:53c2\:8003"]]},
-    {"\:6a21\:578b\:51cf\:65e7 PDF \:8f6c\:5f55\:503c",rgzPane[row["\:6a21\:578b\:51cf\:65e7PDF"]]}
+    {"Parts","Expression"},{"Original FeynCalc Amplitude",rgzPane[row["FeynCalcAmplitude"]]},
+    {"ModelRationalExpression",rgzPane[row["RationalExpression"]]},{"CurrentMinkowskiReference",rgzPane[row["MinkowskiReference"]]},
+    {"QuadraticKernelReference",rgzPane[row["QuadraticKernelformula"]]},
+    {"ModelMinusMinkowski",rgzPane[row["ModelMinusMinkowski"]]},
+    {"ModelMinusQuadraticKernel",rgzPane[row["ModelMinusQuadraticKernel"]]},
+    {"PoleDecompose (Retain m1--m4)",rgzPane[split]},
+    {"SubstitutePoleMass",rgzPane[exact]},{"PoleDecomposeDifference",rgzPane[diff]},
+    {"PoleDecomposeCheck",rgzState[diff]},
+    {"LegacyCode PDF TranscriptionEquation",row["PDFEquation"]},
+    {"LegacyCode PDF TranscribedValue (ConventionNotCommon)",rgzPane[row["LegacyPDFReference"]]},
+    {"ModelMinusLegacyPDFTranscription",rgzPane[row["ModelminusLegacyPDF"]]}
     },Frame->All,Alignment->{Left,Top}]]
 ];
 Null;
-
-(* \:5176\:4ed6\:9879\:76ee\:ff1argzShowPropagator[4]; rgzShowPropagator[12]; *)

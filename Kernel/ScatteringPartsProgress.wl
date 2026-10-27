@@ -22,7 +22,7 @@ qqRunPartDetailed[name_String,seconds_]:=engineEvaluation@Module[{job=RGZResult[
  file=FileNameJoin[{job["Directory"],name<>"-reduced.wxf"}];
  qqProgressUpdate[<|"CheckpointFile"->file|>];
  If[FileExistsQ[file],qqPartStage["Read completed part",0,"Reading"];cached=Quiet[Check[Import[file,"WXF"],$Failed]];
- If[!AssociationQ[cached]||Lookup[cached,"Fingerprint",None]=!=job["Fingerprint"]||Lookup[cached,"Part",None]=!=name,Return[Failure["QQCacheInvalid",<|"File"->file|>]]];r=cached["Expression"];qqProgressUpdate[<|"CacheState"->"Reused","OperationFinished"->AbsoluteTime[]|>],
+ If[!AssociationQ[cached]||Lookup[cached,"Fingerprint",None]=!=job["Fingerprint"]||Lookup[cached,"Part",None]=!=name,Return[Failure["QQCacheInvalid",<|"File"->file|>]]];r=Lookup[cached,"Expression",$Failed];If[qqFFInvalidQ[r],Return[Failure["QQCacheInvalid",<|"File"->file|>]]];qqProgressUpdate[<|"CacheState"->"Reused","OperationFinished"->AbsoluteTime[]|>],
  qqPartStage["Inspect integrand",0];raw=job["Integrands"][name];
  If[MatchQ[raw,Missing["DeferredNAV",_Integer]],
  raw=qqPartTimed["QQAttach:"<>name,-RGZWorkflow`Engine`rgzQQNAV[job["NAVSource"],raw[[2]]],seconds];If[FailureQ[raw],Return[raw]];
@@ -31,14 +31,14 @@ qqRunPartDetailed[name_String,seconds_]:=engineEvaluation@Module[{job=RGZResult[
  raw=qqPartTimed["QQWardPrecondition:Routes:"<>name,qqRestoreAffineSquares[raw],seconds];If[FailureQ[raw],Return[raw]];
  input=qqPartTimed["QQPoleSplit:"<>name,RGZWorkflow`Engine`rgzQQSplit[raw,job["Gauge"],job["RegulatorMass"]],seconds];If[FailureQ[input],Return[input]];
  r=qqPartTimed["QQTID:"<>name,Check[qqReduceTensorGroups[input,job,name,seconds],Failure["QQTensorReductionMessages",<|"Part"->name|>]],seconds];If[FailureQ[r],Return[r]];
- If[!FreeQ[r,FeynCalc`TID|FeynCalc`FeynAmpDenominator|_TerminatedEvaluation|$Failed|$Aborted|$TimedOut],Return[Failure["QQReductionIncomplete",<|"Part"->name|>]]];
+ If[!FreeQ[r,FeynCalc`TID|FeynCalc`FeynAmpDenominator|_TerminatedEvaluation|$Failed|$Aborted|$TimedOut|Indeterminate|ComplexInfinity|_DirectedInfinity],Return[Failure["QQReductionIncomplete",<|"Part"->name|>]]];
  qqPartStage["Restore pole masses and loop measure",3];
  r=RGZWorkflow`Engine`rgzQQRestorePoleMasses[r,job["Gauge"],job["RegulatorMass"]] job["LoopMeasureConversion"];
  If[!FreeQ[r,_Failure|_Missing|_TerminatedEvaluation|$Failed|$Aborted|$TimedOut|Indeterminate|ComplexInfinity|_DirectedInfinity],Return[Failure["QQReductionIncomplete",<|"Part"->name|>]]];
  qqProgressUpdate[<|"OutputLeaves"->LeafCount[r]|>];qqPartStage["Save reduced part",4,"Saving"];saved=atomicWXF[file,<|"Fingerprint"->job["Fingerprint"],"Part"->name,"Expression"->r|>];If[FailureQ[saved],Return[saved]];qqProgressUpdate[<|"CacheState"->"Saved","OperationFinished"->AbsoluteTime[]|>]];
- If[!FreeQ[r,_Failure|_Missing|FeynCalc`TID|FeynCalc`FeynAmpDenominator|_TerminatedEvaluation|$Failed|$Aborted|$TimedOut],Return[Failure["QQReductionIncomplete",<|"Part"->name|>]]];
+ If[!FreeQ[r,_Failure|_Missing|FeynCalc`TID|FeynCalc`FeynAmpDenominator|_TerminatedEvaluation|$Failed|$Aborted|$TimedOut|Indeterminate|ComplexInfinity|_DirectedInfinity],Return[Failure["QQReductionIncomplete",<|"Part"->name|>]]];
  qqPartStage["Save QQ task",5,"Saving"];
- AssociateTo[job,"Reduced"->Append[job["Reduced"],name->r]];saved=atomicWXF[FileNameJoin[{job["Directory"],"job.wxf"}],job];If[FailureQ[saved],Return[saved]];storeResult["QQ",job];
+ AssociateTo[job,"Reduced"->Append[job["Reduced"],name->r]];saved=atomicWXF[FileNameJoin[{job["Directory"],"job.wxf"}],job];If[FailureQ[saved],Return[saved]];invalidateQQDerived[];storeResult["QQ",job];
  <|"Status"->"Complete","Name"->name,"File"->file|>
 ];
 

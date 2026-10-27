@@ -1,0 +1,24 @@
+(* SPDX-License-Identifier: GPL-3.0-or-later *)
+project=DirectoryName[DirectoryName[$InputFileName]];
+Get[FileNameJoin[{project,"RGZWorkflow.wl"}]];
+nb=Get[FileNameJoin[{project,"Examples","RGZWorkflow — Diagnostics.nb"}]];
+boxes=Cases[nb,Cell[BoxData[b_],"Input",___]:>b,Infinity];
+parsed=ToExpression[#,StandardForm,HoldComplete]&/@boxes;
+checks=<||>;rec[n_,v_]:=AssociateTo[checks,n->TrueQ[v]];
+rec["AllInputCellsParse",FreeQ[parsed,$Failed|_Defer]];
+rec["NoStaleOutputs",Count[nb,Cell[_,"Output"|"Print"|"Message",___],Infinity]===0];
+rec["RunnerLoadedAutomatically",Length[DownValues[rgzDiagnosticRun]]>0&&MemberQ[Attributes[rgzDiagnosticRun],HoldRest]];
+rgzDiagnosticState=<||>;
+counter=0;
+r=rgzDiagnosticRun["Dependent",(counter++;<|"Status"->"Complete"|>),{"Missing"}];
+rec["MissingPrerequisiteBlocksEvaluation",counter===0&&FailureQ[r]&&Lookup[rgzDiagnosticState,"Dependent",None]===False];
+r=rgzDiagnosticRun["Base",<|"Status"->"Pending"|>,{},Lookup[#,"Status",None]==="Complete"&];
+rec["IncompleteStatusIsNotSuccess",Lookup[rgzDiagnosticState,"Base",None]===False];
+r=rgzDiagnosticRun["Base",<|"Status"->"Complete"|>,{},Lookup[#,"Status",None]==="Complete"&];
+r=rgzDiagnosticRun["Dependent",(counter++;<|"Status"->"Complete"|>),{"Base"}];
+rec["SuccessfulPrerequisiteAllowsEvaluation",counter===1&&TrueQ[rgzDiagnosticState["Dependent"]]];
+r=rgzDiagnosticRun["Aborted",Abort[]];
+rec["AbortRemainsIncomplete",FailureQ[r]&&Lookup[rgzDiagnosticState,"Aborted",None]===False];
+r=rgzDiagnosticRun["Failed",Failure["Fixture",<||>]];
+rec["FailureRemainsIncomplete",FailureQ[r]&&Lookup[rgzDiagnosticState,"Failed",None]===False];
+Print[checks];Exit[If[AllTrue[Values[checks],TrueQ],0,1]];

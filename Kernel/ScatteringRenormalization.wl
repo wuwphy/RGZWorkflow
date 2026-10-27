@@ -13,9 +13,17 @@ RGZLoadFeynHelpers[OptionsPattern[]] := Module[{r=fcReady[],dir=OptionValue["Dir
  r=CheckAbort[Block[{$Context="FeynCalc`",$ContextPath={"FeynCalc`","System`"}},
   FeynCalc`FCDeclareHeader[file];Block[{FeynCalc`$FeynHelpersLoadInterfaces={"PackageX"}},Get[file]]],$Aborted];
  If[r===$Aborted||Length[DownValues[FeynCalc`PaXEvaluateIR]]===0,Failure["FeynHelpersLoadFailed",<||>],<|"Status"->"FeynHelpersLoaded"|>]];
-qqUVIRPole[x_,eps_] := Module[{z=Normal[Series[x,{eps,0,0}]]},
+qqUVIRPole[x_,eps_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{z,terms,n,c,out={}},
+ z=Quiet[Check[Normal[Series[x,{eps,0,0}]],$Failed]];
  If[qqFFInvalidQ[z],Return[Failure["QQPoleExpansionFailed",<||>]]];
- Expand[Total[Table[Coefficient[Expand[z],eps,-k]/eps^k,{k,1,4}]]]];
+ terms=With[{expanded=Expand[z]},If[Head[expanded]===Plus,List@@expanded,{expanded}]];
+ Do[If[FreeQ[term,eps],Continue[]];
+  n=Quiet[Check[Exponent[term,eps],$Failed]];
+  If[!IntegerQ[n],Throw[Failure["QQNonLaurentPoleExpansion",<||>],rgzFunctionReturnTag]];
+  c=Cancel[term eps^-n];
+  If[qqFFInvalidQ[c]||!FreeQ[c,eps],Throw[Failure["QQNonLaurentPoleExpansion",<||>],rgzFunctionReturnTag]];
+  If[n<0,AppendTo[out,c eps^n]],{term,terms}];Total[out]],rgzFunctionReturnTag]];
 qqUVIRMaster[m_,use_:True] := Module[{uv,ir,v,masses,certificate,method="PackageXOrUnsupported",conditions={}},
  If[m===1,Return[<|"UV"->0,"IR"->0,"IRMethod"->"RationalTerm"|>]];
  If[!MatchQ[Head[m],qqFFMasterHeads],Return[<|"UV"->Missing["UVUnsupported"],"IR"->Missing["IRUnsupported"]|>]];
@@ -30,9 +38,20 @@ qqUVIRMaster[m_,use_:True] := Module[{uv,ir,v,masses,certificate,method="Package
  True,CheckAbort[FeynCalc`PaXEvaluateIR[m,FeynCalc`PaXImplicitPrefactor->1,FeynCalc`FCVerbose->0],$Aborted]];
  If[!MatchQ[ir,_Missing]&&(qqFFInvalidQ[ir]||!FreeQ[ir,qqFFMasterHeads|FeynCalc`PaXEvaluateIR|_ConditionalExpression|_Piecewise|_X`PVC|_X`PVD]),ir=Missing["IRUnsupported"]];
  <|"UV"->uv,"IR"->ir,"IRMethod"->If[method=!="PackageXOrUnsupported",method,If[TrueQ[ir===0],"ScalarTadpoleOrBubbleIRFinite",method]],"IRConditions"->conditions|>];
+(* Only complete, finite pole checkpoints can bypass fresh evaluation. *)
+qqUVIRMasterCacheQ[p_] := AssociationQ[p]&&
+ And@@(KeyExistsQ[p,#]&/@{"UV","IR","IRMethod"})&&StringQ[p["IRMethod"]]&&
+ ListQ[Lookup[p,"IRConditions",{}]]&&!qqFFInvalidQ[p]&&
+ FreeQ[Lookup[p,{"UV","IR"}],qqFFMasterHeads|FeynCalc`PaVeUVPart|FeynCalc`PaXEvaluateIR|_ConditionalExpression|_Piecewise|_X`PVC|_X`PVD];
+qqUVIRRowCacheQ[row_,source_] := AssociationQ[row]&&AssociationQ[source]&&
+ And@@(KeyExistsQ[row,#]&/@{"ColorID","SpinID","UVPole","IRPole","CompleteRepresentedUV","CompleteRepresentedIR","Unresolved"})&&
+ KeyTake[row,{"ColorID","SpinID"}]===KeyTake[source,{"ColorID","SpinID"}]&&
+ TrueQ[row["CompleteRepresentedUV"]]&&TrueQ[row["CompleteRepresentedIR"]]&&row["Unresolved"]==={}&&
+ !qqFFInvalidQ[Lookup[row,{"UVPole","IRPole"}]]&&
+ FreeQ[Lookup[row,{"UVPole","IRPole"}],qqFFMasterHeads|FeynCalc`PaVeUVPart|FeynCalc`PaXEvaluateIR|_ConditionalExpression|_Piecewise|_X`PVC|_X`PVD];
 qqUVIRReadFF[file_] := Module[{p,amp},
  p=If[file===Automatic,RGZResult["QQFormFactors"],If[StringQ[file]&&FileExistsQ[file],Quiet[Check[Import[file,"WXF"],$Failed]],$Failed]];
- If[!AssociationQ[p]||Lookup[p,"LoopOrder",None]=!=1||!TrueQ[Lookup[p,"ReconstructionVerified",False]]||!And@@(KeyExistsQ[p,#]&/@{"Key","File","InputSHA256","SourceFingerprint","ColorBasis","SpinStructures"})||!ListQ[Lookup[p,"Rows",None]]||!AllTrue[Lookup[p,"Rows",{}],AssociationQ[#]&&qqFFVectorPairsQ[Lookup[#,"MasterCoefficients",None]]&],
+ If[!qqFFPacketQ[p]||Lookup[p,"LoopOrder",None]=!=1,
   Return[Failure["QQOneLoopFormFactorsFirst",<|"Action"->"RGZQQFormFactors[..., LoopOrder -> 1] or supply File -> its result file."|>]]];
  If[file===Automatic,
   amp=qqFFReadPacket[Automatic];If[FailureQ[amp],Return[amp]];
@@ -53,17 +72,17 @@ RGZQQUVIR[seconds_:1200,OptionsPattern[]] := Module[
  Do[qqProgressOperation["UV/IR master "<>ToString[i]<>" / "<>ToString[Length[masters]]];qqProgressUpdate[<|"Index"->i,"Total"->Length[masters],"Master"->masters[[i]]|>];
   file=FileNameJoin[{dir,"master-"<>IntegerString[Hash[masters[[i]],"SHA256"],16,64]<>".wxf"}];
   item=If[FileExistsQ[file],Quiet[Check[Import[file,"WXF"],$Failed]],$Failed];
-  If[AssociationQ[item]&&Lookup[item,"Key",None]===key&&Lookup[item,"Master",None]===masters[[i]]&&AssociationQ[Lookup[item,"Poles",None]]&&FreeQ[Lookup[item,"Poles",None],_Missing|_Failure|$Failed|$TimedOut|$Aborted],z=item["Poles"];qqProgressUpdate[<|"CacheState"->"Reused"|>],
+  If[AssociationQ[item]&&Lookup[item,"Key",None]===key&&Lookup[item,"Master",None]===masters[[i]]&&qqUVIRMasterCacheQ[Lookup[item,"Poles",None]],z=item["Poles"];qqProgressUpdate[<|"CacheState"->"Reused"|>],
    z=TimeConstrained[qqUVIRMaster[masters[[i]],use],sec,$TimedOut];
    If[z===$TimedOut,Throw[Failure["QQUVIRIntegralTimeout",<|"Stage"->"Master","Seconds"->sec,"File"->file|>],stop]];
    If[!AssociationQ[z],Throw[Failure["QQUVIRIntegralFailed",<|"File"->file|>],stop]];
    (* Unsupported identities may become supported later. Never cache them. *)
-   If[FreeQ[z,_Missing],item=atomicWXF[file,<|"Key"->key,"Master"->masters[[i]],"Poles"->z|>];If[FailureQ[item],Throw[item,stop]]]];
+   If[qqUVIRMasterCacheQ[z],item=atomicWXF[file,<|"Key"->key,"Master"->masters[[i]],"Poles"->z|>];If[FailureQ[item],Throw[item,stop]]]];
   AssociateTo[table,masters[[i]]->z],{i,Length[masters]}];
  Do[uvs={};irs={};missing={};
   rowKey=Hash[{key,p["Rows"][[i]]},"SHA256"];rowFile=FileNameJoin[{dir,"row-"<>IntegerString[rowKey,16,64]<>".wxf"}];
   savedRow=If[FileExistsQ[rowFile],Quiet[Check[Import[rowFile,"WXF"],$Failed]],$Failed];
-  If[AssociationQ[savedRow]&&Lookup[savedRow,"Key",None]===rowKey&&AssociationQ[Lookup[savedRow,"Value",None]]&&TrueQ[Lookup[savedRow["Value"],"CompleteRepresentedUV",False]]&&TrueQ[Lookup[savedRow["Value"],"CompleteRepresentedIR",False]]&&Lookup[savedRow["Value"],"Unresolved",None]==={}&&FreeQ[Lookup[savedRow["Value"],{"UVPole","IRPole"},$Failed],_Failure|_Missing|$Failed|$TimedOut|$Aborted],
+  If[AssociationQ[savedRow]&&Lookup[savedRow,"Key",None]===rowKey&&qqUVIRRowCacheQ[Lookup[savedRow,"Value",None],p["Rows"][[i]]],
    qqProgressUpdate[<|"CacheState"->"Reused"|>];AppendTo[rows,savedRow["Value"]];Continue[]];
   qqProgressUpdate[<|"Index"->i,"Total"->Length[p["Rows"]],"Master"->Missing["CoefficientCollection"]|>];
   qqProgressOperation["Collect UV/IR coefficients "<>ToString[i]<>" / "<>ToString[Length[p["Rows"]]]];

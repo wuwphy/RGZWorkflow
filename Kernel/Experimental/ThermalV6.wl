@@ -12,7 +12,7 @@ massSqByLabel["L2"]=m2^2;
 massSqByLabel["T3"]=m3^2;
 massSqByLabel["T4"]=m4^2;
 
-poleLabelFromMass[mass_]:=Which[mass===0,"0",mass===m1,"L1",mass===m2,"L2",mass===m3,"T3",mass===m4,"T4",True,Print["\:672a\:77e5\:8d28\:91cf\:53c2\:6570: ",mass];
+poleLabelFromMass[mass_]:=Which[mass===0,"0",mass===m1,"L1",mass===m2,"L2",mass===m3,"T3",mass===m4,"T4",True,Print["UnknownMassParameter: ",mass];
 Abort[]];
 (* =========================================================*)
 (*V6:route-restricted numerator matching*)
@@ -24,7 +24,7 @@ ExpandMomentumHead[expr_]:=FixedPoint[Expand[#]/. {Momentum[a_+b_,D]:>Momentum[a
 
 NormalizeFADInputV6[expr_,loop_:q,ext_:p]:=Module[{l=loop,e=ext},expr//.{FAD[{Momentum[k_,D],mass_}]:>FAD[{k,mass}],FAD[{Momentum[k_],mass_}]:>FAD[{k,mass}],FAD[{-l,mass_}]:>FAD[{l,mass}],FAD[{l-e,mass_}]:>FAD[{e-l,mass}],FAD[{-e+l,mass_}]:>FAD[{e-l,mass}],FAD[{Momentum[l-e,D],mass_}]:>FAD[{e-l,mass}],FAD[{Momentum[-e+l,D],mass_}]:>FAD[{e-l,mass}],FAD[{Momentum[e-l,D],mass_}]:>FAD[{e-l,mass}],FAD[{Momentum[l,D],mass_}]:>FAD[{l,mass}]}];
 
-poleLabelFromMass[mass_]:=Which[mass===0,"0",mass===m1,"L1",mass===m2,"L2",mass===m3,"T3",mass===m4,"T4",True,Print["\:672a\:77e5\:8d28\:91cf\:53c2\:6570: ",mass];
+poleLabelFromMass[mass_]:=Which[mass===0,"0",mass===m1,"L1",mass===m2,"L2",mass===m3,"T3",mass===m4,"T4",True,Print["UnknownMassParameter: ",mass];
 Abort[]];
 
 RouteKeyV6[route_]:=Switch[route,"q",1,"p-q",2,"external",3,_,99];
@@ -53,7 +53,7 @@ ClearAll[PrepareForThermalV6];
 PrepareForThermalV6[expr_,loop_,ext_]:=Module[{tmp},tmp=If[ListQ[expr],Total[expr],expr];
 tmp=NormalizeFADInputV6[tmp,loop,ext];
 tmp=FCI[tmp];
-(*\:5173\:952e\:ff1a\:4e0d\:8981\:7528 FeynAmpDenominatorSimplify[tmp,loop] \:56e0\:4e3a\:5b83\:4f1a\:7528 q->p-q \:5408\:5e76 {"T4","T3"} \:548c {"T3","T4"}*)
+
 tmp=Contract[tmp];
 tmp=ExpandScalarProduct[tmp];
 tmp=ExpandMomentumHead[tmp];
@@ -71,15 +71,13 @@ thermalMomentV6[topology_String,labels_List,a_Integer,b_Integer,c_Integer]:=Loop
 MomentPolyV6[topology_String,labels_List,poly_]:=Module[{vars,expr,terms},vars={zq,xq,rq};
 expr=Expand[poly];
 If[TrueQ[expr===0],Return[0]];
-If[!PolynomialQ[expr,vars],Print["MomentPolyV6: \:4e0d\:662f zq, xq, rq 
-\:7684\:591a\:9879\:5f0f: ",expr];
+If[!PolynomialQ[expr,vars],Print["MomentPolyV6: not a polynomial in zq, xq, rq: ",expr];
 Abort[]];
 terms=If[Head[expr]===Plus,List@@expr,{expr}];
 Total[Map[Function[t,Module[{aa,bb,cc,coeff},If[TrueQ[t===0],0,aa=Exponent[t,zq];
 bb=Exponent[t,xq];
 cc=Exponent[t,rq];
-If[!And@@(IntegerQ/@{aa,bb,cc}),Print["MomentPolyV6: \:6307\:6570\:4e0d\:662f\:6574\:6570: 
-",{aa,bb,cc}];
+If[!And@@(IntegerQ/@{aa,bb,cc}),Print["MomentPolyV6: non-integer exponent: ",{aa,bb,cc}];
 Print["term = ",t];
 Abort[]];
 coeff=Simplify[t/(zq^aa*xq^bb*rq^cc)];
@@ -122,7 +120,7 @@ scaleCoeff[c_, a_Association] :=
     Simplify[c #] & /@ Values[a]
   ];
 (* ========================================================= *)
-(* Tensor projection to F1,F2,F3,F4\:ff08\:8fd9\:90e8\:5206\:8fd8\:9700\:8981\:5177\:4f53\:7684\:68c0\:67e5\:ff09   *)
+
 (* ========================================================= *)
 
 ClearAll[TensorCoeffV6];
@@ -183,7 +181,7 @@ TensorCoeffV6[
        F4 = 1/2*(3*Iw[xq^2]/pv^4 - Iw[rq]/pv^2),
 
      _,
-       Print["\:672a\:77e5 tensorType = ", tensorType];
+       Print["Unknown tensorType = ", tensorType];
        Abort[]
    ];
 
@@ -251,8 +249,7 @@ name=PatternNameV6[topology,tensor,exps];
 <|"Name"->name,"TensorType"->tensor,"Exponents"->exps,"ScalarPart"->scalar,"RankTensor"->rank2,"Pattern"->pattern|>];
 
 MatchRestrictedNumeratorV6[numerator_,topology_String,ext_,loop_,mu_,nu_]:=Module[{specs,patterns,numC,hits},specs=AllowedNumeratorSpecsV6[topology];
-If[specs==={},Print["\:8fd9\:4e2a topology \:6ca1\:6709\:5b9a\:4e49\:5141\:8bb8
-\:7684 numerator \:7ed3\:6784: ",topology];
+If[specs==={},Print["No supported numerator structure is defined for this topology: ",topology];
 Print["numerator = "];
 Print[numerator];
 Abort[]];
@@ -262,8 +259,7 @@ hits=Cases[patterns,pat_Association:>Module[{patC,coef,ok},patC=CanonicalScalari
 coef=Quiet@Simplify[Together[numC/patC]];
 ok=TrueQ[CoefficientFreeQV6[coef,ext,loop,mu,nu]]&&TrueQ[Simplify[numC-coef*patC]===0];
 If[ok,Join[pat,<|"Coefficient"->coef|>],Nothing]]];
-If[hits==={},Print["\:6ca1\:6709\:5339\:914d\:5230\:4f60\:5141\:8bb8\:7684\:7ed3
-\:6784\:3002"];
+If[hits==={},Print["No matching supported structure."];
 Print["Topology = ",topology];
 Print["Allowed specs = ",specs];
 Print["numerator = "];
@@ -295,8 +291,8 @@ If[topology==="NoLoopDenominator"||topology==="Unsupported",<|"Status"->"BadTopo
 spec=SpecFromNumeratorTermV6[numerator,ext,loop,mu,nu];
 If[Head[spec]===Missing,<|"Status"->"BadNumerator","Topology"->topology,"Routes"->info["Routes"],"Labels"->info["Labels"],"Numerator"->numerator,"Term"->term|>,<|"Status"->"Good","Topology"->topology,"Routes"->info["Routes"],"Labels"->info["Labels"],"Spec"->spec,"Term"->term|>]]],{term,terms}];
 badRows=Select[rows,#["Status"]=!="Good"&];
-If[badRows=!={},Print["\:6709\:4e00\:4e9b\:9879\:65e0\:6cd5\:81ea\:52a8\:8bc6\:522b
-\:3002\:7b2c\:4e00\:9879\:5982\:4e0b\:ff1a"];
+If[badRows=!={},Print["some Termcannot automatically identify
+. first Termasunder : "];
 Print[First[badRows]];
 Abort[]];
 goodRows=Select[rows,#["Status"]==="Good"&];
@@ -308,23 +304,22 @@ AssociationMap[Lookup[table,#,{}]&,topologies]];
 (* =========================================================*)
 ClearAll[ProcessThermalTermV6];
 
-ProcessThermalTermV6[term_,loop_,ext_,mu_,nu_,p0_,pv_]:=Module[{info,topology,labels,numerator,hit,basis,basisContribution},(*1. \:5148\:8bc6\:522b\:8fd9\:4e2a term \:7684 FAD topology*)info=LoopDenInfoV6[term,loop,ext];
+ProcessThermalTermV6[term_,loop_,ext_,mu_,nu_,p0_,pv_]:=Module[{info,topology,labels,numerator,hit,basis,basisContribution},info=LoopDenInfoV6[term,loop,ext];
 topology=info["Topology"];
 labels=info["Labels"];
-(*2. \:6392\:9664\:6ca1\:6709 loop denominator \:7684\:9879*)If[topology==="NoLoopDenominator",Print["\:8be5\:9879\:6ca1\:6709 loop-dependent denominator: "];
+If[topology==="NoLoopDenominator",Print["This term has no loop-dependent denominator: "];
 Print[term];
 Abort[]];
-(*3. \:6392\:9664\:6682\:4e0d\:652f\:6301\:7684 FAD \:8def\:7531*)If[topology==="Unsupported",Print["\:6682\:4e0d\:652f\:6301\:7684 FAD topology\:3002"];
+If[topology==="Unsupported",Print["Unsupported FAD topology."];
 Print["Routes = ",info["Routes"]];
 Print["Labels = ",labels];
 Print["term = ",term];
 Abort[]];
-(*4. \:53bb\:6389 loop denominator\:ff0c\:53ea\:7559\:4e0b numerator*)numerator=Simplify[RemoveLoopDenominatorsV6[term,loop,ext]];
-(*5. \:5728\:5f53\:524d topology \:7684\:767d\:540d\:5355\:7ed3\:6784\:91cc\:5339\:914d numerator*)hit=MatchRestrictedNumeratorV6[numerator,topology,ext,loop,mu,nu];
-(*6. \:6839\:636e\:5339\:914d\:5230\:7684\:7ed3\:6784\:751f\:6210 F1,F2,F3,F4 \:7684\:8d21\:732e*)basis=TensorCoeffV6[topology,labels,hit["TensorType"],hit["ScalarPart"],ext,loop,p0,pv];
-(*7. \:4e58\:4e0a\:8fd9\:4e00\:9879\:81ea\:5df1\:7684\:6574\:4f53\:7cfb
-\:6570*)basisContribution=scaleCoeff[hit["Coefficient"],basis];
-(*8. \:8fd4\:56de\:8fd9\:4e00\:9879\:7684\:5b8c\:6574\:8bb0\:5f55*)<|"Topology"->topology,"NLoopPropagators"->info["NLoopPropagators"],"Routes"->info["Routes"],"PoleLabels"->labels,"TensorType"->hit["TensorType"],"ScalarExponents"->hit["Exponents"],"NumeratorPattern"->hit["Name"],"Coefficient"->hit["Coefficient"],"ScalarPart"->hit["ScalarPart"],"MatchedPattern"->hit["Pattern"],"BasisBeforeCoefficient"->basis,"BasisContribution"->basisContribution,"OriginalTerm"->term|>];
+numerator=Simplify[RemoveLoopDenominatorsV6[term,loop,ext]];
+hit=MatchRestrictedNumeratorV6[numerator,topology,ext,loop,mu,nu];
+basis=TensorCoeffV6[topology,labels,hit["TensorType"],hit["ScalarPart"],ext,loop,p0,pv];
+basisContribution=scaleCoeff[hit["Coefficient"],basis];
+<|"Topology"->topology,"NLoopPropagators"->info["NLoopPropagators"],"Routes"->info["Routes"],"PoleLabels"->labels,"TensorType"->hit["TensorType"],"ScalarExponents"->hit["Exponents"],"NumeratorPattern"->hit["Name"],"Coefficient"->hit["Coefficient"],"ScalarPart"->hit["ScalarPart"],"MatchedPattern"->hit["Pattern"],"BasisBeforeCoefficient"->basis,"BasisContribution"->basisContribution,"OriginalTerm"->term|>];
 (* =========================================================*)
 (*Main reducer V6*)
 (* =========================================================*)
@@ -369,20 +364,20 @@ GetOptV6[assoc_Association,key_String,default_]:=If[KeyExistsQ[assoc,key],assoc[
 (*----------topology routes----------*)
 
 RoutesFromTopologyV6[topology_,n_Integer]:=Module[{top},top=IdStringV6[topology];
-Switch[top,"Tadpole1",If[n===1,{"q"},Print["Tadpole1 labels \:957f\:5ea6\:4e0d\:5bf9: ",n];
-Abort[]],"Bubble2",If[n===2,{"q","p-q"},Print["Bubble2 labels \:957f\:5ea6\:4e0d\:5bf9: ",n];
-Abort[]],"Bubble3QQP",If[n===3,{"q","q","p-q"},Print["Bubble3QQP labels \:957f\:5ea6\:4e0d\:5bf9: ",n];
-Abort[]],"Bubble3QPP",If[n===3,{"q","p-q","p-q"},Print["Bubble3QPP labels \:957f\:5ea6\:4e0d\:5bf9: ",n];
-Abort[]],"Bubble4QQPP",If[n===4,{"q","q","p-q","p-q"},Print["Bubble4QQPP labels \:957f\:5ea6\:4e0d\:5bf9: ",n];
-Abort[]],_,Print["\:672a\:77e5 topology: ",top];
+Switch[top,"Tadpole1",If[n===1,{"q"},Print["Tadpole1 labels Invalid length: ",n];
+Abort[]],"Bubble2",If[n===2,{"q","p-q"},Print["Bubble2 labels Invalid length: ",n];
+Abort[]],"Bubble3QQP",If[n===3,{"q","q","p-q"},Print["Bubble3QQP labels Invalid length: ",n];
+Abort[]],"Bubble3QPP",If[n===3,{"q","p-q","p-q"},Print["Bubble3QPP labels Invalid length: ",n];
+Abort[]],"Bubble4QQPP",If[n===4,{"q","q","p-q","p-q"},Print["Bubble4QQPP labels Invalid length: ",n];
+Abort[]],_,Print["Unknown topology: ",top];
 Abort[]]];
 
 (*----------mass lookup----------*)
 
 LabelMass2V6[label_,masses_Association]:=Module[{key,massesS},key=IdStringV6[label];
 massesS=NormalizeMassAssocV6[masses];
-If[KeyExistsQ[massesS,key],massesS[key],Print["Mass2 association \:91cc\:6ca1\:6709 label: ",key];
-Print["\:5f53\:524d keys = ",Keys[massesS]];
+If[KeyExistsQ[massesS,key],massesS[key],Print["Label missing from Mass2 association: ",key];
+Print["Current keys = ",Keys[massesS]];
 Abort[]]];
 
 (*----------Bose factor and kinematics----------*)
@@ -391,11 +386,11 @@ BoseV6[E_,temp_]:=1/(Exp[E/temp]-1);
 
 EnergyExprV6[route_,label_,qabs_,costh_,pvVal_,masses_Association]:=Module[{routeS,m2},routeS=IdStringV6[route];
 m2=LabelMass2V6[label,masses];
-Switch[routeS,"q",Sqrt[qabs^2+m2],"p-q",Sqrt[qabs^2+pvVal^2-2 pvVal qabs costh+m2],_,Print["\:672a\:77e5 route: ",routeS];
+Switch[routeS,"q",Sqrt[qabs^2+m2],"p-q",Sqrt[qabs^2+pvVal^2-2 pvVal qabs costh+m2],_,Print["Unknown route: ",routeS];
 Abort[]]];
 
 ShiftExprV6[route_,p0M_]:=Module[{routeS},routeS=IdStringV6[route];
-Switch[routeS,"q",0,"p-q",p0M,_,Print["\:672a\:77e5 route: ",routeS];
+Switch[routeS,"q",0,"p-q",p0M,_,Print["Unknown route: ",routeS];
 Abort[]]];
 
 (*----------cache----------*)
@@ -422,7 +417,9 @@ prec=GetOptV6[optAssoc,"PrecisionGoal",5];
 maxrec=GetOptV6[optAssoc,"MaxRecursion",8];
 method=GetOptV6[optAssoc,"Method",Automatic];
 cacheKey={topologyS,labelsS,a,b,c,temp,pvVal,p0M,qmin,qmax,Normal[masses],wp,acc,prec,maxrec,method};
-If[useCache&&KeyExistsQ[LoopMCacheV6,cacheKey],Return[LoopMCacheV6[cacheKey]]];
+If[useCache&&KeyExistsQ[LoopMCacheV6,cacheKey],
+ result=LoopMCacheV6[cacheKey];If[NumberQ[result]&&!RGZWorkflow`Private`qqFFInvalidQ[result],Return[result]];
+ KeyDropFrom[LoopMCacheV6,cacheKey]];
 routes=RoutesFromTopologyV6[topologyS,Length[labelsS]];
 lineData=MapThread[<|"Route"->#1,"Label"->#2,"Shift"->ShiftExprV6[#1,p0M],"Energy"->EnergyExprV6[#1,#2,qabs,costh,pvVal,masses]|>&,{routes,labelsS}];
 familyData=DeleteDuplicatesBy[lineData,{#["Route"],#["Label"]}&];
@@ -431,7 +428,8 @@ num=z^a*(pvVal*qabs*costh)^b*(qabs^2)^c;
 F=num/den;
 thermalResidueExpr=Total[(Residue[BoseV6[-(z-#["Shift"]),temp]*F,{z,#["Shift"]-#["Energy"]}]+Residue[-BoseV6[z-#["Shift"],temp]*F,{z,#["Shift"]+#["Energy"]}])&/@familyData];
 measureExpr=Cancel[Together[qabs^2/(4 Pi^2)*thermalResidueExpr]];
-result=With[{qlo=qmin,qhi=qmax,wp0=wp,acc0=acc,prec0=prec,maxrec0=maxrec,method0=method,integrand=measureExpr},NIntegrate[Evaluate[integrand],{qabs,qlo,qhi},{costh,-1,1},WorkingPrecision->wp0,AccuracyGoal->acc0,PrecisionGoal->prec0,MaxRecursion->maxrec0,Method->method0]];
+result=Check[With[{qlo=qmin,qhi=qmax,wp0=wp,acc0=acc,prec0=prec,maxrec0=maxrec,method0=method,integrand=measureExpr},NIntegrate[Evaluate[integrand],{qabs,qlo,qhi},{costh,-1,1},WorkingPrecision->wp0,AccuracyGoal->acc0,PrecisionGoal->prec0,MaxRecursion->maxrec0,Method->method0]],$Failed];
+If[!NumberQ[result]||RGZWorkflow`Private`qqFFInvalidQ[result],Return[Failure["ThermalMomentIncomplete",<||>]]];
 If[useCache,LoopMCacheV6[cacheKey]=result];
 result];
 

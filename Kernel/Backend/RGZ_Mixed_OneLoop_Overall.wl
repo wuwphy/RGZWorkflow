@@ -13,7 +13,7 @@
 
 With[{f=FileNameJoin[{DirectoryName[$InputFileName],
     "RGZ_OneLoop_AA_PT_Check.wl"}]},
-  If[!FileExistsQ[f],Print["\:7f3a\:5c11\:8f85\:52a9\:6587\:4ef6\:ff1a",f];Abort[]];
+  If[!FileExistsQ[f],Print["MissingauxiliaryFile: ",f];Abort[]];
   Block[{$Output={}},Get[f]]];
 
 ClearAll[RGZMXObjects,RGZMXIndexKind,RGZMXTerms,RGZMXAuditSums,
@@ -36,68 +36,68 @@ ClearAll[RGZMXObjects,RGZMXIndexKind,RGZMXTerms,RGZMXAuditSums,
 (* Display policy only: no change to amplitudes or cache fingerprints.
    A single optional Monitor cell refreshes at most once per two seconds.
    Ordinary messages and failure notices are never suppressed by quiet mode. *)
-If[!MemberQ[{"\:7b80\:6d01","\:9759\:9ed8","\:8be6\:7ec6"},$RGZMXOutputMode],$RGZMXOutputMode="\:7b80\:6d01"];
-rgzMXProgress=<|"\:90e8\:95e8"->"", "\:56fe\:53f7"->0,"\:56fe\:6570"->0,"\:9636\:6bb5"->"\:7b49\:5f85",
-  "\:5b50\:6b65\:9aa4"->"", "\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,
-  "\:72b6\:6001"->"\:7b49\:5f85","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]|>;
+If[!MemberQ[{"Compact","Quiet","Verbose"},$RGZMXOutputMode],$RGZMXOutputMode="Compact"];
+rgzMXProgress=<|"Sector"->"", "DiagramID"->0,"DiagramCount"->0,"Stage"->"Waiting",
+  "Substep"->"", "TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,
+  "Status"->"Waiting","StageStartTime"->AbsoluteTime[]|>;
 
-RGZMXSetDisplay[mode_String:"\:7b80\:6d01"] :=
-  If[MemberQ[{"\:7b80\:6d01","\:9759\:9ed8","\:8be6\:7ec6"},mode],$RGZMXOutputMode=mode,
-    Failure["DisplayMode",<|"\:53ef\:7528\:6a21\:5f0f"->{"\:7b80\:6d01","\:9759\:9ed8","\:8be6\:7ec6"}|>]];
+RGZMXSetDisplay[mode_String:"Compact"] :=
+  If[MemberQ[{"Compact","Quiet","Verbose"},mode],$RGZMXOutputMode=mode,
+    Failure["DisplayMode",<|"Availablemode"->{"Compact","Quiet","Verbose"}|>]];
 RGZMXReport[level_String,args___] := If[
-  level==="\:9519\:8bef" || $RGZMXOutputMode==="\:8be6\:7ec6" ||
-    (level==="\:6458\:8981" && $RGZMXOutputMode==="\:7b80\:6d01"),Print[args]];
+  level==="Error" || $RGZMXOutputMode==="Verbose" ||
+    (level==="Summary" && $RGZMXOutputMode==="Compact"),Print[args]];
 RGZMXProgressUpdate[rules__Rule] :=
   (rgzMXProgress=Join[rgzMXProgress,Association@@{rules}];Null);
 
 RGZMXProgressPanel[] := Module[{a=rgzMXProgress,n,total,done,elapsed,bar,operationInfo},
-  n=Lookup[a,"\:9879\:53f7",0];total=Lookup[a,"\:603b\:9879\:6570",0];
-  done=Lookup[a,"\:5b8c\:6210\:9879\:6570",0];
-  elapsed=Max[0,Round[AbsoluteTime[]-Lookup[a,"\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4",AbsoluteTime[]]]];
+  n=Lookup[a,"TermID",0];total=Lookup[a,"TotalTermCount",0];
+  done=Lookup[a,"CompleteTermCount",0];
+  elapsed=Max[0,Round[AbsoluteTime[]-Lookup[a,"StageStartTime",AbsoluteTime[]]]];
   bar=If[total>0,ProgressIndicator[done,{0,total}],
-    If[Lookup[a,"\:72b6\:6001",""]==="\:5b8c\:6210",ProgressIndicator[1],ProgressIndicator[Indeterminate]]];
+    If[Lookup[a,"Status",""]==="Complete",ProgressIndicator[1],ProgressIndicator[Indeterminate]]];
   operationInfo=Which[
-    Lookup[a,"\:72b6\:6001",""]==="\:8ba1\:7b97\:4e2d" &&
-      MemberQ[{"\:5206\:89e3T","\:5206\:89e3L"},Lookup[a,"\:9636\:6bb5",""]] &&
+    Lookup[a,"Status",""]==="ComputeIn" &&
+      MemberQ[{"DecomposeT","DecomposeL"},Lookup[a,"Stage",""]] &&
       AssociationQ[rgzMXLastSplitStep],
-    Row[{"\:5f53\:524d\:64cd\:4f5c ",Max[0,Round[AbsoluteTime[]-
-      Lookup[rgzMXLastSplitStep,"\:5f00\:59cb\:65f6\:95f4",AbsoluteTime[]]]]," \:79d2",
-      If[Lookup[rgzMXLastSplitStep,"\:52a8\:91cf\:8def\:7531",0]>0,
-        Row[{"  \:00b7  \:8def\:7531 ",rgzMXLastSplitStep["\:52a8\:91cf\:8def\:7531"]," / 3"}],""]}],
-    Lookup[a,"\:72b6\:6001",""]==="\:8ba1\:7b97\:4e2d" &&
-      MemberQ[{"\:6c47\:603b","\:5f20\:91cf\:77e9\:9635","T\:77e9\:9635","L\:77e9\:9635"},Lookup[a,"\:9636\:6bb5",""]],
-      Row[{"\:5f53\:524d\:64cd\:4f5c ",Max[0,Round[AbsoluteTime[]-
-        Lookup[a,"\:64cd\:4f5c\:5f00\:59cb\:65f6\:95f4",AbsoluteTime[]]]]," \:79d2"}],
+    Row[{"CurrentOperation ",Max[0,Round[AbsoluteTime[]-
+      Lookup[rgzMXLastSplitStep,"StartTime",AbsoluteTime[]]]]," Seconds",
+      If[Lookup[rgzMXLastSplitStep,"MomentumRouting",0]>0,
+        Row[{"  ·  Routing ",rgzMXLastSplitStep["MomentumRouting"]," / 3"}],""]}],
+    Lookup[a,"Status",""]==="ComputeIn" &&
+      MemberQ[{"Aggregate","TensorMatrix","TMatrix","LMatrix"},Lookup[a,"Stage",""]],
+      Row[{"CurrentOperation ",Max[0,Round[AbsoluteTime[]-
+        Lookup[a,"OperationStartTime",AbsoluteTime[]]]]," Seconds"}],
     True,Nothing];
   Panel[Column[{
-    Row[{Lookup[a,"\:90e8\:95e8",""],"  \:00b7  ",
-      If[Lookup[a,"\:56fe\:6570",0]>0,
-        Row[{"\:56fe ",Lookup[a,"\:56fe\:53f7",0]," / ",Lookup[a,"\:56fe\:6570",0],"  \:00b7  "}],""],
-      Lookup[a,"\:9636\:6bb5",""]}],
-    Row[{Lookup[a,"\:5b50\:6b65\:9aa4",""],
+    Row[{Lookup[a,"Sector",""],"  ·  ",
+      If[Lookup[a,"DiagramCount",0]>0,
+        Row[{"Diagram ",Lookup[a,"DiagramID",0]," / ",Lookup[a,"DiagramCount",0],"  ·  "}],""],
+      Lookup[a,"Stage",""]}],
+    Row[{Lookup[a,"Substep",""],
       If[total>0,Row[{"  ",n," / ",total}],""]}],
-    bar,operationInfo,Row[{Lookup[a,"\:72b6\:6001",""],"  \:00b7  \:9636\:6bb5\:8017\:65f6 ",elapsed," \:79d2"}]
+    bar,operationInfo,Row[{Lookup[a,"Status",""],"  ·  StageElapsedSeconds ",elapsed," Seconds"}]
   },Spacings->0.4],ImageSize->480]
 ];
 SetAttributes[RGZMXMonitor,HoldAll];
 RGZMXMonitor[expr_] := If[
-  $FrontEnd===Null || $RGZMXOutputMode==="\:9759\:9ed8" || TrueQ[rgzMXMonitorActive],expr,
+  $FrontEnd===Null || $RGZMXOutputMode==="Quiet" || TrueQ[rgzMXMonitorActive],expr,
   Monitor[Block[{rgzMXMonitorActive=True},expr],
     Refresh[RGZMXProgressPanel[],UpdateInterval->2,TrackedSymbols:>{}]]];
 
 SetAttributes[RGZMXInitStep,HoldRest];
 RGZMXInitStep[label_,expr_,seconds_] := Module[{time,z},
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->label,"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d"];
-  RGZMXReport["\:8be6\:7ec6","\:5f00\:59cb\:ff1a",label];
+  RGZMXProgressUpdate["Substep"->label,"Status"->"ComputeIn"];
+  RGZMXReport["Verbose","Start: ",label];
   {time,z}=AbsoluteTiming[CheckAbort[
     TimeConstrained[expr,seconds,$Aborted],$Aborted]];
-  RGZMXReport["\:8be6\:7ec6","\:7ed3\:675f\:ff1a",label,"\:ff1b\:8017\:65f6 ",Round[time,0.01]," \:79d2\:ff1b",
-    Which[z===$Aborted,"\:8d85\:65f6\:6216\:4e2d\:6b62",z===$Failed || FailureQ[z],"\:5931\:8d25",True,"\:5b8c\:6210"]];
+  RGZMXReport["Verbose","End: ",label,"; ElapsedSeconds ",Round[time,0.01]," Seconds; ",
+    Which[z===$Aborted,"TimeoutOrAborted",z===$Failed || FailureQ[z],"Failed",True,"Complete"]];
   If[z===$Aborted || z===$Failed || FailureQ[z],
-    RGZMXProgressUpdate["\:72b6\:6001"->"\:521d\:59cb\:5316\:672a\:5b8c\:6210"];
-    RGZMXReport["\:9519\:8bef","\:521d\:59cb\:5316\:672a\:5b8c\:6210\:ff1a",label,"\:ff1b\:8017\:65f6 ",Round[time,0.01]," \:79d2\:3002"]];
+    RGZMXProgressUpdate["Status"->"InitializeIncomplete"];
+    RGZMXReport["Error","InitializeIncomplete: ",label,"; ElapsedSeconds ",Round[time,0.01]," Seconds. "]];
   If[z===$Aborted || z===$Failed,
-    Failure["InitializationStopped",<|"\:6b65\:9aa4"->label,"\:539f\:56e0"->z|>],z]
+    Failure["InitializationStopped",<|"Step"->label,"Cause"->z|>],z]
 ];
 
 RGZMXObjects[x_,name_] := DeleteDuplicates@Cases[x,
@@ -145,7 +145,7 @@ RGZMXSpectatorDeltaQ[d_] :=
 RGZMXSumDimension[r_] := Which[
   IntegerQ[r] && r>0,r,
   ListQ[r] && r=!={},Length[DeleteDuplicates[r]],
-  True,Failure["UnknownExplicitSumRange",<|"\:8303\:56f4"->r|>]];
+  True,Failure["UnknownExplicitSumRange",<|"Scope"->r|>]];
 
 RGZMXResolveSpectatorSums[input_,inputSums_List] := Module[
   {body=input,sums=inputSums,audit={},progress=True,factors,deltas,delta,
@@ -167,7 +167,7 @@ RGZMXResolveSpectatorSums[input_,inputSums_List] := Module[
       If[FailureQ[di] || FailureQ[dj] || si[[1,2]]=!=sj[[1,2]],Continue[]];
       If[SameQ[i,j],
         body=Times@@Select[factors,!SameQ[#,delta]&];
-        AppendTo[audit,<|"\:5f20\:91cf"->delta,"\:5904\:7406"->"Kronecker \:5bf9\:89d2\:5143\:4e3a 1\:ff1b\:4fdd\:7559\:663e\:5f0f\:6c42\:548c"|>];
+        AppendTo[audit,<|"Tensor"->delta,"process "->"Kronecker diagonal entries are 1; retain explicit sums"|>];
         progress=True;Break[]];
       internal=Select[{i,j},Function[idx,
         AnyTrue[sums,SameQ[#[[1]],idx] && !RGZMXExternalSumQ[#]&]]];
@@ -175,11 +175,11 @@ RGZMXResolveSpectatorSums[input_,inputSums_List] := Module[
       If[SameQ[First[internal],j],{i,j}={j,i}];
       body=(Times@@Select[factors,!SameQ[#,delta]&]) /. (i->j);
       sums=Select[sums,!SameQ[#[[1]],i]&];
-      AppendTo[audit,<|"\:5f20\:91cf"->delta,"\:5904\:7406"->"\:663e\:5f0f Kronecker \:6c42\:548c\:ff1a\:6d88\:53bb\:4e00\:4e2a\:6307\:6807\:548c\:5bf9\:5e94 SumOver",
-        "\:6d88\:53bb\:6307\:6807"->i,"\:4fdd\:7559\:6307\:6807"->j,"\:8303\:56f4"->si[[1,2]]|>];
+      AppendTo[audit,<|"Tensor"->delta,"process "->"Explicit Kronecker sum: eliminate one index and its SumOver",
+        "eliminate Index"->i,"RetainIndex"->j,"Scope"->si[[1,2]]|>];
       progress=True;Break[],{delta,deltas}]
   ];
-  <|"\:8868\:8fbe\:5f0f"->body,"\:6c42\:548c"->sums,"\:6c42\:548c\:5ba1\:8ba1"->audit|>
+  <|"Expression"->body,"Sum"->sums,"SumAudit"->audit|>
 ];
 
 (* FeynArts SUNF[a,b,c,d] means SUM_e f[a,b,e] f[e,c,d].
@@ -227,8 +227,8 @@ RGZMXAdjointDimension[] := Module[{heads,defs,ranges,dims},
   dims=DeleteDuplicates@Cases[ranges,lst_List /;
     Length[lst]>0 && SameQ[lst,Range[Length[lst]]] :> Length[lst],{1}];
   If[Length[dims]===1,First[dims],Failure["UnknownAdjointRange",<|
-    "\:8bf4\:660e"->"\:4e0d\:80fd\:552f\:4e00\:8bfb\:53d6\:5f53\:524d\:6a21\:578b IndexRange[Index[Gluon]]\:3002",
-    "\:5019\:9009\:8303\:56f4"->ranges|>]]
+    "Description"->"Cannot uniquely determine IndexRange[Index[Gluon]] for the current model.",
+    "candidateScope"->ranges|>]]
 ];
 
 RGZMXNormalizeColourSums[input_] := Module[
@@ -236,33 +236,33 @@ RGZMXNormalizeColourSums[input_] := Module[
     adjointDim=Missing["NotRead"]},
   resolve[args_List] := Module[{body,it,v,dim,dummy,terms,counts,out},
     If[Length[args]=!=2,Throw[Failure["ExplicitIndexSum",<|
-      "\:8bf4\:660e"->"\:6682\:4e0d\:652f\:6301\:6b64 IndexSum \:7684\:8fed\:4ee3\:5668\:7ed3\:6784\:3002","Objects"->{args}|>],stop]];
+      "Description"->"This IndexSum iterator structure is unsupported.","Objects"->{args}|>],stop]];
     body=args[[1]];it=args[[2]];
     dim=Which[
       MatchQ[it,{_Symbol,1,_Integer}] && it[[3]]>0,it[[3]],
       MatchQ[it,{_Symbol,_List}] && Length[it[[2]]]>0 &&
         SameQ[it[[2]],Range[Length[it[[2]]]]],Length[it[[2]]],
       True,Throw[Failure["ExplicitIndexSum",<|
-        "\:8bf4\:660e"->"\:672a\:786e\:8ba4\:5b8c\:6574\:7684\:4f34\:968f\:989c\:8272\:6c42\:548c\:8303\:56f4\:3002","Objects"->{args}|>],stop]];
+        "Description"->"The complete adjoint color-sum range is unconfirmed.","Objects"->{args}|>],stop]];
     v=First[it];terms=RGZMXTerms[Expand[body]];
     counts=RGZMXBoundColourCount[#,v]& /@ terms;
     If[!And@@(MemberQ[{{2,0},{0,0}},#]& /@ counts),
       Throw[Failure["ExplicitIndexSum",<|
-        "\:8bf4\:660e"->"\:6c42\:548c\:6307\:6807\:5e76\:975e\:6bcf\:9879\:53ea\:5728\:989c\:8272\:5f20\:91cf\:4e2d\:6210\:5bf9\:51fa\:73b0\:3002",
-        "\:8303\:56f4"->it,"\:51fa\:73b0\:6b21\:6570\:ff08\:989c\:8272\:3001\:5176\:4ed6\:ff09"->counts,
+        "Description"->"Summed indices do not occur in pairs exclusively within color tensors in every term.",
+        "Scope"->it,"Occurrences (Color, other)"->counts,
         "Objects"->{args}|>],stop]];
     (* A completely index-independent finite sum is literal multiplicity. *)
     If[MemberQ[counts,{2,0}],
       If[Head[adjointDim]===Missing,adjointDim=RGZMXAdjointDimension[]];
       If[FailureQ[adjointDim] || dim=!=adjointDim,
         Throw[Failure["ExplicitIndexSum",<|
-          "\:8bf4\:660e"->"\:6c42\:548c\:8303\:56f4\:4e0e\:5f53\:524d\:6a21\:578b\:5b8c\:6574\:4f34\:968f\:989c\:8272\:8303\:56f4\:4e0d\:4e00\:81f4\:3002",
-          "\:8303\:56f4"->it,"\:6a21\:578b\:7ef4\:6570"->adjointDim,"Objects"->{args}|>],stop]]];
+          "Description"->"The sum range differs from the complete adjoint color range of the current model.",
+          "Scope"->it,"ModelDimension"->adjointDim,"Objects"->{args}|>],stop]]];
     dummy=SUNIndex[Unique["rgzMixSum$"]];
     out=MapThread[If[#2==={0,0},dim #1,#1 /. (v->dummy)]&,{terms,counts}];
-    AppendTo[audit,<|"\:6c42\:548c"->it,
-      "\:5904\:7406"->"\:5b8c\:6574\:989c\:8272\:6c42\:548c\:8f6c\:4e3a\:914d\:5bf9\:54d1\:6307\:6807\:ff1b\:72ec\:7acb\:9879\:4fdd\:7559\:8303\:56f4\:4e58\:6570",
-      "\:8303\:56f4\:7ef4\:6570"->dim,"\:54d1\:6307\:6807"->dummy|>];
+    AppendTo[audit,<|"Sum"->it,
+      "process "->"Convert complete color sums to paired dummy indices; retain range multipliers for independent terms",
+      "ScopeDimension"->dim,"DummyIndex"->dummy|>];
     Total[out]
   ];
   walk[x_?AtomQ] := x;
@@ -271,13 +271,13 @@ RGZMXNormalizeColourSums[input_] := Module[
       RGZLoopName[h]==="IndexSum",resolve[args],
       RGZMXFourColourQ[h,args],
         d=SUNIndex[Unique["rgzMixF4$"]];
-        AppendTo[audit,<|"\:989c\:8272\:7b80\:5199"->Apply[h,args],
-          "\:5904\:7406"->"\:56db\:53c2\:6570 SUNF \:5c55\:5f00\:4e3a\:4e24\:4e2a\:4e09\:53c2\:6570\:7ed3\:6784\:5e38\:6570","\:54d1\:6307\:6807"->d|>];
+        AppendTo[audit,<|"Colorabbreviation"->Apply[h,args],
+          "process "->"Expand four-argument SUNF into two three-argument structure constants","DummyIndex"->d|>];
         h[args[[1]],args[[2]],d] h[d,args[[3]],args[[4]]],
       True,Apply[h,args]]
   ];
   result=Catch[walk[input],stop];
-  If[FailureQ[result],result,<|"\:8868\:8fbe\:5f0f"->result,"\:6c42\:548c\:5ba1\:8ba1"->audit|>]
+  If[FailureQ[result],result,<|"Expression"->result,"SumAudit"->audit|>]
 ];
 
 (* Inspect sums BEFORE Contract/SUNSimplify can erase their indices.
@@ -293,42 +293,42 @@ RGZMXAuditSums[expr_,scalarC_:False] := Module[
     normalized},
   normalized=RGZMXNormalizeColourSums[expr];
   If[FailureQ[normalized],Return[normalized]];
-  audit=normalized["\:6c42\:548c\:5ba1\:8ba1"];
-  terms=RGZMXTerms[Expand[normalized["\:8868\:8fbe\:5f0f"]]];
+  audit=normalized["SumAudit"];
+  terms=RGZMXTerms[Expand[normalized["Expression"]]];
   Do[
     sums=RGZMXObjects[t,"SumOver"];
     body=t /. (h_[___] /; RGZLoopName[h]==="SumOver" :> 1);
     record=RGZMXResolveSpectatorSums[body,sums];
-    body=record["\:8868\:8fbe\:5f0f"];sums=record["\:6c42\:548c"];
-    audit=Join[audit,record["\:6c42\:548c\:5ba1\:8ba1"]];multiplicity=1;
+    body=record["Expression"];sums=record["Sum"];
+    audit=Join[audit,record["SumAudit"]];multiplicity=1;
     Do[
       idx=sum[[1]];kind=RGZMXIndexKind[idx];
       n=RGZMXIndexOccurrences[body,idx];
       Which[
         RGZMXExternalSumQ[sum],
-          AppendTo[audit,<|"\:6c42\:548c"->sum,
-            "\:5904\:7406"->"\:79fb\:9664\:5916\:817f\:6c42\:548c\:6807\:8bb0\:ff1b\:4fdd\:7559\:5f00\:653e\:6307\:6807\:ff0c\:4e0d\:4e58\:6c42\:548c\:8303\:56f4"|>],
+          AppendTo[audit,<|"Sum"->sum,
+            "process "->"Remove external-leg sum markers; keep open indices without multiplying by the sum range"|>],
         MemberQ[{"Lorentz","Adjoint","Gluon","Gribov","Colour"},kind] && n>=2,
-          AppendTo[audit,<|"\:6c42\:548c"->sum,"\:5904\:7406"->"\:663e\:5f0f\:5f20\:91cf\:4e2d\:7684\:7231\:56e0\:65af\:5766\:6c42\:548c"|>],
+          AppendTo[audit,<|"Sum"->sum,"process "->"Einstein summation in explicit tensors"|>],
         scalarC && kind==="Lorentz" && n===0,
-          AppendTo[audit,<|"\:6c42\:548c"->sum,"\:5904\:7406"->"\:6807\:91cf c \:7684\:4eba\:5de5 Lorentz \:6807\:7b7e"|>],
+          AppendTo[audit,<|"Sum"->sum,"process "->"Scalar c Ofmanual Lorentz Tag"|>],
         RGZMXSpectatorIndexQ[idx] && n===0,
           dim=RGZMXSumDimension[sum[[2]]];
-          If[FailureQ[dim],AppendTo[bad,<|"\:6c42\:548c"->sum,"\:539f\:56e0"->dim|>],
+          If[FailureQ[dim],AppendTo[bad,<|"Sum"->sum,"Cause"->dim|>],
             multiplicity=multiplicity dim;
-            AppendTo[audit,<|"\:6c42\:548c"->sum,"\:5904\:7406"->"\:4e0e\:6307\:6807\:65e0\:5173\:7684\:663e\:5f0f\:989c\:8272\:6c42\:548c",
-              "\:4e58\:6570"->dim|>]],
-        True,AppendTo[bad,<|"\:6c42\:548c"->sum,"\:7c7b\:578b"->kind,
-          "\:5f20\:91cf\:4e2d\:51fa\:73b0\:6b21\:6570"->n,"\:6240\:5728\:9879"->t|>]
+            AppendTo[audit,<|"Sum"->sum,"process "->"Explicit color sum independent of the index",
+              "Multiplier"->dim|>]],
+        True,AppendTo[bad,<|"Sum"->sum,"Type"->kind,
+          "TensorInOccurrences"->n,"ContainingTerm"->t|>]
       ],{sum,sums}];
     AppendTo[out,multiplicity body],{t,terms}];
   If[bad=!={},Return[Failure["UnresolvedSum",<|
-    "\:8bf4\:660e"->"\:4e0d\:80fd\:786e\:8ba4\:6b64\:6c42\:548c\:7684\:56e0\:5b50\:ff1b\:5148\:68c0\:67e5 Objects\:ff0c\:4e0d\:7ee7\:7eed\:79ef\:5206\:3002",
+    "Description"->"Cannot determine the sum multiplier. Inspect Objects before integrating.",
     "Objects"->DeleteDuplicates[bad]|>]]];
-  If[RGZMXObjects[normalized["\:8868\:8fbe\:5f0f"],"IndexSum"]=!={},
+  If[RGZMXObjects[normalized["Expression"],"IndexSum"]=!={},
     Return[Failure["ExplicitIndexSum",<|"Objects"->
-      RGZMXObjects[normalized["\:8868\:8fbe\:5f0f"],"IndexSum"]|>]]];
-  <|"\:8868\:8fbe\:5f0f"->Total[out],"\:6c42\:548c\:5ba1\:8ba1"->DeleteDuplicates[audit]|>
+      RGZMXObjects[normalized["Expression"],"IndexSum"]|>]]];
+  <|"Expression"->Total[out],"SumAudit"->DeleteDuplicates[audit]|>
 ];
 
 (* Resolve option SYMBOLS from the active FCFAConvert definition.
@@ -338,11 +338,11 @@ RGZMXFCOptions[] := Module[{available,wanted,out={},match,name},
   available=First/@Options[FCFAConvert];
   If[!AnyTrue[available,RGZLoopName[#]==="DropSumOver"&],
     Return[Failure["UnsupportedConverter",<|
-      "\:8bf4\:660e"->"\:5f53\:524d FCFAConvert \:6ca1\:6709 DropSumOver \:9009\:9879\:ff1b\:65e0\:6cd5\:4fdd\:7559\:6c42\:548c\:6807\:7b7e\:3002",
-      "\:5b9e\:9645\:9009\:9879"->Options[FCFAConvert]|>]]];
+      "Description"->"This FCFAConvert has no DropSumOver option; sum labels cannot be retained.",
+      "ActualselectedTerm"->Options[FCFAConvert]|>]]];
   wanted={"IncomingMomenta"->{p},"OutgoingMomenta"->{p},
     "LoopMomenta"->{q},"UndoChiralSplittings"->False,
-    "LorentzIndexNames"->(RGZMXLorentzNames@@rgzMXJob["\:573a\:5bf9"]),"ChangeDimension"->D,
+    "LorentzIndexNames"->(RGZMXLorentzNames@@rgzMXJob["FieldPair"]),"ChangeDimension"->D,
     "List"->True,"Contract"->False,"DropSumOver"->False,
     "FeynAmpDenominatorCombine"->False,"FCFADiracChainJoin"->False,
     "DropIndexSum"->False};
@@ -356,7 +356,7 @@ RGZMXFCOptions[] := Module[{available,wanted,out={},match,name},
    No FCFAConvert here: all raw graph checkpoints exist before conversion. *)
 RGZMXPrepareFA[diagrams_,scalarC_:False,seconds_:60] := Module[
   {fa,stop,audits={},prepared},Catch[
-  If[Length[diagrams]===0,Throw[<|"FA\:632f\:5e45\:5217\:8868"->{},"\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1"->{}|>,stop]];
+  If[Length[diagrams]===0,Throw[<|"FAAmplitudeList"->{},"OriginalSumAudit"->{}|>,stop]];
   fa=RGZMXInitStep["CreateFeynAmp",
     CreateFeynAmp[diagrams,Truncated->True,GaugeRules->{},PreFactor->1],seconds];
   If[FailureQ[fa],Throw[fa,stop]];
@@ -365,18 +365,18 @@ RGZMXPrepareFA[diagrams_,scalarC_:False,seconds_:60] := Module[
   fa=fa /. {HoldPattern[RGZWorkflow`Engine`mQ1[___]] :> RGZWorkflow`Engine`mQ1,
     HoldPattern[RGZWorkflow`Engine`mQ2[___]] :> RGZWorkflow`Engine`mQ2};
   fa=fa /. RGZWorkflow`Private`quarkMassRules[];
-  prepared=RGZMXInitStep["\:539f\:59cb FeynArts \:6c42\:548c\:5ba1\:8ba1",
+  prepared=RGZMXInitStep["Original FeynArts SumAudit",
     RGZMXPrepareIndices[fa] /. (HoldPattern[h_[id_,lm_,integrand_,rest___]] /;
       MemberQ[{"FeynAmp","FAFeynAmp"},RGZLoopName[h]] :> Module[{record},
         record=RGZMXAuditSums[integrand,scalarC];
         If[FailureQ[record],Throw[record,stop]];
-        AppendTo[audits,record["\:6c42\:548c\:5ba1\:8ba1"]];
-        h[id,lm,record["\:8868\:8fbe\:5f0f"],rest]]),seconds];
+        AppendTo[audits,record["SumAudit"]];
+        h[id,lm,record["Expression"],rest]]),seconds];
   If[FailureQ[prepared],Throw[prepared,stop]];
   If[Length[prepared]=!=Length[audits],
-    Throw[Failure["RawAmplitudeCount",<|"\:632f\:5e45\:6570"->Length[prepared],
-      "\:5ba1\:8ba1\:6570"->Length[audits]|>],stop]];
-  <|"FA\:632f\:5e45\:5217\:8868"->prepared,"\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1"->audits|>,stop]
+    Throw[Failure["RawAmplitudeCount",<|"AmplitudeCount"->Length[prepared],
+      "AuditCount"->Length[audits]|>],stop]];
+  <|"FAAmplitudeList"->prepared,"OriginalSumAudit"->audits|>,stop]
 ];
 
 (* Input is a ONE-amplitude FeynAmpList with its metadata intact.
@@ -385,19 +385,19 @@ RGZMXPrepareFA[diagrams_,scalarC_:False,seconds_:60] := Module[
 RGZMXConvertOne[prepared_,scalarC_:False,rawAudit_List:{}] := Module[
   {opts,fc,a,bad},
   opts=RGZMXFCOptions[];If[FailureQ[opts],Return[opts]];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"FCFAConvert"];
-  RGZMXReport["\:8be6\:7ec6","\:8f6c\:6362\:ff1aFCFAConvert\:ff08\:5355\:56fe\:ff1b\:4e0d\:6536\:7f29\:5f20\:91cf\:ff09"];
+  RGZMXProgressUpdate["Substep"->"FCFAConvert"];
+  RGZMXReport["Verbose","Convert: FCFAConvert (SingleDiagram; NotcontractionTensor)"];
   fc=FCFAConvert[prepared,Sequence@@opts];
   If[FailureQ[fc],Return[fc]];
   If[!ListQ[fc] || Length[fc]=!=1,
     Return[Failure["ConversionFailed",<|"Output"->fc|>]]];
   bad=RGZLoopUnresolved[First[fc]];
   If[bad=!={},Return[Failure["UnresolvedCoupling",<|"Objects"->bad|>]]];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:6c42\:548c\:5ba1\:8ba1"];
-  RGZMXReport["\:8be6\:7ec6","\:8f6c\:6362\:ff1aFeynCalc \:6c42\:548c\:5ba1\:8ba1"];
+  RGZMXProgressUpdate["Substep"->"SumAudit"];
+  RGZMXReport["Verbose","Convert: FeynCalc SumAudit"];
   fc=fc /. DiracTrace[x_,opts___] :> DiracTrace[x,DiracTraceEvaluate->True];
   a=RGZMXAuditSums[First[fc],scalarC];If[FailureQ[a],Return[a]];
-  <|"\:632f\:5e45"->a["\:8868\:8fbe\:5f0f"],"\:6c42\:548c\:5ba1\:8ba1"->Join[rawAudit,a["\:6c42\:548c\:5ba1\:8ba1"]]|>
+  <|"Amplitude"->a["Expression"],"SumAudit"->Join[rawAudit,a["SumAudit"]]|>
 ];
 
 (* Compatibility helper: still converts a whole list when explicitly
@@ -406,30 +406,34 @@ RGZMXConvert[diagrams_,scalarC_:False,seconds_:60] := Module[
   {prepared,fa,out={},a,i,stop},Catch[
   prepared=RGZMXPrepareFA[diagrams,scalarC,seconds];
   If[FailureQ[prepared],Throw[prepared,stop]];
-  fa=prepared["FA\:632f\:5e45\:5217\:8868"];
+  fa=prepared["FAAmplitudeList"];
   Do[
-    a=RGZMXInitStep["FCFAConvert\:ff1a"<>ToString[i]<>" / "<>ToString[Length[fa]],
+    a=RGZMXInitStep["FCFAConvert："<>ToString[i]<>" / "<>ToString[Length[fa]],
       RGZMXConvertOne[Apply[Head[fa],{fa[[i]]}],scalarC,
-        prepared["\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1"][[i]]],seconds];
+        prepared["OriginalSumAudit"][[i]]],seconds];
     If[FailureQ[a],Throw[a,stop]];AppendTo[out,a],{i,Length[fa]}];
   out,stop]
 ];
 
 RGZMXConvertedQ[row_Association] := With[
-  {amp=Lookup[row,"\:632f\:5e45",Missing["NotConverted"]]},
+  {amp=Lookup[row,"Amplitude",Missing["NotConverted"]]},
   Head[amp]=!=Missing && amp=!=$Failed && amp=!=$Aborted && !FailureQ[amp]];
 RGZMXMigrateRow[row_Association] := Module[{states},
   If[!RGZMXConvertedQ[row],Return[row]];
-  states=Join[Lookup[row,"\:72b6\:6001",<||>],<|"\:8f6c\:6362"->"\:5b8c\:6210"|>];
-  Join[row,<|"\:72b6\:6001"->states|>]
+  states=Join[Lookup[row,"Status",<||>],<|"Convert"->"Complete"|>];
+  Join[row,<|"Status"->states|>]
 ];
 
 (* Replace each checkpoint atomically; a failed stage does not erase
    previously successful stages. One graph per file, avoiding repeated
    writes of the entire large amplitude collection. *)
-RGZMXWrite[value_,path_String] := Module[{tmp=path<>".tmp",r},
-  r=Quiet@Check[Put[value,tmp];RenameFile[tmp,path,OverwriteTarget->True],$Failed];
-  If[r===$Failed,Failure["CacheWrite",<|"Path"->path|>],path]
+RGZMXWrite[value_,path_String] := Module[{tmp=path<>"."<>CreateUUID[]<>".tmp",r},
+  Internal`WithLocalSettings[Null,
+    r=Quiet[Check[Put[value,tmp],$Failed]];
+    If[r=!=Null || !FileExistsQ[tmp],Return[Failure["CacheWrite",<|"Path"->path|>]]];
+    r=Quiet[Check[RenameFile[tmp,path,OverwriteTarget->True],$Failed]];
+    If[!StringQ[r] || !FileExistsQ[path],Failure["CacheWrite",<|"Path"->path|>],path],
+    If[FileExistsQ[tmp],Quiet[DeleteFile[tmp]]]]
 ];
 
 (* Field basis is a basis of ALL-INCOMING fields in the quadratic action.
@@ -446,9 +450,9 @@ RGZMXLabel[i_Integer] := {"A","b","\[Tau]","\[Xi]","\[Phi]",
 RGZMXPairID[x_Integer] /; 1<=x<=8 := x;
 RGZMXPairID[x_String] := Module[{k},
   k=FirstPosition[RGZMXLabel/@Range[8],x,Missing["Field"]];
-  If[Head[k]===Missing,Failure["FieldName",<|"\:540d\:79f0"->x,
-    "\:53ef\:7528\:540d\:79f0"->(RGZMXLabel/@Range[8])|>],First[k]]];
-RGZMXPairID[x_] := Failure["FieldName",<|"\:540d\:79f0"->HoldForm[x]|>];
+  If[Head[k]===Missing,Failure["FieldName",<|"Name"->x,
+    "AvailableName"->(RGZMXLabel/@Range[8])|>],First[k]]];
+RGZMXPairID[x_] := Failure["FieldName",<|"Name"->HoldForm[x]|>];
 RGZMXLorentzNames[i_,j_] := If[RGZMXVectorQ[i] && RGZMXVectorQ[j],
   {\[Mu],\[Nu]},If[RGZMXVectorQ[i] || RGZMXVectorQ[j],{\[Mu]},{}]];
 RGZMXUnfixedKinematicsQ[] := SameQ[
@@ -471,83 +475,83 @@ RGZMXPrepareIndices[expr_] := expr /. (HoldPattern[h_[type_,label_]] /;
 RGZMXLegacyAA[sector_String,root_String] := Module[{hash,path,m,files,rows},
   hash=IntegerString[Hash[{Import[modelRGZ<>".gen","Text"],
     Import[modelRGZ<>".mod","Text"],{sector},
-    If[sector==="\:56db\:70b9\:9876\:70b9\:5708\:56fe","AA-workflow-v3",
+    If[sector==="FourPointVertexLoop","AA-workflow-v3",
       "AA-workflow-v3-grouped-routes-v5"]},"SHA256"],16];
   path=FileNameJoin[{root,"RGZ_AA_cache_"<>StringTake[hash,12]}];
   If[!FileExistsQ[FileNameJoin[{path,"job.wl"}]],Return[Missing["NoAACache"]]];
   m=Get[FileNameJoin[{path,"job.wl"}]];
-  If[!AssociationQ[m] || Lookup[m,"\:7248\:672c",0]=!=3 ||
-    Lookup[m,"\:6a21\:578b",None]=!=modelRGZ || Lookup[m,"\:8ba1\:7b97\:7c7b\:522b",{}]=!={sector} ||
-    !IntegerQ[Lookup[m,"\:56fe\:6570",None]],Return[Missing["IncompatibleAACache"]]];
-  files=Table[FileNameJoin[{path,"graph_"<>ToString[n]<>".wl"}],{n,m["\:56fe\:6570"]}];
+  If[!AssociationQ[m] || Lookup[m,"Version",0]=!=3 ||
+    Lookup[m,"Model",None]=!=modelRGZ || Lookup[m,"ComputeCategory",{}]=!={sector} ||
+    !IntegerQ[Lookup[m,"DiagramCount",None]],Return[Missing["IncompatibleAACache"]]];
+  files=Table[FileNameJoin[{path,"graph_"<>ToString[n]<>".wl"}],{n,m["DiagramCount"]}];
   If[!And@@(FileExistsQ/@files),Return[Missing["IncompleteAACache"]]];
   rows=Get/@files;
   If[!And@@(AssociationQ/@rows),Return[Missing["BadAACache"]]];
-  <|"\:6765\:6e90"->path,"\:9010\:56fe"->(RGZMXMigrateRow/@rows)|>
+  <|"Source"->path,"PerDiagram"->(RGZMXMigrateRow/@rows)|>
 ];
 
 (* Explicit cache directories must obey the same model identity as the
    automatic hash directories. A basename alone cannot validate a cache. *)
-RGZMXModelFingerprint[] := Hash[{Import[modelRGZ<>#, "Text"]& /@ {".gen",".mod"},RGZWorkflow`Private`quarkMasses[]},"SHA256"];
+RGZMXModelFingerprint[] := Hash[{RGZWorkflow`Private`workflowFingerprint[],Import[modelRGZ<>#, "Text"]& /@ {".gen",".mod"},RGZWorkflow`Private`quarkMasses[]},"SHA256"];
 
-Options[RGZMXStart]={"\:7f13\:5b58\:76ee\:5f55"->Automatic,"\:7c7b\:522b"->All,"\:5355\:6b65\:65f6\:9650"->60,
-  "\:573a\:5bf9"->{1,1},"\:590d\:7528AA\:7f13\:5b58"->True};
+Options[RGZMXStart]={"CacheDirectory"->Automatic,"Category"->All,"SingleStepTimeLimit"->60,
+  "FieldPair"->{1,1},"reuseAACache"->True};
 RGZMXStart[OptionsPattern[]] := Module[
   {dir,root,hash,tops,ins=<||>,rows={},sector,data,sub,a,fa,n=0,i,j,classes,
    cache,manifest,r,selected,seconds,stop,pair,process,old,origin=None,routes,route,content},Catch[
-  pair=OptionValue["\:573a\:5bf9"];seconds=OptionValue["\:5355\:6b65\:65f6\:9650"];
+  pair=OptionValue["FieldPair"];seconds=OptionValue["SingleStepTimeLimit"];
   If[!MatchQ[pair,{_Integer,_Integer}] || !And@@(1<=#<=8&/@pair),
-    Throw[Failure["FieldPair",<|"\:573a\:5bf9"->pair|>],stop]];
+    Throw[Failure["FieldPair",<|"FieldPair"->pair|>],stop]];
   If[!NumericQ[seconds] || !TrueQ[seconds>0],
     Throw[Failure["InvalidTimeLimit",<||>],stop]];
   content=RGZWorkflow`Private`modelContent[];If[FailureQ[content],Throw[content,stop]];
   process={RGZMXField[pair[[1]]]}->{RGZMXAntiField[pair[[2]]]};
-  tops=<|"\:56db\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopTadpole,
-    "\:73bb\:8272\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopBosonBubble,
-    "\:9b3c\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopGhostBubble,"QuarkBubble"->rgzLoopTopGhostBubble|>;
-  selected=OptionValue["\:7c7b\:522b"];If[selected===All,selected=Keys[tops]];
+  tops=<|"FourPointVertexLoop"->rgzLoopTopTadpole,
+    "BosonicThreePointLoop"->rgzLoopTopBosonBubble,
+    "GhostThreePointLoop"->rgzLoopTopGhostBubble,"QuarkBubble"->rgzLoopTopGhostBubble|>;
+  selected=OptionValue["Category"];If[selected===All,selected=Keys[tops]];
   If[!ListQ[selected] || selected==={} || !And@@(KeyExistsQ[tops,#]&/@selected),
-    Throw[Failure["SectorName",<|"\:53ef\:7528\:7c7b\:522b"->Keys[tops]|>],stop]];
+    Throw[Failure["SectorName",<|"AvailableCategory"->Keys[tops]|>],stop]];
   tops=KeyTake[tops,DeleteDuplicates[selected]];
   If[!StringQ[modelRGZ] || !And@@(FileExistsQ[modelRGZ<>#]&/@{".gen",".mod"}),
-    Throw[Failure["ModelPath",<|"\:8bf4\:660e"->"\:5148\:8bbe\:7f6e modelRGZ\:3002"|>],stop]];
+    Throw[Failure["ModelPath",<|"Description"->"Set modelRGZ first."|>],stop]];
   root=Quiet[Check[RGZWorkflow`Private`cacheDirectory[],$Failed]];If[!StringQ[root],root=Directory[]];
-  dir=OptionValue["\:7f13\:5b58\:76ee\:5f55"];
+  dir=OptionValue["CacheDirectory"];
   If[dir===Automatic,
     hash=IntegerString[Hash[{Import[modelRGZ<>".gen","Text"],
       Import[modelRGZ<>".mod","Text"],Keys[tops],pair,
-      "mixed-complete-matter-v3",RGZWorkflow`Private`quarkMasses[],$FeynCalcVersion,$VersionNumber,
+      "mixed-complete-matter-v3",RGZWorkflow`Private`workflowFingerprint[],RGZWorkflow`Private`quarkMasses[],$FeynCalcVersion,$VersionNumber,
       Options[FCFAConvert],RGZMXIntegralContext[],Options[PaVeReduce]},"SHA256"],16];
     dir=FileNameJoin[{root,"RGZ_Mix_cache_"<>StringTake[hash,12]}]];
   cache=ExpandFileName[dir];manifest=FileNameJoin[{cache,"job.wl"}];
-  RGZMXProgressUpdate["\:90e8\:95e8"->StringRiffle[RGZMXLabel/@pair," / "],
-    "\:56fe\:53f7"->0,"\:56fe\:6570"->0,"\:9636\:6bb5"->"\:521d\:59cb\:5316","\:5b50\:6b65\:9aa4"->"\:51c6\:5907\:5916\:817f",
-    "\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d",
-    "\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
+  RGZMXProgressUpdate["Sector"->StringRiffle[RGZMXLabel/@pair," / "],
+    "DiagramID"->0,"DiagramCount"->0,"Stage"->"Initialize","Substep"->"PrepareExternalLegs",
+    "TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,"Status"->"ComputeIn",
+    "StageStartTime"->AbsoluteTime[]];
   If[FileExistsQ[manifest],
     old=Get[manifest];
-    If[!AssociationQ[old] || Lookup[old,"\:573a\:5bf9",None]=!=pair ||
-      Lookup[old,"\:8ba1\:7b97\:7c7b\:522b",{}]=!=Keys[tops] || Lookup[old,"\:6a21\:578b",None]=!=modelRGZ,
-      Throw[Failure["CachePairMismatch",<|"\:76ee\:5f55"->cache|>],stop]];
+    If[!AssociationQ[old] || Lookup[old,"FieldPair",None]=!=pair ||
+      Lookup[old,"ComputeCategory",{}]=!=Keys[tops] || Lookup[old,"Model",None]=!=modelRGZ,
+      Throw[Failure["CachePairMismatch",<|"Directory"->cache|>],stop]];
     Throw[RGZMXResume[cache],stop]];
   If[!DirectoryQ[cache],CreateDirectory[cache,CreateIntermediateDirectories->True]];
-  If[pair==={1,1} && Length[Keys[tops]]===1 && TrueQ[OptionValue["\:590d\:7528AA\:7f13\:5b58"]] &&
+  If[pair==={1,1} && Length[Keys[tops]]===1 && TrueQ[OptionValue["reuseAACache"]] &&
     RGZMXUnfixedKinematicsQ[],
     old=RGZMXLegacyAA[First[Keys[tops]],root];
-    If[AssociationQ[old],rows=old["\:9010\:56fe"];origin=old["\:6765\:6e90"]]];
+    If[AssociationQ[old],rows=old["PerDiagram"];origin=old["Source"]]];
   If[origin===None,
     Do[
-      routes=If[sector==="\:56db\:70b9\:9876\:70b9\:5708\:56fe",
+      routes=If[sector==="FourPointVertexLoop",
         {{tops[sector],False},{rgzMixTopGhostTadpole,True}},
-        If[sector==="QuarkBubble",{{tops[sector],"F"}},{{tops[sector],sector==="\:9b3c\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe"}}]];
+        If[sector==="QuarkBubble",{{tops[sector],"F"}},{{tops[sector],sector==="GhostThreePointLoop"}}]];
       Do[
-      data=RGZMXInitStep["InsertFields\:ff1a"<>sector,
+      data=RGZMXInitStep["InsertFields："<>sector,
         InsertFields[route[[1]],process,InsertionLevel->{Particles},
           Model->modelRGZ,GenericModel->modelRGZ],seconds];
       If[FailureQ[data],Throw[data,stop]];
       (* Disjoint routes: V/S tadpole (one insertion), pure U tadpole
          (none), V/S bubble (two), pure U and pure F bubbles (none). *)
-      data=RGZMXInitStep["\:7b5b\:9009\:5708\:5185\:573a\:ff1a"<>sector,
+      data=RGZMXInitStep["filter internal loop Field: "<>sector,
         If[route[[2]]==="F",
           DiagramSelect[data,With[{ff=LoopFields[##]},ff=!={}&&And@@(MatchQ[#,_F|-_F]&/@ff)]&],
         If[TrueQ[route[[2]]],
@@ -555,53 +559,53 @@ RGZMXStart[OptionsPattern[]] := Module[
             And@@(MatchQ[#,_U|-_U]&/@ff)]&],
           DiagramSelect[data,FreeQ[LoopFields[##],_U|_F]&]]],seconds];
       If[FailureQ[data],Throw[data,stop]];
-      AssociateTo[ins,(sector<>Which[route[[2]]==="F",":F",TrueQ[route[[2]]],"\:ff1aU",True,"\:ff1aVS"])->data];
+      AssociateTo[ins,(sector<>Which[route[[2]]==="F",":F",TrueQ[route[[2]]],"：U",True,"：VS"])->data];
       classes=Which[route[[2]]==="F",content["QuarkClasses"],TrueQ[route[[2]]],content["GhostClasses"],True,{0}];
       Do[
         sub=If[j===0,data,With[{jj=j,fieldHead=If[route[[2]]==="F","F","U"]},DiagramSelect[data,
           With[{ids=DeleteDuplicates@Cases[LoopFields[##],
             h_[k_Integer,___] /; RGZLoopName[h]===fieldHead :> k,Infinity]},ids==={jj}]&]]];
         a=RGZMXPrepareFA[sub,TrueQ[route[[2]]]&&MemberQ[content["ScalarGhostClasses"],j],seconds];
-        If[FailureQ[a],Throw[Failure["AuditStopped",<|"\:573a\:5bf9"->pair,
-          "\:7c7b\:522b"->sector,"U\:7c7b\:522b"->j,"\:539f\:56e0"->a|>],stop]];
-        fa=a["FA\:632f\:5e45\:5217\:8868"];
-        Do[n++;AppendTo[rows,<|"\:7f16\:53f7"->n,"\:7c7b\:522b"->sector,"U\:7c7b\:522b"->If[route[[2]]==="F",0,j],"FClass"->If[route[[2]]==="F",j,0],"ScalarGhost"->(TrueQ[route[[2]]]&&MemberQ[content["ScalarGhostClasses"],j]),
-          "\:7c7b\:5185\:7f16\:53f7"->i,"\:539f\:59cbFA\:632f\:5e45"->Apply[Head[fa],{fa[[i]]}],
-          "\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1"->a["\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1"][[i]],
-          "\:632f\:5e45"->Missing["NotConverted"],"\:6c42\:548c\:5ba1\:8ba1"->{},
-          "\:72b6\:6001"-><|"\:8f6c\:6362"->"\:672a\:8fd0\:884c"|>,"\:5931\:8d25\:8bb0\:5f55"-><||>|>],{i,Length[fa]}],
+        If[FailureQ[a],Throw[Failure["AuditStopped",<|"FieldPair"->pair,
+          "Category"->sector,"UCategory"->j,"Cause"->a|>],stop]];
+        fa=a["FAAmplitudeList"];
+        Do[n++;AppendTo[rows,<|"ID"->n,"Category"->sector,"UCategory"->If[route[[2]]==="F",0,j],"FClass"->If[route[[2]]==="F",j,0],"ScalarGhost"->(TrueQ[route[[2]]]&&MemberQ[content["ScalarGhostClasses"],j]),
+          "WithinClassID"->i,"OriginalFAAmplitude"->Apply[Head[fa],{fa[[i]]}],
+          "OriginalSumAudit"->a["OriginalSumAudit"][[i]],
+          "Amplitude"->Missing["NotConverted"],"SumAudit"->{},
+          "Status"-><|"Convert"->"NotRun"|>,"FailedRecord"-><||>|>],{i,Length[fa]}],
         {j,classes}],{route,routes}],{sector,Keys[tops]}]];
   (* A successfully generated empty insertion list is a calculated zero.
      It is distinct from an error, timeout, or a pair never requested. *)
-  rgzMXJob=<|"\:7248\:672c"->3,"\:6a21\:578b"->modelRGZ,"ModelFingerprint"->RGZMXModelFingerprint[],"\:7f13\:5b58\:76ee\:5f55"->cache,
-    "\:573a\:5bf9"->pair,"\:5168\:5165\:5c04\:573a"->(RGZMXField/@pair),"FA\:8fc7\:7a0b"->process,
-    "\:8ba1\:7b97\:7c7b\:522b"->Keys[tops],"\:63d2\:5165\:56fe"->ins,"\:9010\:56fe"->rows,"AA\:7f13\:5b58\:6765\:6e90"->origin|>;
+  rgzMXJob=<|"Version"->3,"Model"->modelRGZ,"ModelFingerprint"->RGZMXModelFingerprint[],"CacheDirectory"->cache,
+    "FieldPair"->pair,"AllIncomingFields"->(RGZMXField/@pair),"FAoverprocess"->process,
+    "ComputeCategory"->Keys[tops],"InsertionDiagram"->ins,"PerDiagram"->rows,"AACacheSource"->origin|>;
   Do[r=RGZMXWrite[rows[[i]],FileNameJoin[{cache,"graph_"<>ToString[i]<>".wl"}]];
     If[FailureQ[r],Throw[r,stop]],{i,Length[rows]}];
-  r=RGZMXWrite[Join[KeyDrop[rgzMXJob,"\:9010\:56fe"],<|"\:56fe\:6570"->Length[rows]|>],manifest];
+  r=RGZMXWrite[Join[KeyDrop[rgzMXJob,"PerDiagram"],<|"DiagramCount"->Length[rows]|>],manifest];
   If[FailureQ[r],Throw[r,stop]];
-  RGZMXProgressUpdate["\:56fe\:6570"->Length[rows],"\:72b6\:6001"->"\:521d\:59cb\:5316\:5b8c\:6210"];
-  <|"\:573a\:5bf9"->(RGZMXLabel/@pair),"\:56fe\:6570"->Length[rows],"\:7f13\:5b58\:76ee\:5f55"->cache,
-    "\:72b6\:6001"->If[rows==={},"\:65e0\:63d2\:5165\:56fe\:ff1a\:672c\:90e8\:95e8\:4e3a\:96f6","\:521d\:59cb\:5316\:5b8c\:6210"],
-    "AA\:7f13\:5b58\:6765\:6e90"->origin|>,stop]
+  RGZMXProgressUpdate["DiagramCount"->Length[rows],"Status"->"InitializeComplete"];
+  <|"FieldPair"->(RGZMXLabel/@pair),"DiagramCount"->Length[rows],"CacheDirectory"->cache,
+    "Status"->If[rows==={},"No inserted diagrams; this sector is zero","InitializeComplete"],
+    "AACacheSource"->origin|>,stop]
 ];
 
 RGZMXResume[dir_String] := Module[{m,files,rows},
   m=Get[FileNameJoin[{dir,"job.wl"}]];
-  If[!AssociationQ[m] || Lookup[m,"\:7248\:672c",0]=!=3,
+  If[!AssociationQ[m] || Lookup[m,"Version",0]=!=3,
     Return[Failure["BadCache",<|"Path"->dir,
-      "\:8bf4\:660e"->"\:6b64\:7248\:672c\:4f7f\:7528 v3 \:7f13\:5b58\:ff1b\:65e7\:76ee\:5f55\:4e0d\:88ab\:8986\:76d6\:3002"|>]]];
+      "Description"->"This version uses v3 caches and retains earlier cache directories."|>]]];
   If[Lookup[m,"ModelFingerprint",None]=!=RGZMXModelFingerprint[],
     Return[Failure["StaleGraphCache",<|"Path"->dir,
       "Action"->"RGZMXStart[] with an automatic cache directory; recompute with the current model."|>]]];
-  files=Table[FileNameJoin[{dir,"graph_"<>ToString[i]<>".wl"}],{i,m["\:56fe\:6570"]}];
+  files=Table[FileNameJoin[{dir,"graph_"<>ToString[i]<>".wl"}],{i,m["DiagramCount"]}];
   If[!And@@(FileExistsQ/@files),Return[Failure["MissingCheckpoint",<|"Files"->files|>]]];
   rows=Get/@files;
   If[!And@@(AssociationQ/@rows),Return[Failure["BadGraphCache",<||>]]];
   rows=RGZMXMigrateRow/@rows;
-  rgzMXJob=Join[KeyDrop[m,"\:56fe\:6570"],<|"\:9010\:56fe"->rows|>];
-  RGZMXProgressUpdate["\:56fe\:6570"->Length[rows],"\:72b6\:6001"->"\:7f13\:5b58\:5df2\:6062\:590d"];
-  RGZMXReport["\:8be6\:7ec6","\:5df2\:6062\:590d ",Length[rows]," \:56fe\:ff1b\:5df2\:5b8c\:6210\:7684\:9636\:6bb5\:4f1a\:8df3\:8fc7\:3002"];RGZMXStatus[]
+  rgzMXJob=Join[KeyDrop[m,"DiagramCount"],<|"PerDiagram"->rows|>];
+  RGZMXProgressUpdate["DiagramCount"->Length[rows],"Status"->"CacheRestore"];
+  RGZMXReport["Verbose","Restore ",Length[rows]," diagrams; completed stages are skipped."];RGZMXStatus[]
 ];
 
 (* Project while the denominator is still rational. At this stage
@@ -670,7 +674,7 @@ RGZMXColourReduce[expr_] := Module[{z},
    VV: T PT + L PL; VS/SV: L p_mu; SS: L.
    Only the final adjoint-channel matrix uses p_mu/Sqrt[p^2]. *)
 RGZMXProject[amp_,i_Integer,j_Integer] := Module[{z,t=0,l,bad},
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:53c2\:6570\:89c4\:8303\:5316\:4e0e\:5916\:817f\:5f20\:91cf\:6295\:5f71"];
+  RGZMXProgressUpdate["Substep"->"Normalize parameters and project external tensors"];
   z=RGZLoopNormalize[amp];
   z=z /. (HoldPattern[h_[a_,b_]] /;
     RGZLoopName[h]==="IndexDelta" :> SUNDelta[a,b]);
@@ -681,11 +685,11 @@ RGZMXProject[amp_,i_Integer,j_Integer] := Module[{z,t=0,l,bad},
     RGZMXVectorQ[i] || RGZMXVectorQ[j],
       l=Contract[FCI[FVD[p,\[Mu]] z/SPD[p,p]]],
     True,l=Contract[FCI[z]]];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:5185\:90e8\:989c\:8272\:6536\:7f29\:ff1b\:4fdd\:7559\:5916\:90e8\:989c\:8272\:5f20\:91cf"];
+  RGZMXProgressUpdate["Substep"->"Contract internal colors and retain external color tensors"];
   t=RGZMXColourReduce[ExpandScalarProduct[t]];
   l=RGZMXColourReduce[ExpandScalarProduct[l]];
   bad=DeleteDuplicates@Cases[{t,l},_LorentzIndex|_ExplicitLorentzIndex,Infinity];
-  If[bad=!={},Return[Failure["ProjectionNotScalar",<|"\:573a\:5bf9"->{i,j},"\:6307\:6807"->bad|>]]];
+  If[bad=!={},Return[Failure["ProjectionNotScalar",<|"FieldPair"->{i,j},"Index"->bad|>]]];
   (* SUNF/SUND with external auxiliary colour indices are legitimate
      tensor structures, not failed AA colour reduction. Their coefficients
      factor out of integration. Never replace these structures by a delta. *)
@@ -715,60 +719,60 @@ RGZMXIntegralUnit[kernel_,path_,context_,seconds_] := Module[
   {old,record,z,time,den,r,status},
   If[StringQ[path] && FileExistsQ[path],
     old=Get[path];
-    If[AssociationQ[old] && Lookup[old,"\:7248\:672c",0]===1 &&
-      Lookup[old,"\:72b6\:6001",""]==="\:5b8c\:6210" &&
-      SameQ[Lookup[old,"\:8f93\:5165",Missing[]],kernel] &&
-      SameQ[Lookup[old,"\:73af\:5883",Missing[]],context] &&
-      KeyExistsQ[old,"\:7ed3\:679c"],
-      RGZMXReport["\:8be6\:7ec6","\:79ef\:5206\:6838\:ff1a\:6062\:590d\:7f13\:5b58"];
-      AssociateTo[rgzMXLastIntegralUnit,"\:72b6\:6001"->"\:6062\:590d\:7f13\:5b58"];
-      Return[old["\:7ed3\:679c"]]]];
-  record=<|"\:7248\:672c"->1,"\:8f93\:5165"->kernel,"\:73af\:5883"->context,"\:72b6\:6001"->"\:5904\:7406\:4e2d"|>;
+    If[AssociationQ[old] && Lookup[old,"Version",0]===1 &&
+      Lookup[old,"Status",""]==="Complete" &&
+      SameQ[Lookup[old,"Input",Missing[]],kernel] &&
+      SameQ[Lookup[old,"Environment",Missing[]],context] &&
+      KeyExistsQ[old,"Result"],
+      RGZMXReport["Verbose","IntegrateKernel: RestoreCache"];
+      AssociateTo[rgzMXLastIntegralUnit,"Status"->"RestoreCache"];
+      Return[old["Result"]]]];
+  record=<|"Version"->1,"Input"->kernel,"Environment"->context,"Status"->"process In"|>;
   (* Save the exact slow input before TID, so interruption is inspectable. *)
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
     If[FreeQ[kernel,_FeynAmpDenominator],
       den=Denominator[Together[kernel]];
       If[!FreeQ[den,q],
-        Failure["UnsplitLoopDenominator",<|"\:8f93\:5165\:6587\:4ef6"->path|>],
+        Failure["UnsplitLoopDenominator",<|"InputFile"->path|>],
         0], (* polynomial loop integrals vanish in dimensional regularization *)
       TID[kernel,q,ToPaVe->True,UsePaVeBasis->True,ApartFF->False]],
     seconds,$Aborted],$Aborted]];
   If[z=!=$Aborted && z=!=$Failed && !FailureQ[z] &&
     !FreeQ[z,_TID|_FeynAmpDenominator],
-    z=Failure["IncompleteScalarReduction",<|"\:8f93\:5165\:6587\:4ef6"->path|>]];
-  status=Which[z===$Aborted,"\:8d85\:65f6\:6216\:4e2d\:6b62",z===$Failed || FailureQ[z],"\:8ba1\:7b97\:5931\:8d25",True,"\:5b8c\:6210"];
-  record=Join[record,<|"\:72b6\:6001"->status,"\:8017\:65f6"->time,"\:7ed3\:679c"->z|>];
-  AssociateTo[rgzMXLastIntegralUnit,{"\:72b6\:6001"->status,"\:8017\:65f6"->time}];
+    z=Failure["IncompleteScalarReduction",<|"InputFile"->path|>]];
+  status=Which[z===$Aborted,"TimeoutOrAborted",z===$Failed || FailureQ[z],"ComputeFailed",True,"Complete"];
+  record=Join[record,<|"Status"->status,"ElapsedSeconds"->time,"Result"->z|>];
+  AssociateTo[rgzMXLastIntegralUnit,{"Status"->status,"ElapsedSeconds"->time}];
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
-  RGZMXReport["\:8be6\:7ec6","\:79ef\:5206\:6838\:ff1a",status,"\:ff1b\:8017\:65f6 ",Round[time,0.01]," \:79d2\:3002"];
-  If[status==="\:5b8c\:6210",z,Failure["IntegralUnitStopped",<|
-    "\:9879\:53f7"->Lookup[rgzMXLastIntegralUnit,"\:9879\:53f7"],"\:8f93\:5165\:6587\:4ef6"->path,
-    "\:72b6\:6001"->status,"\:539f\:56e0"->z|>]]
+  RGZMXReport["Verbose","IntegrateKernel: ",status,"; ElapsedSeconds ",Round[time,0.01]," Seconds. "];
+  If[status==="Complete",z,Failure["IntegralUnitStopped",<|
+    "TermID"->Lookup[rgzMXLastIntegralUnit,"TermID"],"InputFile"->path,
+    "Status"->status,"Cause"->z|>]]
 ];
 
 RGZMXIntegrate[split_,cacheDir_:Automatic,seconds_:300] := Module[
   {units,out={},z,i,path,context,stop},Catch[
-  rgzMXLastIntegralUnit=<|"\:72b6\:6001"->"\:6574\:7406\:79ef\:5206\:6838"|>;
-  RGZMXReport["\:8be6\:7ec6","\:79ef\:5206\:ff1a\:63d0\:51fa\:5708\:52a8\:91cf\:65e0\:5173\:7cfb\:6570\:ff0c\:5408\:5e76\:76f8\:540c\:79ef\:5206\:6838"];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:6574\:7406\:79ef\:5206\:6838"];
+  rgzMXLastIntegralUnit=<|"Status"->"organize IntegrateKernel"|>;
+  RGZMXReport["Verbose","Integration: factor out loop-independent coefficients and combine matching kernels"];
+  RGZMXProgressUpdate["Substep"->"organize IntegrateKernel"];
   units=RGZMXIntegralUnits[split];context=RGZMXIntegralContext[];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"TID","\:9879\:53f7"->0,"\:603b\:9879\:6570"->Length[units],"\:5b8c\:6210\:9879\:6570"->0];
-  RGZMXReport["\:8be6\:7ec6","\:79ef\:5206\:ff1a",Length[units]," \:4e2a\:4e0d\:540c\:79ef\:5206\:6838"];
+  RGZMXProgressUpdate["Substep"->"TID","TermID"->0,"TotalTermCount"->Length[units],"CompleteTermCount"->0];
+  RGZMXReport["Verbose","Integrate: ",Length[units]," ItemsNotsame IntegrateKernel"];
   If[StringQ[cacheDir] && !DirectoryQ[cacheDir],
     CreateDirectory[cacheDir,CreateIntermediateDirectories->True]];
   Do[
     path=If[StringQ[cacheDir],FileNameJoin[{cacheDir,
       "unit_"<>IntegerString[Hash[{"AA-TID-unit-v1",units[[i,2]],context},
         "SHA256"],16]<>".wl"}],None];
-    rgzMXLastIntegralUnit=<|"\:9879\:53f7"->i,"\:603b\:9879\:6570"->Length[units],
-      "\:8f93\:5165\:6587\:4ef6"->path,"\:8f93\:5165\:5927\:5c0f"->LeafCount[units[[i,2]]],"\:72b6\:6001"->"\:5904\:7406\:4e2d"|>;
-    RGZMXProgressUpdate["\:9879\:53f7"->i,"\:5b8c\:6210\:9879\:6570"->i-1];
-    RGZMXReport["\:8be6\:7ec6","TID\:ff1a",i," / ",Length[units],"\:ff1b\:79ef\:5206\:6838 LeafCount = ",
-      rgzMXLastIntegralUnit["\:8f93\:5165\:5927\:5c0f"]];
+    rgzMXLastIntegralUnit=<|"TermID"->i,"TotalTermCount"->Length[units],
+      "InputFile"->path,"InputSize"->LeafCount[units[[i,2]]],"Status"->"process In"|>;
+    RGZMXProgressUpdate["TermID"->i,"CompleteTermCount"->i-1];
+    RGZMXReport["Verbose","TID：",i," / ",Length[units],"; IntegrateKernel LeafCount = ",
+      rgzMXLastIntegralUnit["InputSize"]];
     z=RGZMXIntegralUnit[units[[i,2]],path,context,seconds];
     If[FailureQ[z],Throw[z,stop]];
-    RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->i];
+    RGZMXProgressUpdate["CompleteTermCount"->i];
     AppendTo[out,units[[i,1]] z],{i,Length[units]}];
   Total[out],stop]
 ];
@@ -789,45 +793,45 @@ RGZMXPVUnit[object_,path_,context_,seconds_] := Module[
   {old,record,z,time,r,status,remaining},
   If[StringQ[path] && FileExistsQ[path],
     old=Get[path];
-    If[AssociationQ[old] && Lookup[old,"\:7248\:672c",0]===1 &&
-      Lookup[old,"\:72b6\:6001",""]==="\:5b8c\:6210" &&
-      SameQ[Lookup[old,"\:8f93\:5165",Missing[]],object] &&
-      SameQ[Lookup[old,"\:73af\:5883",Missing[]],context] && KeyExistsQ[old,"\:7ed3\:679c"],
-      RGZMXReport["\:8be6\:7ec6","PV \:51fd\:6570\:ff1a\:6062\:590d\:7f13\:5b58"];
-      AssociateTo[rgzMXLastPVUnit,"\:72b6\:6001"->"\:6062\:590d\:7f13\:5b58"];
-      Return[old["\:7ed3\:679c"]]]];
-  record=<|"\:7248\:672c"->1,"\:8f93\:5165"->object,"\:73af\:5883"->context,"\:72b6\:6001"->"\:5904\:7406\:4e2d"|>;
+    If[AssociationQ[old] && Lookup[old,"Version",0]===1 &&
+      Lookup[old,"Status",""]==="Complete" &&
+      SameQ[Lookup[old,"Input",Missing[]],object] &&
+      SameQ[Lookup[old,"Environment",Missing[]],context] && KeyExistsQ[old,"Result"],
+      RGZMXReport["Verbose","PV Function: RestoreCache"];
+      AssociateTo[rgzMXLastPVUnit,"Status"->"RestoreCache"];
+      Return[old["Result"]]]];
+  record=<|"Version"->1,"Input"->object,"Environment"->context,"Status"->"process In"|>;
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
     PaVeReduce[object],seconds,$Aborted],$Aborted]];
   If[z=!=$Aborted && z=!=$Failed && !FailureQ[z],
     remaining=Cases[z,x_ /; RGZMXPVObjectQ[x] && !RGZMXPVScalarQ[x],{0,Infinity}];
     If[!FreeQ[z,_PaVeReduce|_TID|_FeynAmpDenominator] || remaining=!={},
-      z=Failure["IncompletePaVeReduce",<|"\:8f93\:5165\:6587\:4ef6"->path,
-        "\:672a\:7ea6\:5316\:51fd\:6570"->DeleteDuplicates[remaining]|>]]];
-  status=Which[z===$Aborted,"\:8d85\:65f6\:6216\:4e2d\:6b62",z===$Failed || FailureQ[z],"\:8ba1\:7b97\:5931\:8d25",True,"\:5b8c\:6210"];
-  record=Join[record,<|"\:72b6\:6001"->status,"\:8017\:65f6"->time,"\:7ed3\:679c"->z|>];
-  AssociateTo[rgzMXLastPVUnit,{"\:72b6\:6001"->status,"\:8017\:65f6"->time}];
+      z=Failure["IncompletePaVeReduce",<|"InputFile"->path,
+        "UnreducedFunction"->DeleteDuplicates[remaining]|>]]];
+  status=Which[z===$Aborted,"TimeoutOrAborted",z===$Failed || FailureQ[z],"ComputeFailed",True,"Complete"];
+  record=Join[record,<|"Status"->status,"ElapsedSeconds"->time,"Result"->z|>];
+  AssociateTo[rgzMXLastPVUnit,{"Status"->status,"ElapsedSeconds"->time}];
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
-  RGZMXReport["\:8be6\:7ec6","PV \:51fd\:6570\:ff1a",status,"\:ff1b\:8017\:65f6 ",Round[time,0.01]," \:79d2\:3002"];
-  If[status==="\:5b8c\:6210",z,Failure["PVUnitStopped",<|
-    "\:9879\:53f7"->Lookup[rgzMXLastPVUnit,"\:9879\:53f7"],"\:8f93\:5165\:6587\:4ef6"->path,
-    "\:72b6\:6001"->status,"\:539f\:56e0"->z|>]]
+  RGZMXReport["Verbose","PV Function: ",status,"; ElapsedSeconds ",Round[time,0.01]," Seconds. "];
+  If[status==="Complete",z,Failure["PVUnitStopped",<|
+    "TermID"->Lookup[rgzMXLastPVUnit,"TermID"],"InputFile"->path,
+    "Status"->status,"Cause"->z|>]]
 ];
 
 RGZMXScalarReduce[expr_,cacheDir_:Automatic,seconds_:300] := Module[
   {objects,needed,out={},z,i,path,context,stop},Catch[
-  rgzMXLastPVUnit=<|"\:72b6\:6001"->"\:6536\:96c6 PV \:51fd\:6570"|>;
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:6536\:96c6 PV \:51fd\:6570"];
-  RGZMXReport["\:8be6\:7ec6","\:6807\:91cf\:7ea6\:5316\:ff1a\:6536\:96c6\:4e0d\:540c PV \:51fd\:6570\:ff0c\:4fdd\:7559\:5176\:5916\:90e8\:7cfb\:6570"];
+  rgzMXLastPVUnit=<|"Status"->"Collect PV Function"|>;
+  RGZMXProgressUpdate["Substep"->"Collect PV Function"];
+  RGZMXReport["Verbose","Scalar reduction: collect distinct PV functions with external coefficients"];
   If[!FreeQ[expr,_PaVeReduce|_TID|_FeynAmpDenominator],
     Throw[Failure["IncompleteIntegralInput",<||>],stop]];
   objects=DeleteDuplicates@Cases[expr,x_ /; RGZMXPVObjectQ[x],{0,Infinity}];
   needed=Select[objects,!RGZMXPVScalarQ[#]&];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"PaVeReduce","\:9879\:53f7"->0,"\:603b\:9879\:6570"->Length[needed],"\:5b8c\:6210\:9879\:6570"->0];
-  RGZMXReport["\:8be6\:7ec6","\:6807\:91cf\:7ea6\:5316\:ff1a",Length[objects]," \:4e2a\:4e0d\:540c PV \:51fd\:6570\:ff1b\:5f85\:7ea6\:5316 ",Length[needed]," \:4e2a"];
+  RGZMXProgressUpdate["Substep"->"PaVeReduce","TermID"->0,"TotalTermCount"->Length[needed],"CompleteTermCount"->0];
+  RGZMXReport["Verbose","ScalarReduce: ",Length[objects]," ItemsNotsame  PV Function; pending Reduce ",Length[needed]," Items"];
   If[needed==={},
-    rgzMXLastPVUnit=<|"\:72b6\:6001"->"\:5df2\:662f\:6807\:91cf\:79ef\:5206","\:5f85\:7ea6\:5316\:51fd\:6570\:6570"->0|>;
+    rgzMXLastPVUnit=<|"Status"->"Already a scalar integral","pending ReduceFunctionCount"->0|>;
     Throw[expr,stop]];
   context=Join[RGZMXIntegralContext[],{
     Hash[{Options[PaVeReduce],DownValues[PaVeReduce]},"SHA256"]}];
@@ -837,15 +841,15 @@ RGZMXScalarReduce[expr_,cacheDir_:Automatic,seconds_:300] := Module[
     path=If[StringQ[cacheDir],FileNameJoin[{cacheDir,
       "pv_"<>IntegerString[Hash[{"AA-PV-unit-v1",needed[[i]],context},
         "SHA256"],16]<>".wl"}],None];
-    rgzMXLastPVUnit=<|"\:9879\:53f7"->i,"\:603b\:9879\:6570"->Length[needed],
-      "PV\:51fd\:6570"->needed[[i]],"\:8f93\:5165\:6587\:4ef6"->path,"\:72b6\:6001"->"\:5904\:7406\:4e2d"|>;
-    RGZMXProgressUpdate["\:9879\:53f7"->i,"\:5b8c\:6210\:9879\:6570"->i-1];
-    RGZMXReport["\:8be6\:7ec6","PaVeReduce\:ff1a",i," / ",Length[needed],"\:ff1b",
-      RGZLoopName[Head[needed[[i]]]],"\:ff1bLeafCount = ",LeafCount[needed[[i]]]];
+    rgzMXLastPVUnit=<|"TermID"->i,"TotalTermCount"->Length[needed],
+      "PVFunction"->needed[[i]],"InputFile"->path,"Status"->"process In"|>;
+    RGZMXProgressUpdate["TermID"->i,"CompleteTermCount"->i-1];
+    RGZMXReport["Verbose","PaVeReduce：",i," / ",Length[needed],"；",
+      RGZLoopName[Head[needed[[i]]]],"；LeafCount = ",LeafCount[needed[[i]]]];
     z=RGZMXPVUnit[needed[[i]],path,context,seconds];
-    If[FailureQ[z],Throw[z,stop]];RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->i];AppendTo[out,z],{i,Length[needed]}];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:4ee3\:56de\:539f\:59cb\:7cfb\:6570"];
-  RGZMXReport["\:8be6\:7ec6","\:6807\:91cf\:7ea6\:5316\:ff1a\:4ee3\:56de\:539f\:59cb\:7cfb\:6570"];
+    If[FailureQ[z],Throw[z,stop]];RGZMXProgressUpdate["CompleteTermCount"->i];AppendTo[out,z],{i,Length[needed]}];
+  RGZMXProgressUpdate["Substep"->"SubstituteBackOriginalCoefficient"];
+  RGZMXReport["Verbose","ScalarReduce: SubstituteBackOriginalCoefficient"];
   expr /. Thread[needed->out],stop]
 ];
 
@@ -855,15 +859,15 @@ RGZMXScalarReduce[expr_,cacheDir_:Automatic,seconds_:300] := Module[
    counts completed additive terms, not elapsed time or pole evaluations.
    Diagnostics expose only the currently active splitting operation. *)
 RGZMXSplitStep[label_String,extra_Association:<||>] := (
-  rgzMXLastSplitStep=Join[<|"\:64cd\:4f5c"->label,"\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[],
-    "\:9636\:6bb5"->Lookup[rgzMXProgress,"\:9636\:6bb5",""],
-    "\:9879\:53f7"->Lookup[rgzMXProgress,"\:9879\:53f7",0],
-    "\:603b\:9879\:6570"->Lookup[rgzMXProgress,"\:603b\:9879\:6570",0],
-    "\:52a8\:91cf\:8def\:7531"->If[IntegerQ[rgzMXSplitRoute],rgzMXSplitRoute,0]|>,extra];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->label];Null);
+  rgzMXLastSplitStep=Join[<|"Operation"->label,"StartTime"->AbsoluteTime[],
+    "Stage"->Lookup[rgzMXProgress,"Stage",""],
+    "TermID"->Lookup[rgzMXProgress,"TermID",0],
+    "TotalTermCount"->Lookup[rgzMXProgress,"TotalTermCount",0],
+    "MomentumRouting"->If[IntegerQ[rgzMXSplitRoute],rgzMXSplitRoute,0]|>,extra];
+  RGZMXProgressUpdate["Substep"->label];Null);
 RGZMixSplitDiagnostics[] := If[AssociationQ[rgzMXLastSplitStep],
-  Join[rgzMXLastSplitStep,<|"\:64cd\:4f5c\:8017\:65f6\:ff08\:79d2\:ff09"->
-    Max[0,AbsoluteTime[]-rgzMXLastSplitStep["\:5f00\:59cb\:65f6\:95f4"]]|>],
+  Join[rgzMXLastSplitStep,<|"OperationElapsedSeconds (Seconds)"->
+    Max[0,AbsoluteTime[]-rgzMXLastSplitStep["StartTime"]]|>],
   Missing["NoSplitOperation"]];
 
 RGZMXSplitFactor[den_, var_, k_] := Module[
@@ -873,37 +877,37 @@ RGZMXSplitFactor[den_, var_, k_] := Module[
     {I Sqrt[\[Alpha] M^4],rgzLoopM2},
     {(m^2+\[Mu]^2)/2+I Sqrt[mG^4-(m^2-\[Mu]^2)^2/4],rgzLoopM3},
     {(m^2+\[Mu]^2)/2-I Sqrt[mG^4-(m^2-\[Mu]^2)^2/4],rgzLoopM4}}];
-  RGZMXSplitStep["\:5019\:9009\:6781\:70b9\:5224\:91cd\:ff08FullSimplify\:ff09",<|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k|>];
+  RGZMXSplitStep["Deduplicate candidate poles (FullSimplify)",<|"Denominator"->den,"LoopMomentum"->k|>];
   roots = DeleteDuplicates[roots,
     TrueQ[FullSimplify[#1[[1]]-#2[[1]]] === 0]&];
   If[!PolynomialQ[den,var],
     Return[Failure["NonPolynomial",<|"Denominator"->den|>]]];
-  RGZMXSplitStep["\:8bfb\:53d6\:5206\:6bcd\:6b21\:6570",<|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k|>];
+  RGZMXSplitStep["ReadDenominatorCount",<|"Denominator"->den,"LoopMomentum"->k|>];
   degree = Exponent[den,var];
   Do[
     r = pole[[1]]; mass = pole[[2]];poleNo++;
-    RGZMXSplitStep["\:6838\:5bf9\:6781\:70b9 "<>ToString[poleNo]<>" / "<>ToString[Length[roots]]<>"\:ff08FullSimplify\:ff09",
-      <|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k,"\:6781\:70b9"->r|>];
+    RGZMXSplitStep["VerifyPole "<>ToString[poleNo]<>" / "<>ToString[Length[roots]]<>"（FullSimplify）",
+      <|"Denominator"->den,"LoopMomentum"->k,"Pole"->r|>];
     If[TrueQ[FullSimplify[den /. var->r] === 0],
       order = 1;
       While[order < degree &&
-        (RGZMXSplitStep["\:68c0\:67e5\:91cd\:6839\:ff1a\:5bfc\:6570\:9636\:6570 "<>ToString[order]<>"\:ff08FullSimplify\:ff09",
-          <|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k,"\:6781\:70b9"->r|>];
+        (RGZMXSplitStep["CheckRepeatedPole: derivative CountOrderCount "<>ToString[order]<>"（FullSimplify）",
+          <|"Denominator"->den,"LoopMomentum"->k,"Pole"->r|>];
          TrueQ[FullSimplify[D[den,{var,order}] /. var->r] === 0]),order++];
-      RGZMXSplitStep["\:8ba1\:7b97\:6781\:70b9\:4f59\:56e0\:5b50\:ff08PolynomialQuotient / FullSimplify\:ff09",
-        <|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k,"\:6781\:70b9"->r,"\:91cd\:6839\:9636\:6570"->order|>];
+      RGZMXSplitStep["Compute pole cofactors (PolynomialQuotient / FullSimplify)",
+        <|"Denominator"->den,"LoopMomentum"->k,"Pole"->r,"RepeatedPoleOrder"->order|>];
       quot = FullSimplify[PolynomialQuotient[den,(var-r)^order,var]];
       regular = 1/quot;
       Do[
-        RGZMXSplitStep["\:8ba1\:7b97\:5206\:5f0f\:7cfb\:6570 "<>ToString[j]<>" / "<>ToString[order]<>"\:ff08FullSimplify\:ff09",
-          <|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k,"\:6781\:70b9"->r,"\:91cd\:6839\:9636\:6570"->order|>];
+        RGZMXSplitStep["ComputefractionCoefficient "<>ToString[j]<>" / "<>ToString[order]<>"（FullSimplify）",
+          <|"Denominator"->den,"LoopMomentum"->k,"Pole"->r,"RepeatedPoleOrder"->order|>];
         coeff = FullSimplify[
           (D[regular,{var,order-j}] /. var->r)/Factorial[order-j]];
         back += coeff/(var-r)^j;
         out += coeff ChangeDimension[FCI[FAD @@ ConstantArray[{k,mass},j]],D],
         {j,1,order}]
     ], {pole,roots}];
-  RGZMXSplitStep["\:6838\:5bf9\:5206\:89e3\:6052\:7b49\:5f0f\:ff08Together / FullSimplify\:ff09",<|"\:5206\:6bcd"->den,"\:5708\:52a8\:91cf"->k|>];
+  RGZMXSplitStep["Verify decomposition identity (Together / FullSimplify)",<|"Denominator"->den,"LoopMomentum"->k|>];
   If[!TrueQ[FullSimplify[Together[1/den-back]] === 0],
     Return[Failure["UnknownPole",<|"Denominator"->den,
       "Remainder"->Together[1/den-back]|>]]];
@@ -913,22 +917,22 @@ RGZMXSplitFactor[den_, var_, k_] := Module[
 RGZMXSplitTerm[expr_, loop_:q, ext_:p] := Module[
   {x,z,u,v,r,num,den,factors,out,f,n,poly,k,split,backRules,route,
     groups={1,1,1},routing={loop,loop-ext,loop+ext},j,stop},Catch[
-  RGZMXSplitStep["\:53c2\:6570\:89c4\:8303\:5316\:3001\:4f20\:64ad\:5b50\:663e\:5f0f\:5316\:548c\:6807\:91cf\:79ef\:5c55\:5f00"];
+  RGZMXSplitStep["Normalize parameters, make propagators explicit and expand scalar products"];
   r = ExpandScalarProduct[
     FeynAmpDenominatorExplicit[ChangeDimension[FCI[RGZLoopNormalize[expr]],D]]];
-  RGZMXSplitStep["\:5c06\:6807\:91cf\:79ef\:6362\:4e3a q\:00b2\:3001p\:00b7q\:3001p\:00b2"];
+  RGZMXSplitStep["Replace scalar products with q^2, p.q and p^2"];
   r = r /. {
     HoldPattern[Pair[Momentum[loop,D],Momentum[loop,D]]] -> x,
     HoldPattern[Pair[Momentum[ext,D],Momentum[loop,D]]] -> z,
     HoldPattern[Pair[Momentum[loop,D],Momentum[ext,D]]] -> z,
     HoldPattern[Pair[Momentum[ext,D],Momentum[ext,D]]] -> u};
-  RGZMXSplitStep["\:5408\:5e76\:5355\:9879\:6709\:7406\:5f0f\:ff08Together\:ff09"];
+  RGZMXSplitStep["Combine the rational term (Together)"];
   r = Together[r]; num = Numerator[r]; den = Denominator[r];
   If[!PolynomialQ[den,{x,z}],
     Throw[Failure["NonRationalDenominator",<|"Expression"->r|>],stop]];
-  RGZMXSplitStep["\:5206\:6bcd\:591a\:9879\:5f0f\:56e0\:5f0f\:5206\:89e3\:ff08FactorList\:ff09",<|"\:5206\:6bcd"->den|>];
+  RGZMXSplitStep["Factor the denominator polynomial (FactorList)",<|"Denominator"->den|>];
   factors = FactorList[den]; out = num/factors[[1,1]];
-  RGZMXSplitStep["\:8bc6\:522b\:5e76\:5408\:5e76 q\:3001q-p\:3001q+p \:7684\:5206\:6bcd",<|"\:5206\:6bcd"->den|>];
+  RGZMXSplitStep["identify and Combine q, q-p, q+p OfDenominator",<|"Denominator"->den|>];
   Do[
     {f,n} = item;
     If[FreeQ[f,x|z],out /= f^n,
@@ -944,130 +948,130 @@ RGZMXSplitTerm[expr_, loop_:q, ext_:p] := Module[
     ], {item,Rest[factors]}];
   Do[If[groups[[j]]=!=1,
     rgzMXSplitRoute=j;k=routing[[j]];
-    RGZMXSplitStep["\:5c55\:5f00\:540c\:4e00\:52a8\:91cf\:8def\:7531\:7684\:5206\:6bcd",<|"\:5708\:52a8\:91cf"->k|>];
+    RGZMXSplitStep["Expand denominators with the same momentum routing",<|"LoopMomentum"->k|>];
     split=RGZMXSplitFactor[Expand[groups[[j]]],v,k];
     If[FailureQ[split],Throw[split,stop]];
     out *= split],{j,3}];
-  rgzMXSplitRoute=0;RGZMXSplitStep["\:8fd8\:539f FeynCalc \:6807\:91cf\:79ef\:548c\:4f20\:64ad\:5b50\:683c\:5f0f"];
+  rgzMXSplitRoute=0;RGZMXSplitStep["Restore FeynCalc ScalarProductAndPropagatorFormat"];
   backRules = {x->SPD[loop,loop],z->SPD[ext,loop],u->SPD[ext,ext]};
   FCI[out /. backRules],stop]
 ];
 
 RGZMXSplit[expr_,loop_:q,ext_:p] := Module[{terms,parts,bad,i},
   Block[{rgzMXSplitRoute=0},
-    RGZMXProgressUpdate["\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0];
-    RGZMXSplitStep["\:5c55\:5f00\:6295\:5f71\:8868\:8fbe\:5f0f\:5e76\:7edf\:8ba1\:5f85\:5206\:89e3\:9879\:ff08Expand / FCI\:ff09"];
+    RGZMXProgressUpdate["TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0];
+    RGZMXSplitStep["Expand projected expressions and count terms to decompose (Expand / FCI)"];
     terms=RGZLoopTerms[Expand[FCI[expr]]];
-    RGZMXProgressUpdate["\:603b\:9879\:6570"->Length[terms]];
+    RGZMXProgressUpdate["TotalTermCount"->Length[terms]];
     parts=Table[
       rgzMXSplitRoute=0;
-      RGZMXProgressUpdate["\:9879\:53f7"->i,"\:5b8c\:6210\:9879\:6570"->i-1];
-      RGZMXSplitStep["\:51c6\:5907\:5f53\:524d\:9879\:7684\:4f20\:64ad\:5b50\:5206\:89e3"];
+      RGZMXProgressUpdate["TermID"->i,"CompleteTermCount"->i-1];
+      RGZMXSplitStep["Prepare propagator decomposition for the current term"];
       With[{z=RGZMXSplitTerm[terms[[i]],loop,ext]},
-        RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->i];z],{i,Length[terms]}];
+        RGZMXProgressUpdate["CompleteTermCount"->i];z],{i,Length[terms]}];
     bad=Select[parts,FailureQ];If[bad=!={},Return[First[bad]]];
     rgzMXSplitRoute=0;
-    RGZMXSplitStep["\:5408\:5e76\:5206\:89e3\:540e\:7684\:4f20\:64ad\:5b50\:ff08FeynAmpDenominatorCombine\:ff09"];
+    RGZMXSplitStep["Combine decomposed propagators (FeynAmpDenominatorCombine)"];
     FeynAmpDenominatorCombine[Total[parts]]]
 ];
 
 RGZMXRun[n_Integer,stage_String,seconds_:300] := Module[
   {row,all,states,needs,req,z,time,status,r,path,result},
   If[!AssociationQ[rgzMXJob],Return[Failure["StartFirst",<||>]]];
-  If[n<1 || n>Length[rgzMXJob["\:9010\:56fe"]],Return[Failure["GraphNumber",<||>]]];
-  row=RGZMXMigrateRow[rgzMXJob["\:9010\:56fe"][[n]]];states=row["\:72b6\:6001"];
-  needs=<|"\:8f6c\:6362"->{},"\:6295\:5f71"->{"\:8f6c\:6362"},"\:5206\:89e3T"->{"\:6295\:5f71"},"\:5206\:89e3L"->{"\:6295\:5f71"},
-    "\:79ef\:5206T"->{"\:5206\:89e3T"},"\:79ef\:5206L"->{"\:5206\:89e3L"},
-    "\:6807\:91cfT"->{"\:79ef\:5206T"},"\:6807\:91cfL"->{"\:79ef\:5206L"}|>;
-  If[!KeyExistsQ[needs,stage],Return[Failure["StageName",<|"\:53ef\:7528\:9636\:6bb5"->Keys[needs]|>]]];
-  If[Lookup[states,stage,""]==="\:5b8c\:6210",Return[<|"\:7f16\:53f7"->n,"\:9636\:6bb5"->stage,"\:72b6\:6001"->"\:5df2\:5b8c\:6210\:ff0c\:8df3\:8fc7"|>]];
+  If[n<1 || n>Length[rgzMXJob["PerDiagram"]],Return[Failure["GraphNumber",<||>]]];
+  row=RGZMXMigrateRow[rgzMXJob["PerDiagram"][[n]]];states=row["Status"];
+  needs=<|"Convert"->{},"Project"->{"Convert"},"DecomposeT"->{"Project"},"DecomposeL"->{"Project"},
+    "IntegrateT"->{"DecomposeT"},"IntegrateL"->{"DecomposeL"},
+    "ScalarT"->{"IntegrateT"},"ScalarL"->{"IntegrateL"}|>;
+  If[!KeyExistsQ[needs,stage],Return[Failure["StageName",<|"AvailableStage"->Keys[needs]|>]]];
+  If[Lookup[states,stage,""]==="Complete",Return[<|"ID"->n,"Stage"->stage,"Status"->"Complete; skipped"|>]];
   (* Existing callers may still start at projection. Convert only THAT
      graph, then reload its checkpointed row before continuing. *)
-  If[stage==="\:6295\:5f71" && Lookup[states,"\:8f6c\:6362",""]=!="\:5b8c\:6210",
-    r=RGZMXRun[n,"\:8f6c\:6362",seconds];If[FailureQ[r],Return[r]];
-    row=rgzMXJob["\:9010\:56fe"][[n]];states=row["\:72b6\:6001"]];
-  req=Select[needs[stage],Lookup[states,#,""]=!="\:5b8c\:6210"&];
-  If[req=!={},Return[Failure["RunPreviousStage",<|"\:7f3a\:5c11\:9636\:6bb5"->req|>]]];
-  RGZMXProgressUpdate["\:90e8\:95e8"->row["\:7c7b\:522b"],"\:56fe\:53f7"->n,"\:56fe\:6570"->Length[rgzMXJob["\:9010\:56fe"]],
-    "\:9636\:6bb5"->stage,"\:5b50\:6b65\:9aa4"->"\:51c6\:5907","\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,
-    "\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
-  RGZMXReport["\:8be6\:7ec6","\:7b2c ",n," / ",Length[rgzMXJob["\:9010\:56fe"]]," \:56fe\:ff1a",stage];
+  If[stage==="Project" && Lookup[states,"Convert",""]=!="Complete",
+    r=RGZMXRun[n,"Convert",seconds];If[FailureQ[r],Return[r]];
+    row=rgzMXJob["PerDiagram"][[n]];states=row["Status"]];
+  req=Select[needs[stage],Lookup[states,#,""]=!="Complete"&];
+  If[req=!={},Return[Failure["RunPreviousStage",<|"MissingStage"->req|>]]];
+  RGZMXProgressUpdate["Sector"->row["Category"],"DiagramID"->n,"DiagramCount"->Length[rgzMXJob["PerDiagram"]],
+    "Stage"->stage,"Substep"->"Prepare","TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,
+    "Status"->"ComputeIn","StageStartTime"->AbsoluteTime[]];
+  RGZMXReport["Verbose","number  ",n," / ",Length[rgzMXJob["PerDiagram"]]," Diagram: ",stage];
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
     Switch[stage,
-      "\:8f6c\:6362",If[!KeyExistsQ[row,"\:539f\:59cbFA\:632f\:5e45"],
-        Failure["MissingRawAmplitude",<|"\:7f16\:53f7"->n|>],
-        RGZMXConvertOne[row["\:539f\:59cbFA\:632f\:5e45"],TrueQ[Lookup[row,"ScalarGhost",MemberQ[{1,4},row["U\:7c7b\:522b"]]]],
-          Lookup[row,"\:539f\:59cb\:6c42\:548c\:5ba1\:8ba1",{}]]],
-      "\:6295\:5f71",RGZMXProject[row["\:632f\:5e45"],Sequence@@rgzMXJob["\:573a\:5bf9"]],
-      "\:5206\:89e3T",RGZMXSplit[row["\:6295\:5f71"]["T"]],
-      "\:5206\:89e3L",RGZMXSplit[row["\:6295\:5f71"]["L"]],
-      "\:79ef\:5206T",RGZMXIntegrate[row["\:5206\:89e3T"],
-        FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"tid_units_v1"}],seconds],
-      "\:79ef\:5206L",RGZMXIntegrate[row["\:5206\:89e3L"],
-        FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"tid_units_v1"}],seconds],
-      "\:6807\:91cfT",RGZMXScalarReduce[row["\:79ef\:5206T"],
-        FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"pv_units_v1"}],seconds],
-      "\:6807\:91cfL",RGZMXScalarReduce[row["\:79ef\:5206L"],
-        FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"pv_units_v1"}],seconds]],seconds,$Aborted],$Aborted]];
-  status=Which[z===$Aborted,"\:8d85\:65f6\:6216\:4e2d\:6b62",z===$Failed,"\:8ba1\:7b97\:5931\:8d25",
-    FailureQ[z],"\:8ba1\:7b97\:5931\:8d25",True,"\:5b8c\:6210"];
-  AssociateTo[states,stage->status];AssociateTo[row,"\:72b6\:6001"->states];
-  If[status==="\:5b8c\:6210",
-    If[stage==="\:8f6c\:6362",row=Join[row,z,<|"\:8f6c\:6362"-><|"\:72b6\:6001"->"\:5b8c\:6210"|>|>],
+      "Convert",If[!KeyExistsQ[row,"OriginalFAAmplitude"],
+        Failure["MissingRawAmplitude",<|"ID"->n|>],
+        RGZMXConvertOne[row["OriginalFAAmplitude"],TrueQ[Lookup[row,"ScalarGhost",MemberQ[{1,4},row["UCategory"]]]],
+          Lookup[row,"OriginalSumAudit",{}]]],
+      "Project",RGZMXProject[row["Amplitude"],Sequence@@rgzMXJob["FieldPair"]],
+      "DecomposeT",RGZMXSplit[row["Project"]["T"]],
+      "DecomposeL",RGZMXSplit[row["Project"]["L"]],
+      "IntegrateT",RGZMXIntegrate[row["DecomposeT"],
+        FileNameJoin[{rgzMXJob["CacheDirectory"],"tid_units_v1"}],seconds],
+      "IntegrateL",RGZMXIntegrate[row["DecomposeL"],
+        FileNameJoin[{rgzMXJob["CacheDirectory"],"tid_units_v1"}],seconds],
+      "ScalarT",RGZMXScalarReduce[row["IntegrateT"],
+        FileNameJoin[{rgzMXJob["CacheDirectory"],"pv_units_v1"}],seconds],
+      "ScalarL",RGZMXScalarReduce[row["IntegrateL"],
+        FileNameJoin[{rgzMXJob["CacheDirectory"],"pv_units_v1"}],seconds]],seconds,$Aborted],$Aborted]];
+  status=Which[z===$Aborted,"TimeoutOrAborted",z===$Failed,"ComputeFailed",
+    FailureQ[z],"ComputeFailed",True,"Complete"];
+  AssociateTo[states,stage->status];AssociateTo[row,"Status"->states];
+  If[status==="Complete",
+    If[stage==="Convert",row=Join[row,z,<|"Convert"-><|"Status"->"Complete"|>|>],
       AssociateTo[row,stage->z]],
-    AssociateTo[row,"\:5931\:8d25\:8bb0\:5f55"->Append[row["\:5931\:8d25\:8bb0\:5f55"],stage->z]]];
-  all=rgzMXJob["\:9010\:56fe"];all[[n]]=row;
-  AssociateTo[rgzMXJob,"\:9010\:56fe"->all];
-  path=FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"graph_"<>ToString[n]<>".wl"}];
+    AssociateTo[row,"FailedRecord"->Append[row["FailedRecord"],stage->z]]];
+  all=rgzMXJob["PerDiagram"];all[[n]]=row;
+  AssociateTo[rgzMXJob,"PerDiagram"->all];
+  path=FileNameJoin[{rgzMXJob["CacheDirectory"],"graph_"<>ToString[n]<>".wl"}];
   r=RGZMXWrite[row,path];If[FailureQ[r],Return[r]];
-  RGZMXProgressUpdate["\:72b6\:6001"->status];
-  RGZMXReport[If[status==="\:5b8c\:6210","\:8be6\:7ec6","\:9519\:8bef"],
-    "\:7b2c ",n," \:56fe\:ff1a",stage,"\:ff1b",status,"\:ff1b\:8017\:65f6 ",Round[time,0.01]," \:79d2\:3002"];
-  result=<|"\:7f16\:53f7"->n,"\:9636\:6bb5"->stage,"\:72b6\:6001"->status,"\:8017\:65f6"->time|>;
-  If[status==="\:5b8c\:6210",result,Failure["StageStopped",Append[result,"\:539f\:56e0"->z]]]
+  RGZMXProgressUpdate["Status"->status];
+  RGZMXReport[If[status==="Complete","Verbose","Error"],
+    "number  ",n," Diagram: ",stage,"；",status,"; ElapsedSeconds ",Round[time,0.01]," Seconds. "];
+  result=<|"ID"->n,"Stage"->stage,"Status"->status,"ElapsedSeconds"->time|>;
+  If[status==="Complete",result,Failure["StageStopped",Append[result,"Cause"->z]]]
 ];
 
-RGZMXRunAll[stages_List:{"\:6295\:5f71","\:5206\:89e3T","\:79ef\:5206T","\:5206\:89e3L","\:79ef\:5206L"},seconds_:300] := Module[{r,n,st,stop},Catch[
+RGZMXRunAll[stages_List:{"Project","DecomposeT","IntegrateT","DecomposeL","IntegrateL"},seconds_:300] := Module[{r,n,st,stop},Catch[
   If[!AssociationQ[rgzMXJob],Throw[Failure["StartFirst",<||>],stop]];
   Do[Do[r=RGZMXRun[n,st,seconds];If[FailureQ[r],Throw[r,stop]],{st,stages}],
-    {n,Length[rgzMXJob["\:9010\:56fe"]]}];RGZMXStatus[],stop]
+    {n,Length[rgzMXJob["PerDiagram"]]}];RGZMXStatus[],stop]
 ];
 
 RGZMXStatus[] := If[!AssociationQ[rgzMXJob],Failure["StartFirst",<||>],
   Grid[Prepend[Map[Function[row,Join[
-    {row["\:7f16\:53f7"],row["\:7c7b\:522b"],row["U\:7c7b\:522b"],Lookup[row,"FClass",0]},
-    Lookup[row["\:72b6\:6001"],{"\:8f6c\:6362","\:6295\:5f71","\:5206\:89e3T","\:79ef\:5206T","\:6807\:91cfT","\:5206\:89e3L","\:79ef\:5206L","\:6807\:91cfL"},"\:672a\:8fd0\:884c"]]],
-    rgzMXJob["\:9010\:56fe"]],{"\:7f16\:53f7","\:7c7b\:522b","U\:7c7b\:522b","FClass","\:8f6c\:6362","\:6295\:5f71","\:5206\:89e3T","\:79ef\:5206T","\:6807\:91cfT","\:5206\:89e3L","\:79ef\:5206L","\:6807\:91cfL"}],
+    {row["ID"],row["Category"],row["UCategory"],Lookup[row,"FClass",0]},
+    Lookup[row["Status"],{"Convert","Project","DecomposeT","IntegrateT","ScalarT","DecomposeL","IntegrateL","ScalarL"},"NotRun"]]],
+    rgzMXJob["PerDiagram"]],{"ID","Category","UCategory","FClass","Convert","Project","DecomposeT","IntegrateT","ScalarT","DecomposeL","IntegrateL","ScalarL"}],
     Frame->All,Alignment->Left]];
 
 RGZMXTotal[] := Module[{rows,incomplete,groups,value},
   If[!AssociationQ[rgzMXJob],Return[Failure["StartFirst",<||>]]];
-  rows=rgzMXJob["\:9010\:56fe"];
-  incomplete=Select[rows,Lookup[#["\:72b6\:6001"],"\:79ef\:5206T",""]=!="\:5b8c\:6210" ||
-    Lookup[#["\:72b6\:6001"],"\:79ef\:5206L",""]=!="\:5b8c\:6210"&];
+  rows=rgzMXJob["PerDiagram"];
+  incomplete=Select[rows,Lookup[#["Status"],"IntegrateT",""]=!="Complete" ||
+    Lookup[#["Status"],"IntegrateL",""]=!="Complete"&];
   If[incomplete=!={},Return[Failure["IncompleteGraphs",<|
-    "\:672a\:5b8c\:6210\:7f16\:53f7"->Lookup[incomplete,"\:7f16\:53f7"]|>]]];
-  groups=GroupBy[rows,#["\:7c7b\:522b"]&];
+    "IncompleteID"->Lookup[incomplete,"ID"]|>]]];
+  groups=GroupBy[rows,#["Category"]&];
   value[row_,component_] := If[
-    Lookup[row["\:72b6\:6001"],"\:6807\:91cf"<>component,""]==="\:5b8c\:6210",
-    row["\:6807\:91cf"<>component],row["\:79ef\:5206"<>component]];
-  <|"\:8ba1\:7b97\:7c7b\:522b"->rgzMXJob["\:8ba1\:7b97\:7c7b\:522b"],
-    "\:5305\:542b\:5168\:90e8\:4e09\:4e2a\:90e8\:95e8"->TrueQ[Length[rgzMXJob["\:8ba1\:7b97\:7c7b\:522b"]]===3],
-    "\:5206\:7c7b\:7ed3\:679c"->Map[<|"\:56fe\:6570"->Length[#],"T"->Total[value[#,"T"]&/@#],
+    Lookup[row["Status"],"Scalar"<>component,""]==="Complete",
+    row["Scalar"<>component],row["Integrate"<>component]];
+  <|"ComputeCategory"->rgzMXJob["ComputeCategory"],
+    "include AllthreeItemsSector"->TrueQ[Length[rgzMXJob["ComputeCategory"]]===3],
+    "ClassifiedResult"->Map[<|"DiagramCount"->Length[#],"T"->Total[value[#,"T"]&/@#],
       "L"->Total[value[#,"L"]&/@#]|>&,groups],
     "T"->Total[value[#,"T"]&/@rows],"L"->Total[value[#,"L"]&/@rows],
-    "\:8bf4\:660e"->"\:666e\:901a\:622a\:80a2\:6df7\:5408\:63d2\:5165\:ff1b\:4fdd\:7559\:5916\:90e8\:989c\:8272\:4e0e i \:56e0\:5b50\:3001\:6781\:70b9\:8d28\:91cf\:6807\:7b7e\:3002"|>
+    "Description"->"Ordinary amputated mixed insertion retaining external colors, i and pole-mass labels."|>
 ];
 
-RGZMXShow[n_Integer,stage_String:"\:6295\:5f71"] := Module[{row},
+RGZMXShow[n_Integer,stage_String:"Project"] := Module[{row},
   If[!AssociationQ[rgzMXJob],Return[Failure["StartFirst",<||>]]];
-  If[n<1 || n>Length[rgzMXJob["\:9010\:56fe"]],Return[$Failed]];
-  row=rgzMXJob["\:9010\:56fe"][[n]];
-  Print["\:7b2c ",n," \:56fe\:ff1a",row["\:7c7b\:522b"],"\:ff1b",stage];
+  If[n<1 || n>Length[rgzMXJob["PerDiagram"]],Return[$Failed]];
+  row=rgzMXJob["PerDiagram"][[n]];
+  Print["number  ",n," Diagram: ",row["Category"],"；",stage];
   TraditionalForm[Lookup[row,stage,Missing["NotRun"]]]
 ];
 
-RGZMXReport["\:8be6\:7ec6","\:5df2\:52a0\:8f7d RGZ \:6df7\:5408\:77e9\:9635\:5206\:6b65\:5f15\:64ce\:3002\:7b80\:6d01\:8fdb\:5ea6\:ff1aRGZMXMonitor[\:8ba1\:7b97\:547d\:4ee4]\:ff1b\:663e\:793a\:6a21\:5f0f\:ff1aRGZMXSetDisplay[\"\:7b80\:6d01\"/\"\:9759\:9ed8\"/\"\:8be6\:7ec6\"]\:3002"];
+RGZMXReport["Verbose","Mixed-matrix stage engine loaded. Use RGZMXMonitor[command] for progress and RGZMXSetDisplay[\"Compact\"/\"Quiet\"/\"Verbose\"] for display mode."];
 
 (* ================================================================
    Public interface: 64 ordered bosonic field pairs, with four sectors
@@ -1090,11 +1094,11 @@ rgzMixTopGhostTadpole=TopologyList[Topology[2][
   Propagator[Incoming][Vertex[1][1],Vertex[4][3]],
   Propagator[Outgoing][Vertex[1][2],Vertex[4][3]],
   Propagator[FALoop[1]][Vertex[4][3],Vertex[4][3]]]];
-RGZMixSectorNames={"\:56db\:70b9\:9876\:70b9\:5708\:56fe","\:73bb\:8272\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe","\:9b3c\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe","QuarkBubble"};
+RGZMixSectorNames={"FourPointVertexLoop","BosonicThreePointLoop","GhostThreePointLoop","QuarkBubble"};
 RGZMixBasis["L"] := RGZMXLabel/@Range[8];
 RGZMixBasis["T"] := RGZMXLabel/@{1,5,6,7,8};
-RGZMixBasis["\:5f20\:91cf"] := RGZMXLabel/@Range[8];
-RGZMixSetDisplay[mode_String:"\:7b80\:6d01"] := RGZMXSetDisplay[mode];
+RGZMixBasis["Tensor"] := RGZMXLabel/@Range[8];
+RGZMixSetDisplay[mode_String:"Compact"] := RGZMXSetDisplay[mode];
 SetAttributes[RGZMixMonitor,HoldAll];
 RGZMixMonitor[expr_] := RGZMXMonitor[expr];
 RGZMixValidatePair[a_,b_] := Module[{pair=RGZMXPairID/@{a,b}},
@@ -1102,111 +1106,113 @@ RGZMixValidatePair[a_,b_] := Module[{pair=RGZMXPairID/@{a,b}},
 
 RGZMixPrepare[] := Module[{root,hash,path,m,r,context},
   If[!StringQ[modelRGZ] || !And@@(FileExistsQ[modelRGZ<>#]&/@{".gen",".mod"}),
-    Return[Failure["ModelPath",<|"\:8bf4\:660e"->"\:5148\:8bbe\:7f6e modelRGZ\:3002"|>]]];
+    Return[Failure["ModelPath",<|"Description"->"Set modelRGZ first."|>]]];
   root=Quiet[Check[RGZWorkflow`Private`cacheDirectory[],$Failed]];If[!StringQ[root],root=Directory[]];
   context={RGZMXIntegralContext[],Options[PaVeReduce],Options[FCFAConvert]};
   hash=IntegerString[Hash[{Import[modelRGZ<>".gen","Text"],
-    Import[modelRGZ<>".mod","Text"],context,"mixed-matrix-complete-matter-v3",RGZWorkflow`Private`quarkMasses[]},"SHA256"],16];
+    Import[modelRGZ<>".mod","Text"],context,"mixed-matrix-complete-matter-v3",RGZWorkflow`Private`workflowFingerprint[],RGZWorkflow`Private`quarkMasses[]},"SHA256"],16];
   path=FileNameJoin[{root,"RGZ_Mixed_matrix_"<>StringTake[hash,12]}];
-  If[AssociationQ[rgzMixOverallJob] && Lookup[rgzMixOverallJob,"\:6307\:7eb9",None]===hash &&
-    Lookup[rgzMixOverallJob,"\:76ee\:5f55",None]===path,Return[True]];
+  If[AssociationQ[rgzMixOverallJob] && Lookup[rgzMixOverallJob,"Fingerprint",None]===hash &&
+    Lookup[rgzMixOverallJob,"Directory",None]===path,Return[True]];
   If[!DirectoryQ[path],CreateDirectory[path,CreateIntermediateDirectories->True]];
   If[FileExistsQ[FileNameJoin[{path,"matrix_job.wl"}]],
     m=Get[FileNameJoin[{path,"matrix_job.wl"}]];
-    If[!AssociationQ[m] || Lookup[m,"\:6307\:7eb9",None]=!=hash ||
-      Lookup[m,"\:7248\:672c",0]=!=1 || !AssociationQ[Lookup[m,"\:8bb0\:5f55",None]],
-      Return[Failure["BadMatrixCache",<|"\:76ee\:5f55"->path|>]]];rgzMixOverallJob=m,
-    rgzMixOverallJob=<|"\:7248\:672c"->1,"\:6a21\:578b"->modelRGZ,"\:6307\:7eb9"->hash,
-      "\:76ee\:5f55"->path,"L\:573a\:987a\:5e8f"->RGZMixBasis["L"],"T\:573a\:987a\:5e8f"->RGZMixBasis["T"],
-      "\:8bb0\:5f55"-><||>,"\:7ea6\:5b9a"->"\:77e9\:9635\:5217\:4e3a\:5168\:5165\:5c04\:573a\:ff1bFA \:51fa\:5c04\:7c92\:5b50\:53d6\:5217\:573a\:7684\:53cd\:7c92\:5b50"|>;
+    If[!AssociationQ[m] || Lookup[m,"Fingerprint",None]=!=hash ||
+      Lookup[m,"Version",0]=!=1 || !AssociationQ[Lookup[m,"Record",None]],
+      Return[Failure["BadMatrixCache",<|"Directory"->path|>]]];rgzMixOverallJob=m,
+    rgzMixOverallJob=<|"Version"->1,"Model"->modelRGZ,"Fingerprint"->hash,
+      "Directory"->path,"LFieldOrder"->RGZMixBasis["L"],"TFieldOrder"->RGZMixBasis["T"],
+      "Record"-><||>,"Convention"->"Matrix columns are all-incoming fields; FA outgoing particles are their antiparticles"|>;
     r=RGZMXWrite[rgzMixOverallJob,FileNameJoin[{path,"matrix_job.wl"}]];
     If[FailureQ[r],Return[r]]];True
 ];
 
 RGZMixStart[] := Module[{r=RGZMixPrepare[]},If[FailureQ[r],r,
-  <|"L\:573a\:987a\:5e8f"->RGZMixBasis["L"],"T\:573a\:987a\:5e8f"->RGZMixBasis["T"],
-    "\:6709\:5e8f\:573a\:5bf9\:6570"->64,"\:7f13\:5b58\:76ee\:5f55"->rgzMixOverallJob["\:76ee\:5f55"],
-    "\:8bf4\:660e"->"\:53ea\:521d\:59cb\:5316\:77e9\:9635\:6e05\:5355\:ff0c\:4e0d\:4e00\:6b21\:6027\:751f\:6210\:6216\:8f6c\:6362\:5168\:90e8\:56fe\:3002"|>]];
+  <|"LFieldOrder"->RGZMixBasis["L"],"TFieldOrder"->RGZMixBasis["T"],
+    "orderedFieldPairCount"->64,"CacheDirectory"->rgzMixOverallJob["Directory"],
+    "Description"->"Initialize the matrix inventory without generating or converting all diagrams at once."|>]];
 
 RGZMixRecordPath[pair_List,sector_String] := FileNameJoin[
-  {rgzMixOverallJob["\:76ee\:5f55"],"pair_"<>ToString[pair[[1]]]<>"_"<>
+  {rgzMixOverallJob["Directory"],"pair_"<>ToString[pair[[1]]]<>"_"<>
     ToString[pair[[2]]]<>"_"<>ToString[First@FirstPosition[RGZMixSectorNames,sector]]<>".wl"}];
 RGZMixStore[pair_List,sector_String,entry_Association] := Module[{path,key,records,r,meta},
   path=RGZMixRecordPath[pair,sector];
-  r=RGZMXWrite[Join[entry,<|"\:573a\:5bf9"->pair,"\:90e8\:95e8"->sector|>],path];
+  r=RGZMXWrite[Join[entry,<|"FieldPair"->pair,"Sector"->sector|>],path];
   If[FailureQ[r],Return[r]];
   key=StringRiffle[ToString/@pair,"_"]<>"_"<>sector;
-  records=rgzMixOverallJob["\:8bb0\:5f55"];
-  meta=Join[KeyTake[entry,{"\:72b6\:6001","\:56fe\:6570","\:9010\:56fe\:7f13\:5b58"}],<|"\:7ed3\:679c\:6587\:4ef6"->path|>];
-  AssociateTo[records,key->meta];AssociateTo[rgzMixOverallJob,"\:8bb0\:5f55"->records];
-  RGZMXWrite[rgzMixOverallJob,FileNameJoin[{rgzMixOverallJob["\:76ee\:5f55"],"matrix_job.wl"}]]
+  records=rgzMixOverallJob["Record"];
+  meta=Join[KeyTake[entry,{"Status","DiagramCount","PerDiagramCache"}],<|"ResultFile"->path|>];
+  AssociateTo[records,key->meta];AssociateTo[rgzMixOverallJob,"Record"->records];
+  RGZMXWrite[rgzMixOverallJob,FileNameJoin[{rgzMixOverallJob["Directory"],"matrix_job.wl"}]]
 ];
 RGZMixRead[pair_List,sector_String] := Module[{path=RGZMixRecordPath[pair,sector],z},
   If[!FileExistsQ[path],Return[Missing["NotRun",{pair,sector}]]];
-  z=Get[path];If[AssociationQ[z] && Lookup[z,"\:573a\:5bf9",None]===pair &&
-    Lookup[z,"\:90e8\:95e8",None]===sector,z,Failure["BadPairCache",<|"\:6587\:4ef6"->path|>]]];
+  z=Get[path];If[AssociationQ[z] && Lookup[z,"FieldPair",None]===pair &&
+    Lookup[z,"Sector",None]===sector&&
+    (Lookup[z,"Status",None]=!="Complete"||(IntegerQ[Lookup[z,"DiagramCount",None]]&&z["DiagramCount"]>=0&&
+     And@@(KeyExistsQ[z,#]&/@{"T","L"})&&!RGZWorkflow`Private`qqFFInvalidQ[{z["T"],z["L"]}])),z,Failure["BadPairCache",<|"File"->path|>]]];
 
-Options[RGZMixStartPair]={"\:7c7b\:522b"->All,"\:5355\:6b65\:65f6\:9650"->60,"\:590d\:7528AA\:7f13\:5b58"->True};
+Options[RGZMixStartPair]={"Category"->All,"SingleStepTimeLimit"->60,"reuseAACache"->True};
 RGZMixStartPair[a_,b_,OptionsPattern[]] := Module[{pair,r,selected},
   pair=RGZMixValidatePair[a,b];If[FailureQ[pair],Return[pair]];
   r=RGZMixPrepare[];If[FailureQ[r],Return[r]];
-  selected=OptionValue["\:7c7b\:522b"];
+  selected=OptionValue["Category"];
   If[StringQ[selected],selected={selected}];
-  RGZMXStart["\:573a\:5bf9"->pair,"\:7c7b\:522b"->selected,"\:5355\:6b65\:65f6\:9650"->OptionValue["\:5355\:6b65\:65f6\:9650"],
-    "\:590d\:7528AA\:7f13\:5b58"->OptionValue["\:590d\:7528AA\:7f13\:5b58"]]
+  RGZMXStart["FieldPair"->pair,"Category"->selected,"SingleStepTimeLimit"->OptionValue["SingleStepTimeLimit"],
+    "reuseAACache"->OptionValue["reuseAACache"]]
 ];
 RGZMixRun[n_Integer,stage_String,seconds_:300] := RGZMXRun[n,stage,seconds];
-RGZMixShowGraph[n_Integer,stage_String:"\:6807\:91cfT"] := RGZMXShow[n,stage];
+RGZMixShowGraph[n_Integer,stage_String:"ScalarT"] := RGZMXShow[n,stage];
 
-Options[RGZMixComputePair]={"\:7c7b\:522b"->All,"\:590d\:7528AA\:7f13\:5b58"->True};
+Options[RGZMixComputePair]={"Category"->All,"reuseAACache"->True};
 RGZMixComputePair[a_,b_,seconds_:300,OptionsPattern[]] := Module[
   {pair,r,selected,sector,old,entry,rows,total,stop},Catch[
   pair=RGZMixValidatePair[a,b];If[FailureQ[pair],Throw[pair,stop]];
   If[!NumericQ[seconds] || !TrueQ[seconds>0],Throw[Failure["InvalidTimeLimit",<||>],stop]];
   r=RGZMixPrepare[];If[FailureQ[r],Throw[r,stop]];
-  selected=OptionValue["\:7c7b\:522b"];
+  selected=OptionValue["Category"];
   If[selected===All,selected=RGZMixSectorNames];If[StringQ[selected],selected={selected}];
   If[!ListQ[selected] || selected==={} || !And@@(MemberQ[RGZMixSectorNames,#]&/@selected),
-    Throw[Failure["SectorName",<|"\:53ef\:7528\:7c7b\:522b"->RGZMixSectorNames|>],stop]];
+    Throw[Failure["SectorName",<|"AvailableCategory"->RGZMixSectorNames|>],stop]];
   Do[
     old=RGZMixRead[pair,sector];If[FailureQ[old],Throw[old,stop]];
-    If[AssociationQ[old] && Lookup[old,"\:72b6\:6001",""]==="\:5b8c\:6210",Continue[]];
-    r=RGZMXStart["\:573a\:5bf9"->pair,"\:7c7b\:522b"->{sector},"\:5355\:6b65\:65f6\:9650"->seconds,
-      "\:590d\:7528AA\:7f13\:5b58"->OptionValue["\:590d\:7528AA\:7f13\:5b58"]];
+    If[AssociationQ[old] && Lookup[old,"Status",""]==="Complete",Continue[]];
+    r=RGZMXStart["FieldPair"->pair,"Category"->{sector},"SingleStepTimeLimit"->seconds,
+      "reuseAACache"->OptionValue["reuseAACache"]];
     If[FailureQ[r],
-      entry=<|"\:72b6\:6001"->"\:521d\:59cb\:5316\:5931\:8d25","\:56fe\:6570"->Missing["NotGenerated"],"\:505c\:6b62\:539f\:56e0"->r|>;
+      entry=<|"Status"->"InitializeFailed","DiagramCount"->Missing["NotGenerated"],"StoppedCause"->r|>;
       With[{w=RGZMixStore[pair,sector,entry]},If[FailureQ[w],Throw[w,stop]]];Throw[r,stop]];
-    rows=rgzMXJob["\:9010\:56fe"];
-    entry=<|"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:56fe\:6570"->Length[rows],"\:9010\:56fe\:7f13\:5b58"->rgzMXJob["\:7f13\:5b58\:76ee\:5f55"]|>;
+    rows=rgzMXJob["PerDiagram"];
+    entry=<|"Status"->"ComputeIn","DiagramCount"->Length[rows],"PerDiagramCache"->rgzMXJob["CacheDirectory"]|>;
     r=RGZMixStore[pair,sector,entry];If[FailureQ[r],Throw[r,stop]];
     (* Empty graphs give exact zero only after InsertFields and all audits
        returned normally. A timed-out graph is never zero. *)
     If[rows==={},total=<|"T"->0,"L"->0|>,
-      r=RGZMXRunAll[{"\:6295\:5f71","\:5206\:89e3T","\:79ef\:5206T","\:6807\:91cfT",
-        "\:5206\:89e3L","\:79ef\:5206L","\:6807\:91cfL"},seconds];
+      r=RGZMXRunAll[{"Project","DecomposeT","IntegrateT","ScalarT",
+        "DecomposeL","IntegrateL","ScalarL"},seconds];
       If[FailureQ[r],
-        entry=Join[entry,<|"\:72b6\:6001"->"\:672a\:5b8c\:6210","\:505c\:6b62\:539f\:56e0"->r|>];
+        entry=Join[entry,<|"Status"->"Incomplete","StoppedCause"->r|>];
         With[{w=RGZMixStore[pair,sector,entry]},If[FailureQ[w],Throw[w,stop]]];
-        RGZMXReport["\:9519\:8bef","\:573a\:5bf9 ",RGZMXLabel/@pair," \:505c\:5728\:5931\:8d25\:9636\:6bb5\:ff1b\:6b64\:524d\:7ed3\:679c\:5df2\:4fdd\:5b58\:3002"];
+        RGZMXReport["Error","FieldPair ",RGZMXLabel/@pair," stopin FailedStage; this BeforeResultSave. "];
         Throw[r,stop]];
       total=RGZMXTotal[];If[FailureQ[total],Throw[total,stop]]];
-    entry=Join[entry,<|"\:72b6\:6001"->"\:5b8c\:6210","T"->total["T"],"L"->total["L"]|>];
+    entry=Join[entry,<|"Status"->"Complete","T"->total["T"],"L"->total["L"]|>];
     r=RGZMixStore[pair,sector,entry];If[FailureQ[r],Throw[r,stop]];
-    RGZMXReport["\:6458\:8981",StringRiffle[RGZMXLabel/@pair," / "],"\:ff1b",sector,
-      "\:ff1b",Length[rows]," \:56fe\:ff1b\:5b8c\:6210\:3002"],{sector,DeleteDuplicates[selected]}];
-  <|"\:573a\:5bf9"->(RGZMXLabel/@pair),"\:5b8c\:6210\:7c7b\:522b"->DeleteDuplicates[selected],"\:72b6\:6001"->"\:5b8c\:6210"|>,stop]
+    RGZMXReport["Summary",StringRiffle[RGZMXLabel/@pair," / "],"；",sector,
+      "；",Length[rows]," Diagram; Complete. "],{sector,DeleteDuplicates[selected]}];
+  <|"FieldPair"->(RGZMXLabel/@pair),"CompleteCategory"->DeleteDuplicates[selected],"Status"->"Complete"|>,stop]
 ];
 
-Options[RGZMixComputeAll]={"\:573a\:5bf9"->All,"\:7c7b\:522b"->All,"\:590d\:7528AA\:7f13\:5b58"->True};
+Options[RGZMixComputeAll]={"FieldPair"->All,"Category"->All,"reuseAACache"->True};
 RGZMixComputeAll[seconds_:300,OptionsPattern[]] := Module[{pairs,r,pair,stop},Catch[
-  pairs=OptionValue["\:573a\:5bf9"];
+  pairs=OptionValue["FieldPair"];
   If[pairs===All,pairs=Tuples[Range[8],2]];
   If[!ListQ[pairs] || !And@@(MatchQ[#,{_,_}]&/@pairs),
     Throw[Failure["FieldPairs",<||>],stop]];
   pairs=RGZMixValidatePair@@#&/@pairs;
   If[AnyTrue[pairs,FailureQ],Throw[First[Select[pairs,FailureQ]],stop]];
-  Do[r=RGZMixComputePair[Sequence@@pair,seconds,"\:7c7b\:522b"->OptionValue["\:7c7b\:522b"],
-      "\:590d\:7528AA\:7f13\:5b58"->OptionValue["\:590d\:7528AA\:7f13\:5b58"]];
+  Do[r=RGZMixComputePair[Sequence@@pair,seconds,"Category"->OptionValue["Category"],
+      "reuseAACache"->OptionValue["reuseAACache"]];
     If[FailureQ[r],Throw[r,stop]],{pair,DeleteDuplicates[pairs]}];
   RGZMixStatus[],stop]
 ];
@@ -1214,16 +1220,16 @@ RGZMixComputeAll[seconds_:300,OptionsPattern[]] := Module[{pairs,r,pair,stop},Ca
 (* A small 8 x 8 status grid; never put the full long expressions here. *)
 RGZMixStatus[] := Module[{r,records,status,pairs,rows},
   r=RGZMixPrepare[];If[FailureQ[r],Return[r]];
-  records=rgzMixOverallJob["\:8bb0\:5f55"];
+  records=rgzMixOverallJob["Record"];
   status[i_,j_] := Module[{v,k},
     k=(ToString[i]<>"_"<>ToString[j]<>"_"<>#)&/@RGZMixSectorNames;
-    v=Lookup[Lookup[records,k,<||>],"\:72b6\:6001","\:672a\:8fd0\:884c"];
-    Which[And@@(#==="\:5b8c\:6210"&/@v),Style["\:5b8c\:6210",Darker[Green]],
-      MemberQ[v,"\:672a\:5b8c\:6210"|"\:521d\:59cb\:5316\:5931\:8d25"],Style["\:505c\:6b62",Red],
-      AllTrue[v,#==="\:672a\:8fd0\:884c"&],"\:672a\:8fd0\:884c",
-      True,ToString[Count[v,"\:5b8c\:6210"]]<>" / 3"]];
+    v=Lookup[Lookup[records,k,<||>],"Status","NotRun"];
+    Which[And@@(#==="Complete"&/@v),Style["Complete",Darker[Green]],
+      MemberQ[v,"Incomplete"|"InitializeFailed"],Style["Stopped",Red],
+      AllTrue[v,#==="NotRun"&],"NotRun",
+      True,ToString[Count[v,"Complete"]]<>" / "<>ToString[Length[RGZMixSectorNames]]]];
   rows=Table[Prepend[Table[status[i,j],{j,8}],RGZMXLabel[i]],{i,8}];
-  Grid[Prepend[rows,Prepend[RGZMixBasis["L"],"\:884c / \:5217"]],Frame->All,
+  Grid[Prepend[rows,Prepend[RGZMixBasis["L"],"Row / Column"]],Frame->All,
     Alignment->Center,Spacings->{1,0.6},Background->{None,{LightGray}}]
 ];
 
@@ -1231,22 +1237,22 @@ RGZMixStatus[] := Module[{r,records,status,pairs,rows},
    monitor panel. Only display state changes; colour algebra, projection
    cache keys and original amplitude normalization remain unchanged. *)
 RGZMixResultStep[label_String,pair_:None] := (
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->If[ListQ[pair],
-    StringRiffle[RGZMXLabel/@pair," / "]<>" \:00b7 "<>
+  RGZMXProgressUpdate["Substep"->If[ListQ[pair],
+    StringRiffle[RGZMXLabel/@pair," / "]<>" · "<>
       If[MemberQ[{"T","L"},rgzMixProjectionComponent],
-        rgzMixProjectionComponent<>" \:7cfb\:6570 \:00b7 ",""]<>label,label],
-    "\:64cd\:4f5c\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];Null);
+        rgzMixProjectionComponent<>" Coefficient · ",""]<>label,label],
+    "OperationStartTime"->AbsoluteTime[]];Null);
 
 RGZMixReadPair[pair_List] := Module[{r,parts,bad},
-  RGZMixResultStep["\:68c0\:67e5\:6a21\:578b\:4e0e\:6c47\:603b\:7f13\:5b58\:8def\:5f84",pair];
+  RGZMixResultStep["CheckModelAndSummaryCachePath",pair];
   r=RGZMixPrepare[];If[FailureQ[r],Return[r]];
-  RGZMixResultStep["\:8bfb\:53d6\:4e09\:4e2a\:90e8\:95e8\:7684\:7ed3\:679c\:5e76\:6c42\:548c",pair];
+  RGZMixResultStep["Read and sum all sectors",pair];
   parts=RGZMixRead[pair,#]&/@RGZMixSectorNames;
   bad=Select[parts,FailureQ];If[bad=!={},Return[First[bad]]];
-  If[!And@@(AssociationQ[#] && Lookup[#,"\:72b6\:6001",""]==="\:5b8c\:6210"&/@parts),
+  If[!And@@(AssociationQ[#] && Lookup[#,"Status",""]==="Complete"&/@parts),
     Return[Missing["IncompletePair",RGZMXLabel/@pair]]];
   <|"T"->Total[Lookup[parts,"T"]],"L"->Total[Lookup[parts,"L"]],
-    "\:56fe\:6570"->Total[Lookup[parts,"\:56fe\:6570"]]|>
+    "DiagramCount"->Total[Lookup[parts,"DiagramCount"]]|>
 ];
 RGZMixTensor[data_Association,i_,j_] := Which[
   RGZMXVectorQ[i] && RGZMXVectorQ[j],FCI[
@@ -1279,8 +1285,8 @@ RGZMixColourPairs[expr_] := Module[{walk,multiply,group,pairs,stop},Catch[
     Head[x]===Power && IntegerQ[x[[2]]] && x[[2]]>=0,
       With[{base=walk[x[[1]]]},Nest[multiply[#,base]&,{{1,1}},x[[2]]]],
     True,Throw[Failure["ColourSeparationHead",
-      <|"\:5934\:90e8"->RGZLoopName[Head[x]],
-        "\:8bf4\:660e"->"\:989c\:8272\:6307\:6807\:51fa\:73b0\:5728\:672a\:652f\:6301\:7684\:4ee3\:6570\:7ed3\:6784\:4e2d\:ff0c\:672a\:7ee7\:7eed\:6295\:5f71\:3002"|>],stop]];
+      <|"head"->RGZLoopName[Head[x]],
+        "Description"->"Color indices occur in an unsupported algebraic structure; projection stopped."|>],stop]];
   pairs=walk[expr];group[pairs],stop]
 ];
 
@@ -1298,116 +1304,117 @@ RGZMixAdjointColour[colour_,i_,j_] := Module[
     RGZMXObjects[z,"SUND"],RGZMXObjects[z,"SUNTrace"],
     RGZMXObjects[z,"SUNT"],RGZMXObjects[z,"SUNTF"]];
   If[bad=!={},Return[Failure["AdjointColourNotReduced",
-    <|"\:573a\:5bf9"->{i,j},"Objects"->bad|>]]];
+    <|"FieldPair"->{i,j},"Objects"->bad|>]]];
   delta=SUNDelta[a1,a2];z=z/.SUNDelta[a2,a1]->delta;
   (* Expand only this colour kernel, never the original integral coefficient.
      Remove the common delta only after checking exact reconstruction. *)
   c=Expand[z]/.delta->1;
   If[!TrueQ[Expand[z-delta c]===0],Return[Failure["AdjointDeltaMissing",
-    <|"\:573a\:5bf9"->{i,j},"\:989c\:8272\:6838"->z|>]]];
+    <|"FieldPair"->{i,j},"ColorKernel"->z|>]]];
   If[!RGZMixColourFreeQ[c],Return[Failure["AdjointIndexRemaining",
-    <|"\:573a\:5bf9"->{i,j},"\:989c\:8272\:6838"->c|>]]];c
+    <|"FieldPair"->{i,j},"ColorKernel"->c|>]]];c
 ];
 
 RGZMixAdjoint[expr_,i_,j_,seconds_:60] := Module[{r},
   r=CheckAbort[TimeConstrained[Module[{pairs,coefficients,c,n,stop},Catch[
     If[TrueQ[expr===0],Return[0]];
-    RGZMixResultStep["\:5206\:79bb\:989c\:8272\:7ed3\:6784\:4e0e\:6807\:91cf\:79ef\:5206\:7cfb\:6570",{i,j}];
+    RGZMixResultStep["Separate color structures from scalar integral coefficients",{i,j}];
     pairs=RGZMixColourPairs[expr];If[FailureQ[pairs],Throw[pairs,stop]];
     coefficients=Table[
-      RGZMixResultStep["\:989c\:8272\:7ed3\:6784 "<>ToString[n]<>" / "<>
-        ToString[Length[pairs]]<>"\:ff1aSUNSimplify\:ff08\:4ec5\:989c\:8272\:6838\:ff09",{i,j}];
+      RGZMixResultStep["ColorStructure "<>ToString[n]<>" / "<>
+        ToString[Length[pairs]]<>": SUNSimplify (only ColorKernel)",{i,j}];
       c=RGZMixAdjointColour[pairs[[n,1]],i,j];
       If[FailureQ[c],Throw[c,stop]];c,{n,Length[pairs]}];
-    RGZMixResultStep["\:6062\:590d\:6807\:91cf\:7cfb\:6570\:ff08\:4e0d\:5c55\:5f00\:79ef\:5206\:8868\:8fbe\:5f0f\:ff09",{i,j}];
+    RGZMixResultStep["Restore scalar coefficients without expanding integral expressions",{i,j}];
     Total[MapThread[Times,{coefficients,pairs[[All,2]]}]],stop]],
     seconds,$Aborted],$Aborted];
   If[r===$Aborted,Failure["AdjointProjectionTimeout",
-    <|"\:573a\:5bf9"->{i,j},"\:65f6\:9650"->seconds|>],r]
+    <|"FieldPair"->{i,j},"TimeLimit"->seconds|>],r]
 ];
 
 RGZMixProjectedPair[pair_List,seconds_:60] := Module[{data,path,old,r,t,l},
   data=RGZMixReadPair[pair];If[Head[data]===Missing || FailureQ[data],Return[data]];
-  path=FileNameJoin[{rgzMixOverallJob["\:76ee\:5f55"],
+  path=FileNameJoin[{rgzMixOverallJob["Directory"],
     "adjoint_"<>StringRiffle[ToString/@pair,"_"]<>".wl"}];
-  RGZMixResultStep["\:68c0\:67e5\:5df2\:6709\:4f34\:968f\:6295\:5f71\:7f13\:5b58",pair];
+  RGZMixResultStep["Checkhas AdjointProjectCache",pair];
   If[FileExistsQ[path],
-    RGZMixResultStep["\:8bfb\:53d6\:5e76\:6838\:5bf9\:4f34\:968f\:6295\:5f71\:7f13\:5b58",pair];old=Get[path];
-    If[AssociationQ[old] && SameQ[Lookup[old,"\:8f93\:5165",None],data] &&
-      Lookup[old,"\:72b6\:6001",""]==="\:5b8c\:6210",Return[old["\:7ed3\:679c"]]]];
-  RGZMixResultStep["\:6295\:5f71\:5f53\:524d\:573a\:5bf9\:7684 T \:7cfb\:6570",pair];
+    RGZMixResultStep["Readand VerifyAdjointProjectCache",pair];old=Get[path];
+    If[AssociationQ[old] && SameQ[Lookup[old,"Input",None],data] &&
+      Lookup[old,"Status",""]==="Complete",Return[old["Result"]]]];
+  RGZMixResultStep["Project T coefficients for the current field pair",pair];
   t=Block[{rgzMixProjectionComponent="T"},
     RGZMixAdjoint[data["T"],Sequence@@pair,seconds]];If[FailureQ[t],Return[t]];
-  RGZMixResultStep["\:6295\:5f71\:5f53\:524d\:573a\:5bf9\:7684 L \:7cfb\:6570",pair];
+  RGZMixResultStep["Project L coefficients for the current field pair",pair];
   l=Block[{rgzMixProjectionComponent="L"},
     RGZMixAdjoint[data["L"],Sequence@@pair,seconds]];If[FailureQ[l],Return[l]];
   If[Xor@@(RGZMXVectorQ/@pair),l=Sqrt[SPD[p,p]] l];
   r=<|"T"->t,"L"->l|>;
-  RGZMixResultStep["\:4fdd\:5b58\:5f53\:524d\:573a\:5bf9\:7684\:4f34\:968f\:6295\:5f71\:7f13\:5b58",pair];
-  With[{w=RGZMXWrite[<|"\:8f93\:5165"->data,"\:72b6\:6001"->"\:5b8c\:6210","\:7ed3\:679c"->r|>,path]},
+  RGZMixResultStep["Save the adjoint-projection cache for the current field pair",pair];
+  With[{w=RGZMXWrite[<|"Input"->data,"Status"->"Complete","Result"->r|>,path]},
     If[FailureQ[w],Return[w]]];r
 ];
 
 RGZMixMatrix[component_String:"L",seconds_:60] := Module[{indices,rows,z,n=0,total},
-  If[!MemberQ[{"T","L","\:5f20\:91cf"},component],Return[Failure["Component",<||>]]];
+  If[!MemberQ[{"T","L","Tensor"},component],Return[Failure["Component",<||>]]];
   indices=If[component==="T",{1,5,6,7,8},Range[8]];
   total=Length[indices]^2;
-  RGZMXProgressUpdate["\:90e8\:95e8"->"\:6df7\:5408\:77e9\:9635\:6c47\:603b", "\:56fe\:53f7"->0,"\:56fe\:6570"->0,
-    "\:9636\:6bb5"->component<>"\:77e9\:9635","\:9879\:53f7"->0,"\:603b\:9879\:6570"->total,"\:5b8c\:6210\:9879\:6570"->0,
-    "\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
+  RGZMXProgressUpdate["Sector"->"MixedMatrixSummary", "DiagramID"->0,"DiagramCount"->0,
+    "Stage"->component<>"Matrix","TermID"->0,"TotalTermCount"->total,"CompleteTermCount"->0,
+    "Status"->"ComputeIn","StageStartTime"->AbsoluteTime[]];
   rows=Table[
-    n++;RGZMXProgressUpdate["\:9879\:53f7"->n,"\:5b8c\:6210\:9879\:6570"->n-1];
-    RGZMixResultStep[If[component==="\:5f20\:91cf","\:6c47\:603b\:5168\:989c\:8272\:5f20\:91cf","\:8bfb\:53d6\:6216\:8ba1\:7b97\:4f34\:968f\:6295\:5f71"],{i,j}];
-    z=If[component==="\:5f20\:91cf",RGZMixReadPair[{i,j}],RGZMixProjectedPair[{i,j},seconds]];
-    RGZMixResultStep["\:7ec4\:88c5\:5f53\:524d\:77e9\:9635\:5143\:7d20",{i,j}];
+    n++;RGZMXProgressUpdate["TermID"->n,"CompleteTermCount"->n-1];
+    RGZMixResultStep[If[component==="Tensor","SummaryFullColorTensor","ReadOrComputeAdjointProject"],{i,j}];
+    z=If[component==="Tensor",RGZMixReadPair[{i,j}],RGZMixProjectedPair[{i,j},seconds]];
+    RGZMixResultStep["Assemble the current matrix entry",{i,j}];
     With[{value=Which[Head[z]===Missing || FailureQ[z],z,
-      component==="\:5f20\:91cf",RGZMixTensor[z,i,j],True,z[component]]},
-      RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->n];value],
+      component==="Tensor",RGZMixTensor[z,i,j],True,z[component]]},
+      RGZMXProgressUpdate["CompleteTermCount"->n];value],
     {i,indices},{j,indices}];
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:5b8c\:6210"];rows
+  RGZMXProgressUpdate["Status"->"Complete"];rows
 ];
 RGZMixResult[seconds_:60] := Module[{full,t,l,bad},
-  RGZMXProgressUpdate["\:90e8\:95e8"->"\:6df7\:5408\:77e9\:9635\:6c47\:603b","\:56fe\:53f7"->0,"\:56fe\:6570"->0,
-    "\:9636\:6bb5"->"\:6c47\:603b","\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,
-    "\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
-  RGZMixResultStep["\:51c6\:5907\:5168\:989c\:8272\:5f20\:91cf\:77e9\:9635"];
-  full=RGZMixMatrix["\:5f20\:91cf",seconds];
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:8ba1\:7b97\:4e2d"];
-  RGZMixResultStep["\:68c0\:67e5\:5168\:989c\:8272\:5f20\:91cf\:77e9\:9635\:7684\:5b8c\:6574\:6027"];
+  RGZMXProgressUpdate["Sector"->"MixedMatrixSummary","DiagramID"->0,"DiagramCount"->0,
+    "Stage"->"Aggregate","TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,
+    "Status"->"ComputeIn","StageStartTime"->AbsoluteTime[]];
+  RGZMixResultStep["PrepareFullColorTensorMatrix"];
+  full=RGZMixMatrix["Tensor",seconds];
+  RGZMXProgressUpdate["Status"->"ComputeIn"];
+  RGZMixResultStep["Check completeness of the full color-tensor matrix"];
   bad=Cases[full,_Missing|_Failure,Infinity];
-  If[bad=!={},RGZMXProgressUpdate["\:72b6\:6001"->"\:8ba1\:7b97\:5931\:8d25"];
-    Return[Failure["IncompleteMatrix",<|"\:672a\:5b8c\:6210\:6216\:5931\:8d25"->DeleteDuplicates[bad]|>]]];
+  If[bad=!={},RGZMXProgressUpdate["Status"->"ComputeFailed"];
+    Return[Failure["IncompleteMatrix",<|"IncompleteOrFailed"->DeleteDuplicates[bad]|>]]];
   t=RGZMixMatrix["T",seconds];l=RGZMixMatrix["L",seconds];
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:8ba1\:7b97\:4e2d"];
-  RGZMixResultStep["\:68c0\:67e5 T/L \:77e9\:9635\:5e76\:6574\:7406\:8fd4\:56de\:7ed3\:679c"];
+  RGZMXProgressUpdate["Status"->"ComputeIn"];
+  RGZMixResultStep["Check T/L matrixand organize return Result"];
   bad=Cases[{t,l},_Missing|_Failure,Infinity];
-  If[bad=!={},RGZMXProgressUpdate["\:72b6\:6001"->"\:8ba1\:7b97\:5931\:8d25"];
-    Return[Failure["ProjectionIncomplete",<|"\:539f\:56e0"->DeleteDuplicates[bad],
-    "\:5168\:989c\:8272\:5f20\:91cf\:77e9\:9635\:5c3a\:5bf8"->Dimensions[full],
-    "\:5168\:989c\:8272\:5f20\:91cf\:8bfb\:53d6"->"RGZMixMatrix[\"\:5f20\:91cf\"]"|>]]];
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:5b8c\:6210"];
-  <|"T\:573a\:987a\:5e8f"->RGZMixBasis["T"],"L\:573a\:987a\:5e8f"->RGZMixBasis["L"],
-    "ModelFingerprint"->RGZWorkflow`Private`modelKey[],"ModelContent"->RGZWorkflow`Private`modelContent[],"T"->t,"L"->l,"\:5168\:989c\:8272\:5f20\:91cf\:77e9\:9635"->full,
-    "\:8bf4\:660e"->"\:4fdd\:7559\:539f\:632f\:5e45 i \:56e0\:5b50\:7684\:622a\:80a2\:4e00\:5708\:63d2\:5165\:3002T/L \:4e3a\:5f52\:4e00\:5316\:4f34\:968f\:989c\:8272\:6295\:5f71\:ff1b\:4e0d\:542b pinch \:9879\:3001loop measure \:6216\:91cd\:6574\:5316\:3002"|>
+  If[bad=!={},RGZMXProgressUpdate["Status"->"ComputeFailed"];
+    Return[Failure["ProjectionIncomplete",<|"Cause"->DeleteDuplicates[bad],
+    "FullColorTensorMatrixdimensions"->Dimensions[full],
+    "FullColorTensorRead"->"RGZMixMatrix[\"Tensor\"]"|>]]];
+  If[RGZWorkflow`Private`qqFFInvalidQ[{full,t,l}],RGZMXProgressUpdate["Status"->"ComputeFailed"];Return[Failure["InvalidMatrixValues",<||>]]];
+  RGZMXProgressUpdate["Status"->"Complete"];
+  <|"TFieldOrder"->RGZMixBasis["T"],"LFieldOrder"->RGZMixBasis["L"],
+    "ModelFingerprint"->RGZWorkflow`Private`modelKey[],"ModelContent"->RGZWorkflow`Private`modelContent[],"T"->t,"L"->l,"FullColorTensorMatrix"->full,
+    "Description"->"Amputated one-loop insertion retaining the original amplitude factor i. T/L are normalized adjoint color projections; pinch terms, the loop measure and renormalization are excluded."|>
 ];
 
 (* Display bounded metadata only. Never typeset the full result or a long
    colour/integral expression when reporting an incomplete projection. *)
 RGZMixResultReport[result_] := Module[{data,reasons,rows},
   Which[
-    AssociationQ[result],Print["\:6c47\:603b\:6210\:529f\:ff1b\:77e9\:9635\:5c3a\:5bf8\:ff1a",
-      Dimensions /@ Lookup[result,{"T","L","\:5168\:989c\:8272\:5f20\:91cf\:77e9\:9635"}]],
+    AssociationQ[result],Print["Summary complete; matrix dimensions: ",
+      Dimensions /@ Lookup[result,{"T","L","FullColorTensorMatrix"}]],
     FailureQ[result],
-      Print["\:6c47\:603b\:5931\:8d25\:6807\:7b7e\:ff1a",result[[1]]];data=result[[2]];
-      reasons=Lookup[data,"\:539f\:56e0",Lookup[data,"\:672a\:5b8c\:6210\:6216\:5931\:8d25",{}]];
+      Print["SummaryFailedTag: ",result[[1]]];data=result[[2]];
+      reasons=Lookup[data,"Cause",Lookup[data,"IncompleteOrFailed",{}]];
       If[!ListQ[reasons],reasons={reasons}];
       rows=Map[Function[e,If[FailureQ[e],
-        {e[[1]],Lookup[e[[2]],"\:573a\:5bf9","\:672a\:63d0\:4f9b"],
-          Lookup[e[[2]],"\:65f6\:9650","\:672a\:63d0\:4f9b"]},
-        {Head[e],"\:672a\:63d0\:4f9b","\:672a\:63d0\:4f9b"}]],Take[reasons,UpTo[16]]];
-      If[rows=!={},Print[Grid[Prepend[rows,{"\:5931\:8d25\:6807\:7b7e","\:573a\:5bf9","\:65f6\:9650"}],Frame->All]]];
-      If[Length[reasons]>16,Print["\:53e6\:6709 ",Length[reasons]-16," \:9879\:672a\:663e\:793a\:3002"]],
-    True,Print["\:5c1a\:672a\:5f97\:5230\:6709\:6548\:6c47\:603b\:7ed3\:679c\:ff1b\:5934\:90e8\:ff1a",Head[result]]];Null
+        {e[[1]],Lookup[e[[2]],"FieldPair","NotProvided"],
+          Lookup[e[[2]],"TimeLimit","NotProvided"]},
+        {Head[e],"NotProvided","NotProvided"}]],Take[reasons,UpTo[16]]];
+      If[rows=!={},Print[Grid[Prepend[rows,{"FailedTag","FieldPair","TimeLimit"}],Frame->All]]];
+      If[Length[reasons]>16,Print["also  ",Length[reasons]-16," TermNotdisplay. "]],
+    True,Print["NotYetobtain ValidSummaryResult; head: ",Head[result]]];Null
 ];
 
 RGZMixCompactData[expr_,seconds_:30] := Module[{r},
@@ -1422,20 +1429,20 @@ RGZMixCompactData[expr_,seconds_:30] := Module[{r},
     rows=Select[Transpose[{objects,coeff}],!TrueQ[#[[2]]===0]&];
     If[!TrueQ[c===0],AppendTo[rows,{1,FactorTerms[Cancel[Together[c]]]}]];
     If[rows==={},rows={{1,0}}];rows],seconds,$Aborted],$Aborted];
-  If[r===$Aborted,Failure["CompactDisplayTimeout",<|"\:65f6\:9650"->seconds|>],r]
+  If[r===$Aborted,Failure["CompactDisplayTimeout",<|"TimeLimit"->seconds|>],r]
 ];
 RGZMixShow[a_,b_,component_String:"L",seconds_:30] := Module[{pair,data,z,rows,display},
   pair=RGZMixValidatePair[a,b];If[FailureQ[pair],Return[pair]];
-  If[!MemberQ[{"T","L","\:5f20\:91cfT","\:5f20\:91cfL"},component],Return[Failure["Component",<||>]]];
-  data=If[StringStartsQ[component,"\:5f20\:91cf"],RGZMixReadPair[pair],RGZMixProjectedPair[pair,seconds]];
+  If[!MemberQ[{"T","L","TensorT","TensorL"},component],Return[Failure["Component",<||>]]];
+  data=If[StringStartsQ[component,"Tensor"],RGZMixReadPair[pair],RGZMixProjectedPair[pair,seconds]];
   If[Head[data]===Missing || FailureQ[data],Return[data]];
   z=data[StringTake[component,-1]];
   rows=RGZMixCompactData[z,seconds];If[FailureQ[rows],Return[rows]];
   display={rgzLoopM1->Subscript[\[ScriptM],1],rgzLoopM2->Subscript[\[ScriptM],2],
     rgzLoopM3->Subscript[\[ScriptM],3],rgzLoopM4->Subscript[\[ScriptM],4]};
-  Print[StringRiffle[RGZMXLabel/@pair," / "],"\:ff1b",component,
-    "\:ff1b\:4e3b\:79ef\:5206\:4e0e\:7cfb\:6570\:ff08\:672a\:8865 loop measure\:ff09"];
-  Grid[Prepend[(TraditionalForm/@(#/.display))&/@rows,{"\:4e3b\:79ef\:5206","\:7cfb\:6570"}],
+  Print[StringRiffle[RGZMXLabel/@pair," / "],"；",component,
+    "; MasterIntegralAndCoefficient (Notadd  loop measure)"];
+  Grid[Prepend[(TraditionalForm/@(#/.display))&/@rows,{"MasterIntegral","Coefficient"}],
     Frame->All,Alignment->Left,Spacings->{1.5,0.6},Background->{None,{LightGray}}]
 ];
 
@@ -1451,5 +1458,5 @@ RGZMixAssembleInsertion[d0_List,insertion_List] := Module[{n},
   d0.insertion.d0
 ];
 
-RGZMXReport["\:6458\:8981","\:6df7\:5408\:77e9\:9635\:6d41\:7a0b\:5df2\:52a0\:8f7d\:3002\:521d\:59cb\:5316\:ff1aRGZMixStart[]\:ff1b\:5355\:4e2a\:573a\:5bf9\:ff1aRGZMixComputePair[\"A\",\"\[Xi]\",300]\:3002"];
-RGZMXReport["\:6458\:8981","\:5168\:90e8\:573a\:5bf9\:ff1aRGZMixComputeAll[300];\:ff1b\:72b6\:6001\:ff1aRGZMixStatus[]\:ff1b\:77e9\:9635\:ff1aRGZMixMatrix[\"T\"/\"L\"/\"\:5f20\:91cf\"]\:3002"];
+RGZMXReport["Summary","Mixed-matrix workflow loaded. Initialize with RGZMixStart[]; compute one pair with RGZMixComputePair[\"A\",\"\[Xi]\",300]."];
+RGZMXReport["Summary","All field pairs: RGZMixComputeAll[300]; status: RGZMixStatus[]; matrix: RGZMixMatrix[\"T\"/\"L\"/\"Tensor\"]."];

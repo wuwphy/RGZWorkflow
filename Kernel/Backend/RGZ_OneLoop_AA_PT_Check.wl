@@ -233,60 +233,61 @@ RGZLoopConvert[diagrams_] := Module[{fa,fc,bad},
   If[bad =!= {},Return[Failure["UnresolvedCoupling",<|"Objects"->bad|>]]];
   If[!FreeQ[fc, a_ /; MemberQ[{"mG1","mG2","mG3","mA1","mA2","mB"},
       RGZLoopName[a]]],
-    Print["\:63d0\:793a\:ff1a\:5f53\:524d\:6a21\:578b\:4ecd\:542b\:65e7\:5360\:4f4d\:5206\:6bcd\:3002\:8bf7\:4f7f\:7528\:524d\:9762\:4f20\:64ad\:5b50\:68c0\:67e5\:5df2\:901a\:8fc7\:7684\:4fee\:6b63\:7248 gen/mod\:ff1b\:672c\:811a\:672c\:4e0d\:4f1a\:6cbf\:7528\:672a\:7ecf\:6838\:5bf9\:7684\:65e7\:66ff\:6362\:89c4\:5219\:3002"]];
+    Print["The model contains legacy placeholder denominators. Use corrected gen/mod files that pass propagator checks; unchecked legacy substitution rules are not applied."]];
   fc=RGZLoopReduce /@ fc;
   bad=Select[fc,FailureQ];
   If[bad =!= {},First[bad],fc]
 ];
 
-RGZRunAA[] := Module[{tops,inserted,amps,rows={},data,sector,a,i},
+RGZRunAA[] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{tops,inserted,amps,rows={},data,sector,a,i},
   If[!StringQ[modelRGZ],
-    Return[Failure["SetModel",<|"Message"->"\:5148\:8bbe\:7f6e modelRGZ \:4e3a .gen/.mod \:7684\:5171\:540c\:8def\:5f84\:ff0c\:4e0d\:5e26\:6269\:5c55\:540d\:3002"|>]]];
-  tops = <|"\:56db\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopTadpole,
-    "\:73bb\:8272\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopBosonBubble,
-    "\:9b3c\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe"->rgzLoopTopGhostBubble|>;
+    Return[Failure["SetModel",<|"Message"->"Set modelRGZ to the shared .gen/.mod path without an extension."|>]]];
+  tops = <|"FourPointVertexLoop"->rgzLoopTopTadpole,
+    "BosonicThreePointLoop"->rgzLoopTopBosonBubble,
+    "GhostThreePointLoop"->rgzLoopTopGhostBubble|>;
   inserted = Association[]; amps = Association[];
   Do[
-    Print["\:6b63\:5728\:751f\:6210\:ff1a",sector];
+    Print["Generating: ",sector];
     data = InsertFields[tops[sector],{V[1]}->{V[1]},
       InsertionLevel->{Particles},Model->modelRGZ,GenericModel->modelRGZ];
-    data = If[sector == "\:9b3c\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe",
+    data = If[sector == "GhostThreePointLoop",
       DiagramSelect[data,With[{fields=LoopFields[##]},
         fields =!= {} && And@@(MatchQ[#,_U|-_U]& /@ fields)]&],
       DiagramSelect[data,FreeQ[LoopFields[##],_U]&]];
     AssociateTo[inserted,sector->data];
     a = RGZLoopConvert[data];
-    If[FailureQ[a],Return[a]];
+    If[FailureQ[a],Throw[a,rgzFunctionReturnTag]];
     AssociateTo[amps,sector->a];
-    Do[AppendTo[rows,<|"\:7c7b\:522b"->sector,"\:7c7b\:5185\:7f16\:53f7"->i,
-      "\:632f\:5e45"->a[[i]]|>],{i,Length[a]}];
-    Print[sector,"\:ff1a",Length[a]," \:9879\:632f\:5e45"], {sector,Keys[tops]}];
+    Do[AppendTo[rows,<|"Category"->sector,"WithinClassID"->i,
+      "Amplitude"->a[[i]]|>],{i,Length[a]}];
+    Print[sector,"：",Length[a]," TermAmplitude"], {sector,Keys[tops]}];
   If[rows === {},Return[Failure["NoGraphs",<||>]]];
-  Print["\:5df2\:5bf9\:5168\:90e8 ",Length[rows]," \:9879\:6c42\:548c\:ff1b\:672a\:6392\:9664 \:03c6\:3001\:03b2 \:53ca\:5176\:53cd\:573a\:3002"];
-  <|"\:63d2\:5165\:56fe"->inserted,"\:5206\:7c7b\:632f\:5e45"->amps,"\:9010\:56fe\:7ed3\:679c"->rows,
-    "\:622a\:80a2AA\:603b\:632f\:5e45"->Total[Lookup[rows,"\:632f\:5e45"]],
-    "\:8bf4\:660e"->"\:666e\:901a AA \:7684 1PI \:63d2\:5165\:ff1b\:4e0d\:662f\:5b8c\:6574\:6df7\:5408\:4f20\:64ad\:5b50\:7684\:4e00\:5708\:4fee\:6b63\:ff0c\:4e5f\:4e0d\:662f\:5df2\:8bc1\:660e\:7684 PT \:81ea\:80fd\:3002"|>
-];
+  Print["for All ",Length[rows]," TermSum; Notexclude  φ, β and its conjugate Field. "];
+  <|"InsertionDiagram"->inserted,"ClassifiedAmplitude"->amps,"PerDiagramResults"->rows,
+    "AmputatedAATotalAmplitude"->Total[Lookup[rows,"Amplitude"]],
+    "Description"->"Ordinary AA 1PI insertion; full mixed-propagator corrections and a proven PT self-energy are outside this result."|>
+],rgzFunctionReturnTag]];
 
 RGZShowLoopGraph[result_Association,n_Integer] := Module[{rows,row},
-  rows = result["\:9010\:56fe\:7ed3\:679c"];
+  rows = result["PerDiagramResults"];
   If[n<1 || n>Length[rows],Return[$Failed]];
   row=rows[[n]];
-  Print["\:7b2c ",n," \:9879\:ff1a",row["\:7c7b\:522b"],"\:ff0c\:7c7b\:5185\:7f16\:53f7 ",row["\:7c7b\:5185\:7f16\:53f7"]];
-  Print[TraditionalForm[row["\:632f\:5e45"]]]
+  Print["number  ",n," Term: ",row["Category"],", WithinClassID ",row["WithinClassID"]];
+  Print[TraditionalForm[row["Amplitude"]]]
 ];
 
 RGZReduceAllAA[result_Association] := Module[{rows,out={},row,z,i,bad},
-  rows = result["\:9010\:56fe\:7ed3\:679c"];
+  rows = result["PerDiagramResults"];
   Do[
-    row=rows[[i]]; Print["\:6b63\:5728\:7ea6\:5316 ",i," / ",Length[rows]];
-    z = RGZLoopTID[row["\:632f\:5e45"]];
-    AppendTo[out,Join[row,<|"PaVe\:7ed3\:679c"->z|>]],{i,Length[rows]}];
-  bad = Select[out,MemberQ[{$Failed,$Aborted},# ["PaVe\:7ed3\:679c"]] ||
-    FailureQ[# ["PaVe\:7ed3\:679c"]]&];
-  If[bad =!= {},Return[Failure["ReductionFailed",<|"\:5931\:8d25\:9879"->bad|>]]];
-  Join[result,<|"\:9010\:56fePaVe"->out,
-    "\:622a\:80a2AA\:603bPaVe"->Factor2[Total[Lookup[out,"PaVe\:7ed3\:679c"]]]|>]
+    row=rows[[i]]; Print["Reducing ",i," / ",Length[rows]];
+    z = RGZLoopTID[row["Amplitude"]];
+    AppendTo[out,Join[row,<|"PaVeResult"->z|>]],{i,Length[rows]}];
+  bad = Select[out,MemberQ[{$Failed,$Aborted},# ["PaVeResult"]] ||
+    FailureQ[# ["PaVeResult"]]&];
+  If[bad =!= {},Return[Failure["ReductionFailed",<|"FailedTerm"->bad|>]]];
+  Join[result,<|"PerDiagramPaVe"->out,
+    "AmputatedAATotalPaVe"->Factor2[Total[Lookup[out,"PaVeResult"]]]|>]
 ];
 
 (* Gauge dependence is hidden in longitudinal pole masses as well.
@@ -296,9 +297,9 @@ RGZGaugeDifference[expr_,{a1_,a2_}] := Module[{physical,diff},
   physical = RGZLoopPoleMasses[expr];
   diff = FullSimplify[(physical /. \[Alpha]->a1)-
     (physical /. \[Alpha]->a2)];
-  <|"\:53c2\:6570\:53d6\:503c"->{a1,a2},"\:5dee\:503c"->diff,
-    "\:72b6\:6001"->If[TrueQ[diff === 0],"\:8fd9\:4e24\:4e2a\:53c2\:6570\:53d6\:503c\:4e0b\:5dee\:503c\:4e3a\:96f6",
-      "\:5dee\:503c\:5c1a\:672a\:5316\:96f6\:ff1a\:9700\:68c0\:67e5\:9057\:6f0f\:9879\:3001\:7ea6\:5b9a\:6216\:79ef\:5206\:6052\:7b49\:5f0f"]|>
+  <|"ParameterValues"->{a1,a2},"Difference"->diff,
+    "Status"->If[TrueQ[diff === 0],"The difference is zero at these two parameter points",
+      "The difference is not zero; check missing terms, conventions and integral identities"]|>
 ];
 
 (* ================================================================
@@ -331,10 +332,10 @@ RGZQCDPinchBenchmark[] := Module[
      gives this residual in the massless QCD alpha-minus-Landau test. *)
   oldRGZResidual=g2 CA {2(\[Alpha]^2-2\[Alpha])s0^2,
     4\[Alpha]s0^2,4\[Alpha]s0,0};
-  <|"box"->box,"nav\:5355\:56fe"->nav,"av\:5355\:56fe"->av,
-    "qse\:5355\:817f"->qse,"gse\:89c4\:8303\:76f8\:5173\:90e8\:5206"->gse,
-    "\:62b5\:6d88\:7cfb\:6570"->coeffSum,"\:62b5\:6d88\:5dee\:503c"->sum,"\:901a\:8fc7"->TrueQ[sum === 0],
-    "\:539fnav\:7b26\:53f7\:7684QCD\:6781\:9650\:6b8b\:4f59\:7cfb\:6570"->oldRGZResidual|>
+  <|"box"->box,"navSingleDiagram"->nav,"avSingleDiagram"->av,
+    "qseSingleLeg"->qse,"gseGaugeDependentPart"->gse,
+    "cancellationCoefficient"->coeffSum,"CancellationDifference"->sum,"Passed"->TrueQ[sum === 0],
+    "OriginalNAVSignQCDLimitResidualCoefficient"->oldRGZResidual|>
 ];
 
 (* Compatibility entry point for the historical alpha-minus-Landau check.
@@ -345,7 +346,7 @@ RGZCandidatePinches[OptionsPattern[]] := RGZBuildPinches[
   "Mode"->OptionValue["Mode"],"ReferenceGauge"->OptionValue["ReferenceGauge"],
   "Representation"->"FAD"];
 
-Print["\:5df2\:8f7d\:5165 RGZ \:4e00\:5708\:68c0\:67e5\:51fd\:6570\:3002\:5148\:8fd0\:884c\:ff1argzOneLoop = RGZRunAA[];" ];
-Print["\:9010\:56fe\:67e5\:770b\:ff1aRGZShowLoopGraph[rgzOneLoop,1]\:ff1b\:5168\:90e8\:7ea6\:5316\:ff1argzOneLoopPV = RGZReduceAllAA[rgzOneLoop];" ];
-Print["\:72ec\:7acb QCD \:57fa\:51c6\:ff1aRGZQCDPinchBenchmark[][\"\:62b5\:6d88\:5dee\:503c\"]\:ff0c\:5e94\:4e3a 0\:3002" ];
-Print["\:672c\:6587\:4ef6\:672a\:5ba3\:79f0 RGZ \:5019\:9009 pinch \:9879\:89c4\:8303\:65e0\:5173\:3002" ];
+Print["One-loop checks loaded. First run rgzOneLoop = RGZRunAA[];" ];
+Print["Inspect one diagram with RGZShowLoopGraph[rgzOneLoop,1]; reduce all with rgzOneLoopPV = RGZReduceAllAA[rgzOneLoop];" ];
+Print["Independent QCD benchmark: RGZQCDPinchBenchmark[][\"CancellationDifference\"] should be 0." ];
+Print["This module makes no gauge-independence claim for candidate RGZ pinch terms." ];

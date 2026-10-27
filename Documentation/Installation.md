@@ -1,33 +1,19 @@
 # Installation
 
-## Runtime
+Use Wolfram Language 13.3 or later. The validated environment is Mathematica 13.3.1 on MacOSX ARM64 with FeynCalc 10.1.0 and FeynArts 3.12. Python 3.9+ is needed only for maintenance and ZIP creation.
 
-The declared minimum is Wolfram Language 13.3. Other versions/platforms need their own validation. Use `Get[path/to/RGZWorkflow.wl]` for source loading, or the shipped kernel entry via a locally built paclet. A Wolfram license is not supplied. Do not load the old and new copies in the same kernel: both intentionally preserve the RGZWorkflow context and public API. Check `Evidence/validation.json` for the actual release-test environment.
+Install FeynRules, FeynCalc with FeynArts, and FeynHelpers/Package-X externally for the supplied complete workflow. See [upstream attribution](../THIRD_PARTY.md). No dependencies are bundled or installed automatically.
 
-Python 3.9+ runs the standard-library-only maintenance tools; Python is not needed for the physics package itself.
-
-## External dependencies
-
-Install FeynRules and FeynCalc with its FeynArts add-on from their upstream instructions (see [THIRD_PARTY](../THIRD_PARTY.md)). Do not copy dependencies into this source archive.
-
-FeynRules can be on `$Path` under its normal application layout. Alternatively:
-
-```sh
-export RGZ_FEYNRULES_DIRECTORY=/path/to/FeynRules
-```
-
-or use the explicit Wolfram option:
+FeynRules may be discoverable on Wolfram's `$Path`, commonly under `$UserBaseDirectory/Applications/FeynRules`. An explicit directory overrides the environment variable and automatic discovery:
 
 ```wl
-RGZReport[RGZLoadFeynRules["Directory"->"/path/to/FeynRules"]];
+RGZLoadFeynRules["Directory" -> "/path/to/FeynRules"]
 ```
 
-An explicit `Directory` takes precedence over the environment variable. Setting `Global`FR$Parallel=False` before loading FeynRules selects serial operation for a first validation run. On hosts that need it, set `KMP_USE_SHM=0` for the kernel process; this is not required by the file format.
+Alternatively set `RGZ_FEYNRULES_DIRECTORY`. Set `Global`FR$Parallel=False` before the first FeynRules load for serial execution. Use a separate fresh kernel for FeynCalc.
 
-FeynCalc/FeynArts should be discoverable by `Needs["FeynCalc`"]`. `RGZLoadFeynCalc[]` requests the FeynArts add-on in a fresh non-FeynRules session. FeynHelpers with its Package-X interface is optional for supported analytic UV/IR evaluation; its tests/features are separately gated.
+Load the package through its root `RGZWorkflow.wl`; this also loads the required audit adapters in `Tools`. Do not load two copies of the package in the same kernel. Evaluate the package-loading cell separately from subsequent function calls.
 
-## Working data
+`RGZInitialize[work]` selects a work directory containing `Data`, `Cache` and `Results`. Retain the existing local Work to continue this calculation. New installations should use a fresh Work. Source and model identities guard cache compatibility; path-bearing jobs cannot simply be relocated and treated as current.
 
-Select a fresh directory with `RGZInitialize[work]`. The package creates `Data`, `Cache` and `Results` beneath it. Old sessions, mixed matrices and model exports are not copied into this release. Source/model fingerprints and the package version intentionally invalidate incompatible data. Retain old files only as historical records.
-
-No dependency is downloaded or installed when the package is loaded.
+The source ZIP contains no Work data or third-party installation. The cleanup backup remains local under `artifacts/`.

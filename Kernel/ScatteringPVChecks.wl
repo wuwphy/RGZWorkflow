@@ -6,11 +6,7 @@ $qqGaugeNativePV=False;
 (* The PT cache can survive while Session.wxf lacks its NAV evidence packet.
    Hydrate only the current fingerprint's completed, validated disk packet;
    never start a NAV calculation as a side effect of a Ward check. *)
-qqPVValidNAVProof[p_,key_] := AssociationQ[p]&&Lookup[p,"Fingerprint",None]===key&&
- ListQ[Lookup[p,"Connections",None]]&&Length[p["Connections"]]>0&&
- Length[p["Connections"]]===Lookup[p,"ConnectionCount",-1]&&
- AllTrue[p["Connections"],TrueQ[Lookup[#,"ExactPolynomialReconstruction",False]]&]&&
- KeyExistsQ[p,"Kernel"]&&!qqFFInvalidQ[p["Kernel"]];
+qqPVValidNAVProof[p_,key_] := navPacketQ[p,"RGZNAVPinch/1",{"Kernel"}]&&Lookup[p,"Fingerprint",None]===key;
 qqPVRestoreNAVProof[] := Module[{key,file,p,current=RGZResult["NAVPinch"]},
  If[FailureQ[ready[]],Return[False]];
  If[!FileExistsQ[FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}]],Return[False]];

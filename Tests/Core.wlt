@@ -21,13 +21,13 @@ VerificationTest[Block[{$Packages={"FeynCalc`"}},FailureQ[RGZLoadFeynRules[]]],T
 
 VerificationTest[Block[{Global`rgzDynamicProbe=99},RGZWorkflow`Private`engineEvaluation[ToExpression["rgzDynamicProbe",InputForm,Function[sym,Context[sym],HoldAll]]]],"RGZWorkflow`Engine`",TestID->"RuntimeSymbolsIgnoreGlobalDefinitions"]
 VerificationTest[Module[{before={$Context,$ContextPath}},RGZWorkflow`Private`engineEvaluation[Null];{$Context,$ContextPath}===before],True,TestID->"RuntimeContextRestored"]
-VerificationTest[RGZWorkflow`Private`candidateName /@ {"box","nav","av","qse"},{"box","nav全部","av全部","qse全部"},TestID->"CandidateAliases"]
-VerificationTest[RGZRunPart["bad","投影"][[1]],"CandidateStage",TestID->"InvalidCandidateBeforeDependencyLoad"]
+VerificationTest[RGZWorkflow`Private`candidateName /@ {"box","nav","av","qse"},{"box","navAll","avAll","qseAll"},TestID->"CandidateAliases"]
+VerificationTest[RGZRunPart["bad","Project"][[1]],"CandidateStage",TestID->"InvalidCandidateBeforeDependencyLoad"]
 VerificationTest[Block[{RGZWorkflow`Engine`rgzIDs={1,2}},RGZWorkflow`Private`selectedIDs[{All}][[2,"Action"]]],"Use \"IDs\" -> All (without braces), or an integer list such as {1}.",TestID->"VertexIDsActionableDiagnostic"]
 
 VerificationTest[Module[{file=FileNameJoin[{RGZConfiguration[]["ResultsDirectory"],"LegacyPT.wxf"}],packet,r},
  RGZSave["File"->file];packet=Import[file,"WXF"];
- packet["PTJob"]=<|"项目"-><||>|>;
+ packet["PTJob"]=<|"Parts"-><||>|>;
  packet["Results"]=Join[packet["Results"],<|"Gauge"->"old gauge result","Pinch"->"old pinch result","MassLimit:QCD"->"old limit","QCD"-><|"kept"->True|>|>];
  Export[file,packet,"WXF"];r=RGZRestore["File"->file];
  {r["PTStatus"],Sort[r["InvalidatedResults"]],RGZResult["QCD"],AssociationQ[RGZWorkflow`Engine`rgzPTJob]}],

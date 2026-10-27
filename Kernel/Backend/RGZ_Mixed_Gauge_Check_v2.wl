@@ -25,27 +25,27 @@ ClearAll[RGZGaugeStart,RGZGaugePVFreeQ,RGZGaugeCanonicalPV,
   RGZGaugeSparseSummary];
 
 RGZGaugeStep[label_String] := (
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->label,"\:64cd\:4f5c\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
+  RGZMXProgressUpdate["Substep"->label,"OperationStartTime"->AbsoluteTime[]];
   If[AssociationQ[rgzGaugeProgress],AssociateTo[rgzGaugeProgress,
-    {"\:5f53\:524d\:64cd\:4f5c"->label,"\:64cd\:4f5c\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]}]];Null);
+    {"CurrentOperation"->label,"OperationStartTime"->AbsoluteTime[]}]];Null);
 
 (* The external A row/column of the tree propagators. In the T basis,
    DT[A,i]=dAA u_i. In the L basis the left/right signs differ: no
    transpose/Hermitian-conjugation shortcut is used. *)
 RGZGaugeStart[data_Association] := Module[
   {piT,piL,s0,k,h,delta,den,u,dAA,rowL,colL,termsT,termsL},
-  If[!And@@(KeyExistsQ[data,#]&/@{"T","L","T\:573a\:987a\:5e8f","L\:573a\:987a\:5e8f"}),
+  If[!And@@(KeyExistsQ[data,#]&/@{"T","L","TFieldOrder","LFieldOrder"}),
     Return[Failure["MissingMixedMatrices",<||>]]];
-  If[data["T\:573a\:987a\:5e8f"]=!=RGZMixBasis["T"] ||
-      data["L\:573a\:987a\:5e8f"]=!=RGZMixBasis["L"],
+  If[data["TFieldOrder"]=!=RGZMixBasis["T"] ||
+      data["LFieldOrder"]=!=RGZMixBasis["L"],
     Return[Failure["MixedBasisMismatch",<|
-      "\:8bf4\:660e"->"\:5fc5\:987b\:4f7f\:7528\:5df2\:68c0\:67e5\:6838\:7684\:573a\:987a\:5e8f\:4e0e\:5f52\:4e00\:5316\:4f34\:968f\:989c\:8272\:57fa\:5e95\:3002"|>]]];
+      "Description"->"Use the checked kernel field order and normalized adjoint color basis."|>]]];
   piT=data["T"];piL=data["L"];
   If[Dimensions[piT]=!={5,5} || Dimensions[piL]=!={8,8} ||
       !FreeQ[{piT,piL},_Failure|_Missing|$Failed|$Aborted],
     Return[Failure["IncompleteMixedMatrices",<||>]]];
   If[OwnValues[\[Alpha]]=!={},Return[Failure["AssignedGaugeParameter",
-    <|"\:8bf4\:660e"->"\:5148\:4fdd\:6301 Alpha \:4e3a\:7b26\:53f7\:ff0c\:4e0d\:80fd\:7528\:5df2\:7ecf\:56fa\:5b9a\:89c4\:8303\:7684\:7ed3\:679c\:8bc1\:660e\:89c4\:8303\:65e0\:5173\:3002"|>]]];
+    <|"Description"->"Keep Alpha symbolic; a fixed-gauge result cannot establish gauge independence."|>]]];
   s0=SPD[p,p];k=s0-\[Mu]^2;h=mG^2/2;
   delta=(s0-m^2)(s0-\[Mu]^2)+mG^4;
   u={1,-h/k,-h/k,h/k,h/k};dAA=-I k/delta;
@@ -57,12 +57,12 @@ RGZGaugeStart[data_Association] := Module[
   (* Use every ordered pair once; graph symmetry factors are already in Pi. *)
   termsT=Flatten[Table[u[[i]] piT[[i,j]] u[[j]],{i,5},{j,5}]];
   termsL=Flatten[Table[rowL[[i]] piL[[i,j]] colL[[j]],{i,4},{j,4}]];
-  <|"T\:573a\:987a\:5e8f"->data["T\:573a\:987a\:5e8f"],"L\:573a\:987a\:5e8f"->data["L\:573a\:987a\:5e8f"],
-    "\:6811\:7ea7\:6a2a\:5411AA"->dAA,"\:6a2a\:5411\:5916\:817f\:6743\:91cd"->u,
-    "\:7eb5\:5411\:5de6\:5916\:817f"->rowL,"\:7eb5\:5411\:53f3\:5916\:817f"->colL,
-    "\:81ea\:80fdT\:5206\:9879"->termsT,"\:81ea\:80fdT"->Total[termsT],
-    "\:8fde\:63a5\:540eT"->dAA^2 Total[termsT],"\:8fde\:63a5\:540eL"->Total[termsL],
-    "\:8bf4\:660e"->"\:81ea\:80fdT=u.PiT.u\:ff1b\:8fde\:63a5\:540eT/L=(D0.Pi.D0)AA\:ff1b\:5c1a\:672a\:52a0\:5165 pinch \:9879\:3002"|>
+  <|"TFieldOrder"->data["TFieldOrder"],"LFieldOrder"->data["LFieldOrder"],
+    "TreeTransverseAA"->dAA,"TransverseExternalLegsweight"->u,
+    "LongitudinalLeftExternalLegs"->rowL,"LongitudinalRightExternalLegs"->colL,
+    "SelfEnergyTParts"->termsT,"SelfEnergyT"->Total[termsT],
+    "AttachedT"->dAA^2 Total[termsT],"AttachedL"->Total[termsL],
+    "Description"->"SelfEnergyT=u.PiT.u; attached T/L=(D0.Pi.D0)AA; pinch terms are excluded."|>
 ];
 RGZGaugeStart[x_] := Failure["RestoreMixedResultFirst",<||>];
 
@@ -93,7 +93,7 @@ RGZGaugePVPairs[expr_] := Module[{walk,group,multiply,pairs,stop},Catch[
     Head[x]===Plus,Flatten[walk/@(List@@x),1],
     Head[x]===Times,Fold[multiply,{{1,1}},walk/@(List@@x)],
     True,Throw[Failure["UnsupportedPVStructure",
-      <|"\:5934\:90e8"->RGZLoopName[Head[x]]|>],stop]];
+      <|"head"->RGZLoopName[Head[x]]|>],stop]];
   pairs=walk[expr];group[pairs],stop]
 ];
 
@@ -107,39 +107,39 @@ RGZGaugePVPairs[expr_] := Module[{walk,group,multiply,pairs,stop},Catch[
 RGZGaugePrepare[expr_,reference_,seconds_] := Module[
   {inputs,batches={},raw,z,groups,out={},key,refkey,j,stop},Catch[
   inputs=If[ListQ[expr],expr,{expr}];
-  RGZMXProgressUpdate["\:9879\:53f7"->0,"\:603b\:9879\:6570"->Length[inputs],"\:5b8c\:6210\:9879\:6570"->0];
+  RGZMXProgressUpdate["TermID"->0,"TotalTermCount"->Length[inputs],"CompleteTermCount"->0];
   Do[
-    RGZMXProgressUpdate["\:9879\:53f7"->j,"\:5b8c\:6210\:9879\:6570"->j-1];
-    RGZGaugeStep["\:5206\:79bb\:4e3b\:79ef\:5206\:ff1a\:8f93\:5165 "<>ToString[j]<>" / "<>ToString[Length[inputs]]];
+    RGZMXProgressUpdate["TermID"->j,"CompleteTermCount"->j-1];
+    RGZGaugeStep["separate MasterIntegral: Input "<>ToString[j]<>" / "<>ToString[Length[inputs]]];
     z=CheckAbort[TimeConstrained[RGZGaugePVPairs[inputs[[j]]],seconds,
       Missing["PreparationTimeout"]],$Aborted];
     If[Head[z]===Missing,Throw[Failure["GaugePreparationTimeout",<|
-      "\:9636\:6bb5"->"\:4fdd\:7559\:6781\:70b9\:6807\:7b7e\:ff0c\:5206\:79bb\:4e3b\:79ef\:5206","\:8f93\:5165\:5206\:9879"->j,
-      "\:65f6\:9650"->seconds,"\:8bf4\:660e"->"\:6ca1\:6709\:5f97\:5230\:89c4\:8303\:6b8b\:5dee\:ff1b\:4e0d\:80fd\:636e\:6b64\:5224\:65ad\:662f\:5426\:89c4\:8303\:65e0\:5173\:3002"|>],stop]];
+      "Stage"->"Retain pole labels and separate master integrals","InputParts"->j,
+      "TimeLimit"->seconds,"Description"->"No gauge residual was obtained; gauge independence cannot be assessed."|>],stop]];
     If[FailureQ[z],Throw[z,stop]];
     If[z===$Aborted,Throw[Failure["GaugeCheckAborted",<|
-      "\:9636\:6bb5"->"\:5206\:79bb\:4e3b\:79ef\:5206","\:8f93\:5165\:5206\:9879"->j|>],stop]];
+      "Stage"->"separate MasterIntegral","InputParts"->j|>],stop]];
     AppendTo[batches,z];
-    RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->j],{j,Length[inputs]}];
-  RGZGaugeStep["\:5408\:5e76\:5404\:8f93\:5165\:7684\:540c\:7c7b\:4e3b\:79ef\:5206"];
+    RGZMXProgressUpdate["CompleteTermCount"->j],{j,Length[inputs]}];
+  RGZGaugeStep["Combine matching master integrals across inputs"];
   raw=({#[[1,1]],Total[#[[All,2]]]}& /@
     GatherBy[Flatten[batches,1],First]);
-  RGZMXProgressUpdate["\:9879\:53f7"->0,"\:603b\:9879\:6570"->Length[raw],"\:5b8c\:6210\:9879\:6570"->0];
+  RGZMXProgressUpdate["TermID"->0,"TotalTermCount"->Length[raw],"CompleteTermCount"->0];
   Do[
-    RGZMXProgressUpdate["\:9879\:53f7"->j,"\:5b8c\:6210\:9879\:6570"->j-1];
-    RGZGaugeStep["\:89c4\:8303\:66ff\:6362\:ff1a\:4e3b\:79ef\:5206\:53c2\:6570 "<>ToString[j]<>" / "<>ToString[Length[raw]]];
+    RGZMXProgressUpdate["TermID"->j,"CompleteTermCount"->j-1];
+    RGZGaugeStep["Gaugesubstitution: MasterIntegralParameter "<>ToString[j]<>" / "<>ToString[Length[raw]]];
     key=RGZGaugeCanonicalPV[RGZLoopPoleMasses[raw[[j,1]]]];
     refkey=RGZGaugeCanonicalPV[key/.\[Alpha]->reference];
     AppendTo[out,{key,raw[[j,2]],0}];
     AppendTo[out,{refkey,0,raw[[j,2]]}];
-    RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->j],{j,Length[raw]}];
+    RGZMXProgressUpdate["CompleteTermCount"->j],{j,Length[raw]}];
   groups=GatherBy[out,First];
   ({#[[1,1]],Total[#[[All,2]]],Total[#[[All,3]]]}& /@ groups),stop]
 ];
 
 RGZGaugeState[x_] := Which[
-  Head[x]===Missing,"\:8d85\:65f6",FailureQ[x] || x===$Failed || x===$Aborted,"\:5931\:8d25",
-  TrueQ[x===0],"\:5f52\:96f6",True,"\:672a\:5f52\:96f6"];
+  Head[x]===Missing,"Timeout",FailureQ[x] || x===$Failed || x===$Aborted,"Failed",
+  TrueQ[x===0],"Zero",True,"Nonzero"];
 
 (* v2: exact algebra with compact square-root symbols. No PowerExpand,
    numeric mass substitution, D->4, M->0 or gauge-independent pole assumption.
@@ -155,16 +155,17 @@ RGZGaugePoleSquares[x_] := Module[{labels,squares,rules},
   RGZLoopPoleMasses[x/.rules]
 ];
 
-RGZGaugeCoefficient[a_,b_,reference_] := Module[
+RGZGaugeCoefficient[a_,b_,reference_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[
   {ca,cb,bases,vars,rules,definitions,radicands,z,num,den,j,physical},
-  RGZGaugeStep["\:6781\:70b9\:5e73\:65b9\:66ff\:6362"];
+  RGZGaugeStep["PoleSquaredsubstitution"];
   ca=RGZGaugePoleSquares[a];cb=RGZGaugePoleSquares[b]/.\[Alpha]->reference;
-  If[ca===cb,Return[<|"\:6b8b\:5dee\:7cfb\:6570"->0,"\:6839\:5f0f\:7b26\:53f7\:7cfb\:6570"->0,"\:6839\:5f0f\:5b9a\:4e49"->{}|>]];
-  RGZGaugeStep["\:6839\:5f0f\:6539\:7528\:77ed\:7b26\:53f7"];
+  If[ca===cb,Return[<|"ResidualCoefficient"->0,"RadicalSymbolCoefficient"->0,"RadicalDefinition"->{}|>]];
+  RGZGaugeStep["Radicaluse instead ShortSymbol"];
   bases=DeleteDuplicates[Cases[{ca,cb},
     HoldPattern[Power[x_,n_Rational]] /; Denominator[n]===2 :> x,Infinity]];
   If[bases==={},z=Cancel[Together[ca-cb]];
-    Return[<|"\:6b8b\:5dee\:7cfb\:6570"->z,"\:6839\:5f0f\:7b26\:53f7\:7cfb\:6570"->z,"\:6839\:5f0f\:5b9a\:4e49"->{}|>]];
+    Return[<|"ResidualCoefficient"->z,"RadicalSymbolCoefficient"->z,"RadicalDefinition"->{}|>]];
   (* Outer radicals precede the radicals in their radicands. *)
   bases=SortBy[bases,-Depth[#]&];
   vars=Table[Unique["rgzGaugeRoot$"],{Length[bases]}];
@@ -173,15 +174,15 @@ RGZGaugeCoefficient[a_,b_,reference_] := Module[
       vv^Numerator[n]]],{bases,vars}];
   definitions=MapThread[Rule,{vars,Sqrt /@ bases}];
   radicands=bases/.rules;
-  RGZGaugeStep["\:77ed\:7b26\:53f7\:6709\:7406\:5f0f\:901a\:5206"];
+  RGZGaugeStep["ShortSymbolRationalExpressionTogether"];
   z=Cancel[Together[(ca/.rules)-(cb/.rules)]];
-  If[TrueQ[z===0],Return[<|"\:6b8b\:5dee\:7cfb\:6570"->0,"\:6839\:5f0f\:7b26\:53f7\:7cfb\:6570"->0,
-    "\:6839\:5f0f\:5b9a\:4e49"->definitions|>]];
+  If[TrueQ[z===0],Return[<|"ResidualCoefficient"->0,"RadicalSymbolCoefficient"->0,
+    "RadicalDefinition"->definitions|>]];
   num=Numerator[z];den=Denominator[z];
-  RGZGaugeStep["\:6838\:5bf9\:6839\:5f0f\:5e73\:65b9\:5173\:7cfb"];
+  RGZGaugeStep["VerifyRadicalSquaredrelation"];
   Do[
     If[!FreeQ[radicands[[j]],vars[[j]]],
-      Return[Failure["CyclicRootDefinition",<||>]]];
+      Throw[Failure["CyclicRootDefinition",<||>],rgzFunctionReturnTag]];
     If[PolynomialQ[num,vars[[j]]] && PolynomialQ[den,vars[[j]]],
       If[Exponent[num,vars[[j]]]>=2,
         num=PolynomialRemainder[num,vars[[j]]^2-radicands[[j]],vars[[j]]]];
@@ -189,12 +190,12 @@ RGZGaugeCoefficient[a_,b_,reference_] := Module[
         den=PolynomialRemainder[den,vars[[j]]^2-radicands[[j]],vars[[j]]]]],
     {j,Length[vars]}];
   If[TrueQ[den===0],Return[Failure["PoleRelationSingularity",<|
-    "\:8bf4\:660e"->"\:6781\:70b9\:5173\:7cfb\:4e0b\:5206\:6bcd\:4e3a\:96f6\:ff1b\:4e0d\:5c06\:6b64\:9879\:6807\:8bb0\:4e3a\:901a\:8fc7\:3002"|>]]];
+    "Description"->"The denominator vanishes under the pole relations; this term does not pass."|>]]];
   z=Cancel[Together[num/den]];
-  RGZGaugeStep["\:6062\:590d\:6839\:5f0f\:5b9a\:4e49"];
+  RGZGaugeStep["RestoreRadicalDefinition"];
   physical=z/.definitions;
-  <|"\:6b8b\:5dee\:7cfb\:6570"->physical,"\:6839\:5f0f\:7b26\:53f7\:7cfb\:6570"->z,"\:6839\:5f0f\:5b9a\:4e49"->definitions|>
-];
+  <|"ResidualCoefficient"->physical,"RadicalSymbolCoefficient"->z,"RadicalDefinition"->definitions|>
+],rgzFunctionReturnTag]];
 
 (* Separate residual cache: the diagram/integral caches are never modified.
    A fingerprint contains BOTH coefficient branches, the physical master key,
@@ -212,29 +213,29 @@ RGZGaugeCacheDirectory[root_] := Module[{r=root,dir},
 RGZGaugeCacheRead[path_String,key_] := Module[{r},
   If[!FileExistsQ[path],Return[Missing["NoCache"]]];
   r=Quiet[Check[Get[path],$Failed]];
-  If[AssociationQ[r] && Lookup[r,"\:8eab\:4efd",None]===key &&
-      AssociationQ[Lookup[r,"\:7ed3\:679c",None]] &&
-      MemberQ[{"\:5f52\:96f6","\:672a\:5f52\:96f6"},Lookup[r["\:7ed3\:679c"],"\:72b6\:6001",None]],
-    r["\:7ed3\:679c"],Missing["NoValidCache"]]
+  If[AssociationQ[r] && Lookup[r,"Identity",None]===key &&
+      AssociationQ[Lookup[r,"Result",None]] &&
+      MemberQ[{"Zero","Nonzero"},Lookup[r["Result"],"Status",None]],
+    r["Result"],Missing["NoValidCache"]]
 ];
 RGZGaugeCacheWrite[row_,path_,key_] := Module[{r},
   If[path===None,Return[Null]];
   r=CheckAbort[TimeConstrained[
-    RGZMXWrite[<|"\:8eab\:4efd"->key,"\:7ed3\:679c"->row|>,path],10,
+    RGZMXWrite[<|"Identity"->key,"Result"->row|>,path],10,
     Missing["CacheWriteTimeout"]],Missing["CacheWriteAborted"]];
   If[FailureQ[r] || Head[r]===Missing,
-    AssociateTo[rgzGaugeProgress,"\:7f13\:5b58\:5199\:5165"->"\:672a\:5b8c\:6210\:ff0c\:5185\:5b58\:7ed3\:679c\:4fdd\:7559"]];Null
+    AssociateTo[rgzGaugeProgress,"CacheWrite"->"Incomplete, memoryResultRetain"]];Null
 ];
 RGZGaugeProgressSummary[] := If[AssociationQ[rgzGaugeProgress],
   Grid[({#,Lookup[rgzGaugeProgress,#,Missing["Unavailable"]]}& /@
-    {"\:5df2\:5b8c\:6210\:9879\:6570","\:4e3b\:79ef\:5206\:9879\:6570","\:7edf\:8ba1","\:5f53\:524d\:9879","\:5f53\:524d\:64cd\:4f5c","\:5f53\:524d\:9879\:8017\:65f6","\:7f13\:5b58\:76ee\:5f55"}),
-    Frame->All,Alignment->Left],"\:5c1a\:672a\:5f00\:59cb\:65b0\:7248\:7cfb\:6570\:68c0\:67e5"];
+    {"CompletedTermCount","MasterIntegralTermCount","Statistics","CurrentTerm","CurrentOperation","CurrentTermElapsedSeconds","CacheDirectory"}),
+    Frame->All,Alignment->Left],"still NotStartedNewversionCoefficientCheck"];
 
 (* Print only a bounded diagnostic, never the stored coefficient input. *)
 RGZGaugeStoppedInfo[] := If[AssociationQ[rgzGaugeStoppedUnit],
   Grid[({#,Lookup[rgzGaugeStoppedUnit,#,Missing["Unavailable"]]}& /@
-    {"\:7f16\:53f7","\:603b\:9879\:6570","\:505c\:6b62\:64cd\:4f5c","\:65f6\:9650","\:8017\:65f6","\:5df2\:5b8c\:6210\:9879\:6570"}),
-    Frame->All,Alignment->Left],"\:672c\:8f6e\:6ca1\:6709\:4fdd\:5b58\:8d85\:65f6\:505c\:6b62\:9879"];
+    {"ID","TotalTermCount","StoppedOperation","TimeLimit","ElapsedSeconds","CompletedTermCount"}),
+    Frame->All,Alignment->Left],"No stopped timeout term was saved in this run"];
 
 (* Structural inspection only: no Together, Cancel, Simplify or PV evaluation.
    Each column has a separate small time budget; never print raw coefficients. *)
@@ -244,9 +245,9 @@ RGZGaugeInspectStopped[seconds_:10] := Module[
     Return[Failure["NoStoppedCoefficient",<||>]]];
   If[!NumericQ[seconds] || !TrueQ[seconds>0],
     Return[Failure["DiagnosticTimeLimit",<||>]]];
-  labels={"\:7ed3\:6784","\:8868\:8fbe\:5f0f\:8282\:70b9\:6570","\:5927\:5c0f\:ff08MiB\:ff09","\:9876\:5c42\:52a0\:6cd5\:9879\:6570",
-    "\:6781\:70b9\:6807\:7b7e\:51fa\:73b0\:6b21\:6570","\:5e73\:65b9\:6839\:51fa\:73b0\:6b21\:6570"};
-  keys={"Alpha\:77ed\:7cfb\:6570","\:53c2\:8003\:77ed\:7cfb\:6570"};
+  labels={"Structure","ExpressionLeafCount","Size (MiB)","TopLevelAdditiveTermCount",
+    "PoleTagOccurrences","SquaredrootOccurrences"};
+  keys={"AlphaShortCoefficient","ReferenceShortCoefficient"};
   metrics[e_] := {Head[e],LeafCount[e],N[ByteCount[e]/2^20,4],
     If[Head[e]===Plus,Length[e],1],
     Count[e,rgzLoopM1|rgzLoopM2|rgzLoopM3|rgzLoopM4,{0,Infinity}],
@@ -259,9 +260,9 @@ RGZGaugeInspectStopped[seconds_:10] := Module[
         Missing["DiagnosticTimeout"]],Missing["DiagnosticAborted"]];
       If[ListQ[z],z,ConstantArray[z,Length[labels]]]],{key,keys}];
   Grid[Transpose[{
-    Prepend[labels,"\:68c0\:67e5\:9879\:76ee"],
-    Prepend[columns[[1]],"\:03b1\:77ed\:6807\:7b7e\:7cfb\:6570"],
-    Prepend[columns[[2]],"\:53c2\:8003\:77ed\:6807\:7b7e\:7cfb\:6570"]
+    Prepend[labels,"CheckParts"],
+    Prepend[columns[[1]],"αShortLabelCoefficient"],
+    Prepend[columns[[2]],"ReferenceShortLabelCoefficient"]
   }],Frame->All,Alignment->Left]
 ];
 
@@ -273,19 +274,19 @@ RGZGaugeInspectStopped[seconds_:10] := Module[
    expression. Nonzero formal PV coefficients can still require integral
    identities or the final IR-regulator limit; they are not a theorem of
    physical gauge dependence. *)
-Options[RGZGaugeCompare]={"\:9884\:5904\:7406\:65f6\:9650"->300,"\:7f13\:5b58\:76ee\:5f55"->Automatic,
-  "\:8d85\:65f6\:5373\:505c"->True};
+Options[RGZGaugeCompare]={"PreprocessTimeLimit"->300,"CacheDirectory"->Automatic,
+  "Timeoutstop immediately"->True};
 RGZGaugeCompare[expr_,reference_:1,seconds_:30,OptionsPattern[]] := Module[
   {prep,pairs,rows,c,stats,state,n,unresolved,abort,prepareSeconds,
     result,row,cacheDir,path,key,context,time,details,stopTimeout,operation},
-  prepareSeconds=OptionValue["\:9884\:5904\:7406\:65f6\:9650"];
-  stopTimeout=OptionValue["\:8d85\:65f6\:5373\:505c"];
+  prepareSeconds=OptionValue["PreprocessTimeLimit"];
+  stopTimeout=OptionValue["Timeoutstop immediately"];
   If[!FreeQ[reference,\[Alpha]] || !NumericQ[reference] ||
       !TrueQ[reference>0] || !NumericQ[seconds] || !TrueQ[seconds>0] ||
       !NumericQ[prepareSeconds] || !TrueQ[prepareSeconds>0] ||
       !MemberQ[{True,False},stopTimeout],
     Return[Failure["GaugeComparisonArguments",<|
-      "\:8bf4\:660e"->"\:53c2\:8003\:89c4\:8303\:53d6\:6b63\:6570\:ff0c\:4f8b\:5982 1\:ff1b\:5316\:7b80\:548c\:9884\:5904\:7406\:65f6\:9650\:4e5f\:5fc5\:987b\:4e3a\:6b63\:6570\:3002"|>]]];
+      "Description"->"Use a positive reference gauge, such as 1, and positive simplification and preprocessing time limits."|>]]];
   If[OwnValues[\[Alpha]]=!={},Return[Failure["AssignedGaugeParameter",<||>]]];
   If[!FreeQ[expr,_Failure|_Missing|$Failed|$Aborted|_TID|_PaVeReduce|
       _FeynAmpDenominator|_LorentzIndex|_ExplicitLorentzIndex|_DiracGamma|
@@ -293,110 +294,110 @@ RGZGaugeCompare[expr_,reference_:1,seconds_:30,OptionsPattern[]] := Module[
     Return[Failure["NeedIntegratedColourProjectedScalar",<||>]]];
   unresolved=Cases[expr,x_ /; RGZMXPVObjectQ[x] && !RGZMXPVScalarQ[x],{0,Infinity}];
   If[unresolved=!={},Return[Failure["TensorPVRemaining",
-    <|"\:672a\:7ea6\:5316\:51fd\:6570\:6570"->Length[DeleteDuplicates[unresolved]]|>]]];
-  RGZMXProgressUpdate["\:90e8\:95e8"->"RGZ \:89c4\:8303\:6b8b\:5dee\:68c0\:67e5","\:9636\:6bb5"->"\:89c4\:8303\:6b8b\:5dee",
-    "\:56fe\:53f7"->0,"\:56fe\:6570"->0,"\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,
-    "\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
-  RGZGaugeStep["\:4fdd\:7559\:6781\:70b9\:6807\:7b7e\:ff0c\:5206\:79bb\:4e3b\:79ef\:5206"];
+    <|"UnreducedFunctionCount"->Length[DeleteDuplicates[unresolved]]|>]]];
+  RGZMXProgressUpdate["Sector"->"RGZ GaugeResidualCheck","Stage"->"GaugeResidual",
+    "DiagramID"->0,"DiagramCount"->0,"TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,
+    "Status"->"ComputeIn","StageStartTime"->AbsoluteTime[]];
+  RGZGaugeStep["Retain pole labels and separate master integrals"];
   prep=CheckAbort[TimeConstrained[
     RGZGaugePrepare[expr,reference,prepareSeconds],prepareSeconds,
     Failure["GaugePreparationTimeout",<|
-      "\:9636\:6bb5"->"\:5206\:79bb\:3001\:5408\:5e76\:4e3b\:79ef\:5206\:53ca\:89c4\:8303\:53c2\:6570\:66ff\:6362","\:65f6\:9650"->prepareSeconds,
-      "\:8bf4\:660e"->"\:9884\:5904\:7406\:8fbe\:5230\:603b\:65f6\:9650\:ff1b\:53ef\:4f20\:5165\:81ea\:80fdT\:5206\:9879\:5e76\:67e5\:770b\:5f53\:524d\:5b50\:6b65\:9aa4\:3002"|>]],
-    Failure["GaugeCheckAborted",<|"\:9636\:6bb5"->"\:9884\:5904\:7406"|>]];
+      "Stage"->"Separate and combine master integrals, then substitute gauge parameters","TimeLimit"->prepareSeconds,
+      "Description"->"Preprocessing reached the total time limit; provide SelfEnergyTParts and inspect the current substep."|>]],
+    Failure["GaugeCheckAborted",<|"Stage"->"Preprocess"|>]];
   If[FailureQ[prep] || Head[prep]===Missing || prep===$Aborted,
-    RGZMXProgressUpdate["\:72b6\:6001"->"\:672a\:5b8c\:6210"];Return[prep]];
+    RGZMXProgressUpdate["Status"->"Incomplete"];Return[prep]];
   pairs=prep;
-  cacheDir=RGZGaugeCacheDirectory[OptionValue["\:7f13\:5b58\:76ee\:5f55"]];
+  cacheDir=RGZGaugeCacheDirectory[OptionValue["CacheDirectory"]];
   context=Hash[{"RGZGaugeCoefficient-v2",DownValues[RGZGaugeCoefficient],
     DownValues[RGZGaugePoleSquares],DownValues[RGZLoopPoleMasses]},"SHA256"];
-  rgzGaugeProgress=<|"\:5df2\:5b8c\:6210\:9879\:6570"->0,"\:4e3b\:79ef\:5206\:9879\:6570"->Length[pairs],
-    "\:7edf\:8ba1"-><||>,"\:5f53\:524d\:9879"->0,"\:7f13\:5b58\:76ee\:5f55"->cacheDir|>;
+  rgzGaugeProgress=<|"CompletedTermCount"->0,"MasterIntegralTermCount"->Length[pairs],
+    "Statistics"-><||>,"CurrentTerm"->0,"CacheDirectory"->cacheDir|>;
   rgzGaugeCompletedRows={};rgzGaugeStoppedUnit=Missing["NoStoppedCoefficient"];
-  RGZMXProgressUpdate["\:603b\:9879\:6570"->Length[pairs],"\:5b8c\:6210\:9879\:6570"->0];
+  RGZMXProgressUpdate["TotalTermCount"->Length[pairs],"CompleteTermCount"->0];
   rows=Catch[Table[
-    RGZMXProgressUpdate["\:9879\:53f7"->n,"\:5b8c\:6210\:9879\:6570"->n-1];
-    AssociateTo[rgzGaugeProgress,"\:5f53\:524d\:9879"->n];
+    RGZMXProgressUpdate["TermID"->n,"CompleteTermCount"->n-1];
+    AssociateTo[rgzGaugeProgress,"CurrentTerm"->n];
     path=None;key=None;
     {time,row}=AbsoluteTiming[CheckAbort[TimeConstrained[
-      RGZGaugeStep["\:68c0\:67e5\:7cfb\:6570\:7f13\:5b58"];
+      RGZGaugeStep["CheckCoefficientCache"];
       key=Hash[{context,reference,pairs[[n]]},"SHA256"];
       If[StringQ[cacheDir],path=FileNameJoin[{cacheDir,
         "coefficient_"<>IntegerString[key,16]<>".wl"}]];
       result=If[path===None,Missing["NoCache"],RGZGaugeCacheRead[path,key]];
       If[AssociationQ[result],
-        Join[result,<|"\:7f16\:53f7"->n,"\:6765\:6e90"->"\:7f13\:5b58\:6062\:590d"|>],
+        Join[result,<|"ID"->n,"Source"->"CacheRestored"|>],
         result=RGZGaugeCoefficient[pairs[[n,2]],pairs[[n,3]],reference];
         If[FailureQ[result],
-          <|"\:7f16\:53f7"->n,"\:4e3b\:79ef\:5206"->pairs[[n,1]],"\:539f\:7cfb\:6570"->Missing["NotStored"],
-            "\:6b8b\:5dee\:7cfb\:6570"->result,"\:72b6\:6001"->"\:5931\:8d25","\:6765\:6e90"->"\:672c\:6b21\:8ba1\:7b97"|>,
-          Join[<|"\:7f16\:53f7"->n,"\:4e3b\:79ef\:5206"->pairs[[n,1]],"\:539f\:7cfb\:6570"->Missing["UseShortCoefficients"],
-            "\:72b6\:6001"->RGZGaugeState[result["\:6b8b\:5dee\:7cfb\:6570"]],"\:6765\:6e90"->"\:672c\:6b21\:8ba1\:7b97"|>,result]]],
-      seconds,<|"\:7f16\:53f7"->n,"\:4e3b\:79ef\:5206"->pairs[[n,1]],"\:539f\:7cfb\:6570"->Missing["NotPrepared"],
-        "\:6b8b\:5dee\:7cfb\:6570"->Missing["CoefficientTimeout"],"\:72b6\:6001"->"\:8d85\:65f6",
-        "\:6765\:6e90"->"\:672c\:6b21\:8ba1\:7b97","\:505c\:6b62\:64cd\:4f5c"->Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c",""]|>],$Aborted]];
+          <|"ID"->n,"MasterIntegral"->pairs[[n,1]],"OriginalCoefficient"->Missing["NotStored"],
+            "ResidualCoefficient"->result,"Status"->"Failed","Source"->"current run Compute"|>,
+          Join[<|"ID"->n,"MasterIntegral"->pairs[[n,1]],"OriginalCoefficient"->Missing["UseShortCoefficients"],
+            "Status"->RGZGaugeState[result["ResidualCoefficient"]],"Source"->"current run Compute"|>,result]]],
+      seconds,<|"ID"->n,"MasterIntegral"->pairs[[n,1]],"OriginalCoefficient"->Missing["NotPrepared"],
+        "ResidualCoefficient"->Missing["CoefficientTimeout"],"Status"->"Timeout",
+        "Source"->"current run Compute","StoppedOperation"->Lookup[rgzGaugeProgress,"CurrentOperation",""]|>],$Aborted]];
     If[row===$Aborted,Throw[Failure["GaugeCheckAborted",
-      <|"\:5df2\:5b8c\:6210\:9879\:6570"->n-1,"\:8bf4\:660e"->"\:5df2\:5b8c\:6210\:7cfb\:6570\:5df2\:4fdd\:5b58\:ff1b\:540c\:4e00\:8f93\:5165\:91cd\:65b0\:6bd4\:8f83\:4f1a\:6062\:590d\:7f13\:5b58\:3002"|>],abort]];
-    row=Join[row,<|"\:8017\:65f6"->time|>];
-    If[row["\:72b6\:6001"]==="\:8d85\:65f6" && TrueQ[stopTimeout],
-      operation=Lookup[row,"\:505c\:6b62\:64cd\:4f5c",Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c",""]];
+      <|"CompletedTermCount"->n-1,"Description"->"Completed coefficients saved; comparison with the same input restores the cache."|>],abort]];
+    row=Join[row,<|"ElapsedSeconds"->time|>];
+    If[row["Status"]==="Timeout" && TrueQ[stopTimeout],
+      operation=Lookup[row,"StoppedOperation",Lookup[rgzGaugeProgress,"CurrentOperation",""]];
       (* Keep both short-label branches in memory for one-unit diagnostics.
          Do not spend more time serializing a huge failed input before stopping.
          Successful earlier coefficients are already in the unchanged cache. *)
-      rgzGaugeStoppedUnit=<|"\:7f16\:53f7"->n,"\:603b\:9879\:6570"->Length[pairs],
-        "\:4e3b\:79ef\:5206"->pairs[[n,1]],"Alpha\:77ed\:7cfb\:6570"->pairs[[n,2]],
-        "\:53c2\:8003\:77ed\:7cfb\:6570"->pairs[[n,3]],"\:53c2\:8003\:89c4\:8303"->reference,
-        "\:65f6\:9650"->seconds,"\:8017\:65f6"->time,"\:505c\:6b62\:64cd\:4f5c"->operation,
-        "\:5df2\:5b8c\:6210\:9879\:6570"->n-1,"\:7f13\:5b58\:8def\:5f84"->path,"\:7f13\:5b58\:8eab\:4efd"->key|>;
-      AssociateTo[rgzGaugeProgress,{"\:5df2\:5b8c\:6210\:9879\:6570"->n-1,
-        "\:5f53\:524d\:9879\:8017\:65f6"->time,"\:5f53\:524d\:64cd\:4f5c"->operation,
-        "\:7edf\:8ba1"->Counts[(#["\:72b6\:6001"]& /@ rgzGaugeCompletedRows)]}];
-      RGZMXProgressUpdate["\:72b6\:6001"->"\:8d85\:65f6\:505c\:6b62","\:5b8c\:6210\:9879\:6570"->n-1];
+      rgzGaugeStoppedUnit=<|"ID"->n,"TotalTermCount"->Length[pairs],
+        "MasterIntegral"->pairs[[n,1]],"AlphaShortCoefficient"->pairs[[n,2]],
+        "ReferenceShortCoefficient"->pairs[[n,3]],"ReferenceGauge"->reference,
+        "TimeLimit"->seconds,"ElapsedSeconds"->time,"StoppedOperation"->operation,
+        "CompletedTermCount"->n-1,"CachePath"->path,"CacheIdentity"->key|>;
+      AssociateTo[rgzGaugeProgress,{"CompletedTermCount"->n-1,
+        "CurrentTermElapsedSeconds"->time,"CurrentOperation"->operation,
+        "Statistics"->Counts[(#["Status"]& /@ rgzGaugeCompletedRows)]}];
+      RGZMXProgressUpdate["Status"->"TimeoutStopped","CompleteTermCount"->n-1];
       Throw[Failure["GaugeCoefficientTimeout",<|
-        "\:7f16\:53f7"->n,"\:603b\:9879\:6570"->Length[pairs],"\:65f6\:9650"->seconds,
-        "\:8017\:65f6"->time,"\:505c\:6b62\:64cd\:4f5c"->operation,"\:5df2\:5b8c\:6210\:9879\:6570"->n-1,
-        "\:8bf4\:660e"->"\:5df2\:5728\:7b2c\:4e00\:4e2a\:7cfb\:6570\:8d85\:65f6\:5904\:505c\:6b62\:ff1b\:540e\:7eed\:9879\:5c1a\:672a\:68c0\:67e5\:3002\:5df2\:5b8c\:6210\:7cfb\:6570\:7f13\:5b58\:4fdd\:7559\:ff0c\:505c\:6b62\:9879\:8f93\:5165\:4fdd\:5b58\:5728 rgzGaugeStoppedUnit\:3002"|>],abort]];
+        "ID"->n,"TotalTermCount"->Length[pairs],"TimeLimit"->seconds,
+        "ElapsedSeconds"->time,"StoppedOperation"->operation,"CompletedTermCount"->n-1,
+        "Description"->"Stopped at the first coefficient timeout. Later terms are unchecked; completed coefficients are cached and the stopped input is in rgzGaugeStoppedUnit."|>],abort]];
     AppendTo[rgzGaugeCompletedRows,row];
-    AssociateTo[rgzGaugeProgress,{"\:5df2\:5b8c\:6210\:9879\:6570"->n,
-      "\:5f53\:524d\:9879\:8017\:65f6"->time,"\:7edf\:8ba1"->Counts[(#["\:72b6\:6001"]& /@ rgzGaugeCompletedRows)]}];
-    If[MemberQ[{"\:5f52\:96f6","\:672a\:5f52\:96f6"},row["\:72b6\:6001"]] && row["\:6765\:6e90"]=!="\:7f13\:5b58\:6062\:590d",
-      RGZGaugeStep["\:4fdd\:5b58\:5df2\:5b8c\:6210\:7cfb\:6570"];RGZGaugeCacheWrite[row,path,key]];
-    RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->n];row,
+    AssociateTo[rgzGaugeProgress,{"CompletedTermCount"->n,
+      "CurrentTermElapsedSeconds"->time,"Statistics"->Counts[(#["Status"]& /@ rgzGaugeCompletedRows)]}];
+    If[MemberQ[{"Zero","Nonzero"},row["Status"]] && row["Source"]=!="CacheRestored",
+      RGZGaugeStep["SaveCompletedCoefficient"];RGZGaugeCacheWrite[row,path,key]];
+    RGZMXProgressUpdate["CompleteTermCount"->n];row,
     {n,Length[pairs]}],abort];
-  If[FailureQ[rows],RGZMXProgressUpdate["\:72b6\:6001"->
-    If[rows[[1]]==="GaugeCoefficientTimeout","\:8d85\:65f6\:505c\:6b62","\:5df2\:4e2d\:6b62"]];Return[rows]];
-  stats=Counts[(#["\:72b6\:6001"]& /@ rows)];
-  state=If[AllTrue[rows,#["\:72b6\:6001"]==="\:5f52\:96f6"&],
-    "\:6240\:68c0\:67e5\:8868\:8fbe\:5f0f\:7684\:89c4\:8303\:6b8b\:5dee\:4e3a\:96f6","\:5c1a\:672a\:8bc1\:660e\:89c4\:8303\:65e0\:5173"];
-  RGZMXProgressUpdate["\:72b6\:6001"->If[state==="\:6240\:68c0\:67e5\:8868\:8fbe\:5f0f\:7684\:89c4\:8303\:6b8b\:5dee\:4e3a\:96f6","\:5b8c\:6210","\:68c0\:67e5\:5b8c\:6210\:ff0c\:6709\:5f85\:5904\:7406\:9879"]];
-  <|"\:53c2\:8003\:89c4\:8303"->reference,"\:4e3b\:79ef\:5206\:9879\:6570"->Length[rows],"\:7edf\:8ba1"->stats,
-    "\:72b6\:6001"->state,"\:6b8b\:5dee\:5206\:9879"->rows,
-    "\:8bf4\:660e"->"\:6bd4\:8f83 alpha \:4e0e\:53c2\:8003\:89c4\:8303\:ff0c\:5df2\:5305\:542b\:6781\:70b9\:8d28\:91cf\:7684 alpha \:4f9d\:8d56\:ff1b\:4fdd\:7559\:6709\:9650 M\:ff0c\:672a\:81ea\:52a8\:8865\:5145 pinch \:9879\:6216\:53d6 M->0\:3002"|>
+  If[FailureQ[rows],RGZMXProgressUpdate["Status"->
+    If[rows[[1]]==="GaugeCoefficientTimeout","TimeoutStopped","Aborted"]];Return[rows]];
+  stats=Counts[(#["Status"]& /@ rows)];
+  state=If[AllTrue[rows,#["Status"]==="Zero"&],
+    "The checked expression has zero gauge residual","NotYetproofGaugeIndependent"];
+  RGZMXProgressUpdate["Status"->If[state==="The checked expression has zero gauge residual","Complete","CheckComplete, pending Term"]];
+  <|"ReferenceGauge"->reference,"MasterIntegralTermCount"->Length[rows],"Statistics"->stats,
+    "Status"->state,"ResidualParts"->rows,
+    "Description"->"Compare alpha with the reference gauge, including alpha-dependent pole masses, at finite M. Pinch terms are not added and M->0 is not taken automatically."|>
 ];
 
 (* Bounded summary; do not format a Failure's full amplitude or data. *)
 RGZGaugeSummary[report_] := Which[
   AssociationQ[report],Print[Grid[{
-    {"\:53c2\:8003\:89c4\:8303",report["\:53c2\:8003\:89c4\:8303"]},{"\:4e3b\:79ef\:5206\:9879\:6570",report["\:4e3b\:79ef\:5206\:9879\:6570"]},
-    {"\:7edf\:8ba1",report["\:7edf\:8ba1"]},{"\:72b6\:6001",report["\:72b6\:6001"]}},Frame->All,Alignment->Left]],
-  FailureQ[report],Print["\:68c0\:67e5\:672a\:5b8c\:6210\:ff1b\:5931\:8d25\:6807\:7b7e\:ff1a",report[[1]]];
+    {"ReferenceGauge",report["ReferenceGauge"]},{"MasterIntegralTermCount",report["MasterIntegralTermCount"]},
+    {"Statistics",report["Statistics"]},{"Status",report["Status"]}},Frame->All,Alignment->Left]],
+  FailureQ[report],Print["CheckIncomplete; FailedTag: ",report[[1]]];
     Module[{data=report[[2]],keys},
-      keys=Select[{"\:7f16\:53f7","\:603b\:9879\:6570","\:9636\:6bb5","\:505c\:6b62\:64cd\:4f5c","\:8f93\:5165\:5206\:9879",
-        "\:65f6\:9650","\:8017\:65f6","\:5df2\:5b8c\:6210\:9879\:6570","\:8bf4\:660e"},KeyExistsQ[data,#]&];
+      keys=Select[{"ID","TotalTermCount","Stage","StoppedOperation","InputParts",
+        "TimeLimit","ElapsedSeconds","CompletedTermCount","Description"},KeyExistsQ[data,#]&];
       If[keys=!={},Print[Grid[({#,data[#]}& /@ keys),
         Frame->All,Alignment->Left]]]],
-  Head[report]===Missing,Print["\:68c0\:67e5\:672a\:5b8c\:6210\:ff1a",report];
+  Head[report]===Missing,Print["CheckIncomplete: ",report];
     If[report[[1]]==="PreparationTimeout",
-      Print["\:65e7\:7248\:9884\:5904\:7406\:8d85\:65f6\:ff0c\:5c1a\:672a\:8fdb\:5165\:4e3b\:79ef\:5206\:7cfb\:6570\:68c0\:67e5\:3002"]],
-  True,Print["\:68c0\:67e5\:672a\:5b8c\:6210\:ff1b\:5934\:90e8\:ff1a",Head[report]]
+      Print["Legacy preprocessing timed out before master-integral coefficient checks."]],
+  True,Print["CheckIncomplete; head: ",Head[report]]
 ];
 RGZGaugeShow[report_Association,n_Integer] := Module[{rows,row},
-  rows=Lookup[report,"\:6b8b\:5dee\:5206\:9879",{}];
+  rows=Lookup[report,"ResidualParts",{}];
   If[n<1 || n>Length[rows],Return[Failure["ResidualRowNumber",<||>]]];
   row=rows[[n]];
-  Grid[{{"\:7f16\:53f7",n},{"\:4e3b\:79ef\:5206",TraditionalForm[row["\:4e3b\:79ef\:5206"]]},
-    {"\:6b8b\:5dee\:7cfb\:6570",TraditionalForm[row["\:6b8b\:5dee\:7cfb\:6570"]]},
-    {"\:72b6\:6001",row["\:72b6\:6001"]}},Frame->All,Alignment->Left]
+  Grid[{{"ID",n},{"MasterIntegral",TraditionalForm[row["MasterIntegral"]]},
+    {"ResidualCoefficient",TraditionalForm[row["ResidualCoefficient"]]},
+    {"Status",row["Status"]}},Frame->All,Alignment->Left]
 ];
 
 (* v2.4: resumable exact reduction of ONE stopped coefficient.
@@ -408,7 +409,7 @@ RGZGaugeBatchChunks[x_List,n_Integer] :=
 
 RGZGaugeBatchPrepare[a_,b_,reference_,size_Integer] := Module[
   {ca,cb,bases,vars,rules,definitions,radicands,terms,grouped,chunks},
-  RGZGaugeStep["\:5206\:6279\:51c6\:5907\:ff1a\:6781\:70b9\:5e73\:65b9\:4e0e\:5171\:540c\:6839\:5f0f\:57fa\:5e95"];
+  RGZGaugeStep["Batch preparation: squared poles and common radical basis"];
   ca=RGZGaugePoleSquares[a];cb=RGZGaugePoleSquares[b]/.\[Alpha]->reference;
   bases=DeleteDuplicates[Cases[{ca,cb},
     HoldPattern[Power[x_,n_Rational]] /; Denominator[n]===2 :> x,Infinity]];
@@ -431,9 +432,9 @@ RGZGaugeBatchPrepare[a_,b_,reference_,size_Integer] := Module[
      Identical syntactic denominators are neighbours before bounded chunks. *)
   terms=DeleteCases[terms,0];grouped=GatherBy[terms,Denominator];
   chunks=Flatten[(RGZGaugeBatchChunks[#,size]& /@ grouped),1];
-  <|"\:5206\:6279"->chunks,"\:6839\:7b26\:53f7"->vars,"\:6839\:5f0f\:5b9a\:4e49"->definitions,
-    "\:88ab\:5f00\:65b9\:5f0f"->radicands,"\:52a0\:9879\:6570"->Length[terms],
-    "\:540c\:5206\:6bcd\:7ec4\:6570"->Length[grouped],"\:521d\:59cb\:6279\:6570"->Length[chunks]|>
+  <|"Batch"->chunks,"RootSymbol"->vars,"RadicalDefinition"->definitions,
+    "Radicand"->radicands,"TermsCount"->Length[terms],
+    "same DenominatorgroupCount"->Length[grouped],"initialBatchCount"->Length[chunks]|>
 ];
 
 RGZGaugeBatchReduce[x_,vars_List,radicands_List] := Module[{z,num,den,j},
@@ -448,29 +449,29 @@ RGZGaugeBatchReduce[x_,vars_List,radicands_List] := Module[{z,num,den,j},
         den=PolynomialRemainder[den,vars[[j]]^2-radicands[[j]],vars[[j]]]]],
     {j,Length[vars]}];
   If[TrueQ[den===0],Return[Failure["PoleRelationSingularity",<|
-    "\:8bf4\:660e"->"\:6839\:5f0f\:5e73\:65b9\:5173\:7cfb\:4f7f\:5206\:6bcd\:4e3a\:96f6\:ff1b\:6b64\:6279\:4e0d\:80fd\:4f5c\:4e3a\:6709\:6548\:62b5\:6d88\:7ed3\:679c\:3002"|>]]];
+    "Description"->"Radical square relations make the denominator zero; this batch is not a valid cancellation result."|>]]];
   Cancel[Together[num/den]]
 ];
 
 RGZGaugeBatchCacheRead[path_,identity_] := Module[{r},
   If[!StringQ[path] || !FileExistsQ[path],Return[Missing["NoBatchCache"]]];
   r=Quiet[Check[Get[path],$Failed]];
-  If[AssociationQ[r] && Lookup[r,"\:8eab\:4efd",None]===identity &&
-      KeyExistsQ[r,"\:7ed3\:679c"] && FreeQ[r["\:7ed3\:679c"],_Failure|_Missing|$Failed|$Aborted],
-    r["\:7ed3\:679c"],Missing["NoValidBatchCache"]]
+  If[AssociationQ[r] && Lookup[r,"Identity",None]===identity &&
+      KeyExistsQ[r,"Result"] && FreeQ[r["Result"],_Failure|_Missing|$Failed|$Aborted],
+    r["Result"],Missing["NoValidBatchCache"]]
 ];
 RGZGaugeBatchCacheWrite[x_,path_,identity_] := Module[{r},
   If[path===None,Return[True]];
   r=CheckAbort[TimeConstrained[
-    RGZMXWrite[<|"\:8eab\:4efd"->identity,"\:7ed3\:679c"->x|>,path],10,
+    RGZMXWrite[<|"Identity"->identity,"Result"->x|>,path],10,
     Missing["BatchCacheWriteTimeout"]],Missing["BatchCacheWriteAborted"]];
   If[FailureQ[r] || Head[r]===Missing || r===$Failed || !FileExistsQ[path],
     Failure["BatchCacheWriteFailed",<|
-      "\:8bf4\:660e"->"\:5f53\:524d\:6279\:5df2\:8ba1\:7b97\:ff0c\:4f46\:7f13\:5b58\:672a\:4fdd\:5b58\:ff1b\:505c\:6b62\:7ee7\:7eed\:5408\:5e76\:3002"|>],True]
+      "Description"->"The batch was computed but not cached; combination has stopped."|>],True]
 ];
 
-Options[RGZGaugeResumeStopped]={"\:5206\:7ec4\:5927\:5c0f"->16,"\:51c6\:5907\:65f6\:9650"->60,
-  "\:603b\:65f6\:9650"->1200,"\:7f13\:5b58\:76ee\:5f55"->Automatic};
+Options[RGZGaugeResumeStopped]={"GroupSize"->16,"PrepareTimeLimit"->60,
+  "TotalTimeLimit"->1200,"CacheDirectory"->Automatic};
 RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
   {unit,size,prepLimit,totalLimit,root,identity,dir=None,prep,prepPath,
     vars,radicands,definitions,chunks,current,next,level=0,groups,
@@ -479,29 +480,29 @@ RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
     mergeContext,mergeDir=None,legacyPrefix=True},
   If[!AssociationQ[rgzGaugeStoppedUnit],
     Return[Failure["NoStoppedCoefficient",<||>]]];
-  unit=rgzGaugeStoppedUnit;size=OptionValue["\:5206\:7ec4\:5927\:5c0f"];
+  unit=rgzGaugeStoppedUnit;size=OptionValue["GroupSize"];
   rgzGaugeBatchStoppedNode=Missing["NoStoppedBatchNode"];
   rgzGaugeBatchCurrentNode=Missing["NoCurrentBatchNode"];
-  prepLimit=OptionValue["\:51c6\:5907\:65f6\:9650"];totalLimit=OptionValue["\:603b\:65f6\:9650"];
+  prepLimit=OptionValue["PrepareTimeLimit"];totalLimit=OptionValue["TotalTimeLimit"];
   If[!IntegerQ[size] || size<1 ||
       !And@@(NumericQ[#] && TrueQ[#>0]& /@ {seconds,prepLimit,totalLimit}),
     Return[Failure["GaugeBatchArguments",<||>]]];
   If[!And@@(KeyExistsQ[unit,#]& /@
-      {"Alpha\:77ed\:7cfb\:6570","\:53c2\:8003\:77ed\:7cfb\:6570","\:53c2\:8003\:89c4\:8303","\:7f16\:53f7","\:4e3b\:79ef\:5206"}),
+      {"AlphaShortCoefficient","ReferenceShortCoefficient","ReferenceGauge","ID","MasterIntegral"}),
     Return[Failure["IncompleteStoppedInput",<||>]]];
   If[OwnValues[\[Alpha]]=!={},
     Return[Failure["AssignedGaugeParameter",<||>]]];
-  rgzGaugeBatchProgress=<|"\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d",
-    "\:5c42\:53f7"->0,"\:6279\:53f7"->0,"\:8be5\:5c42\:6279\:6570"->0,"\:7f13\:5b58\:6062\:590d\:6279\:6570"->0,
-    "\:65b0\:8ba1\:7b97\:6279\:6570"->0,"\:5355\:6279\:65f6\:9650"->seconds,"\:603b\:65f6\:9650"->totalLimit|>;
-  RGZMXProgressUpdate["\:90e8\:95e8"->"RGZ \:89c4\:8303\:7cfb\:6570\:5206\:6279\:68c0\:67e5","\:9636\:6bb5"->"\:5206\:6279\:5f52\:7ea6",
-    "\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->start,"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:56fe\:53f7"->0,"\:56fe\:6570"->0,
-    "\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0];
+  rgzGaugeBatchProgress=<|"ID"->unit["ID"],"Status"->"ComputeIn",
+    "LevelID"->0,"BatchID"->0,"this levelBatchCount"->0,"CacheRestoredBatchCount"->0,
+    "NewComputeBatchCount"->0,"SingleBatchTimeLimit"->seconds,"TotalTimeLimit"->totalLimit|>;
+  RGZMXProgressUpdate["Sector"->"RGZ GaugeCoefficientBatchCheck","Stage"->"BatchReduce",
+    "StageStartTime"->start,"Status"->"ComputeIn","DiagramID"->0,"DiagramCount"->0,
+    "TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0];
   worker[] := Catch[
-    RGZGaugeStep["\:5206\:6279\:51c6\:5907\:ff1a\:68c0\:67e5\:8f93\:5165\:8eab\:4efd\:4e0e\:7f13\:5b58"];
-    root=RGZGaugeCacheDirectory[OptionValue["\:7f13\:5b58\:76ee\:5f55"]];
+    RGZGaugeStep["Batch preparation: check input identity and cache"];
+    root=RGZGaugeCacheDirectory[OptionValue["CacheDirectory"]];
     identity=Hash[{"RGZGaugeBatch-v2.4",size,
-      unit["Alpha\:77ed\:7cfb\:6570"],unit["\:53c2\:8003\:77ed\:7cfb\:6570"],unit["\:53c2\:8003\:89c4\:8303"],
+      unit["AlphaShortCoefficient"],unit["ReferenceShortCoefficient"],unit["ReferenceGauge"],
       DownValues[RGZGaugeBatchPrepare],DownValues[RGZGaugeBatchReduce],
       DownValues[RGZGaugeBatchChunks],
       DownValues[RGZGaugePoleSquares],DownValues[RGZLoopPoleMasses]},"SHA256"];
@@ -513,11 +514,11 @@ RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
     prep=RGZGaugeBatchCacheRead[prepPath,{identity,"prepare"}];
     If[!AssociationQ[prep],
       prep=TimeConstrained[
-        RGZGaugeBatchPrepare[unit["Alpha\:77ed\:7cfb\:6570"],unit["\:53c2\:8003\:77ed\:7cfb\:6570"],
-          unit["\:53c2\:8003\:89c4\:8303"],size],prepLimit,Missing["BatchPreparationTimeout"]];
+        RGZGaugeBatchPrepare[unit["AlphaShortCoefficient"],unit["ReferenceShortCoefficient"],
+          unit["ReferenceGauge"],size],prepLimit,Missing["BatchPreparationTimeout"]];
       If[Head[prep]===Missing,Throw[Failure["GaugeBatchPreparationTimeout",<|
-        "\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:65f6\:9650"->prepLimit,
-        "\:505c\:6b62\:64cd\:4f5c"->"\:5206\:6279\:51c6\:5907","\:8bf4\:660e"->"\:672a\:5f00\:59cb\:6279\:6b21\:901a\:5206\:3002"|>],stop]];
+        "ID"->unit["ID"],"TimeLimit"->prepLimit,
+        "StoppedOperation"->"BatchPrepare","Description"->"NotStartedbatchTogether. "|>],stop]];
       If[FailureQ[prep],Throw[prep,stop]];
       result=RGZGaugeBatchCacheWrite[prep,prepPath,{identity,"prepare"}];
       If[FailureQ[result],Throw[result,stop]]];
@@ -527,22 +528,22 @@ RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
       If[!DirectoryQ[mergeDir],Quiet[Check[
         CreateDirectory[mergeDir,CreateIntermediateDirectories->True],
         Throw[Failure["BatchCacheDirectory",<||>],stop]]]]];
-    vars=prep["\:6839\:7b26\:53f7"];radicands=prep["\:88ab\:5f00\:65b9\:5f0f"];
-    definitions=prep["\:6839\:5f0f\:5b9a\:4e49"];chunks=prep["\:5206\:6279"];
+    vars=prep["RootSymbol"];radicands=prep["Radicand"];
+    definitions=prep["RadicalDefinition"];chunks=prep["Batch"];
     AssociateTo[rgzGaugeBatchProgress,{
-      "\:52a0\:9879\:6570"->prep["\:52a0\:9879\:6570"],"\:521d\:59cb\:6279\:6570"->prep["\:521d\:59cb\:6279\:6570"],
-      "\:540c\:5206\:6bcd\:7ec4\:6570"->prep["\:540c\:5206\:6bcd\:7ec4\:6570"],"\:6839\:5f0f\:79cd\:7c7b"->Length[vars],"\:7f13\:5b58\:76ee\:5f55"->dir}];
+      "TermsCount"->prep["TermsCount"],"initialBatchCount"->prep["initialBatchCount"],
+      "same DenominatorgroupCount"->prep["same DenominatorgroupCount"],"RadicalTypes"->Length[vars],"CacheDirectory"->dir}];
     run[part_List,lev_Integer,index_Integer,total_Integer] := Module[
       {nodePath,nodeKey,v,elapsed,saved,fromCache=False,oldPath,oldKey,inputHash},
-      operation=If[lev===0,"\:5c0f\:6279\:901a\:5206","\:4e24\:4e24\:5408\:5e76"];
-      RGZMXProgressUpdate["\:9879\:53f7"->index,"\:603b\:9879\:6570"->total,"\:5b8c\:6210\:9879\:6570"->index-1];
-      RGZGaugeStep[operation<>"\:ff1a\:5c42 "<>ToString[lev]<>"\:ff0c\:6279 "<>
+      operation=If[lev===0,"SmallBatchTogether","PairwiseCombine"];
+      RGZMXProgressUpdate["TermID"->index,"TotalTermCount"->total,"CompleteTermCount"->index-1];
+      RGZGaugeStep[operation<>": level "<>ToString[lev]<>", batch "<>
         ToString[index]<>" / "<>ToString[total]];
       AssociateTo[rgzGaugeBatchProgress,{
-        "\:5c42\:53f7"->lev,"\:6279\:53f7"->index,"\:8be5\:5c42\:6279\:6570"->total,"\:505c\:6b62\:64cd\:4f5c"->operation}];
-      rgzGaugeBatchCurrentNode=<|"\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:5c42\:53f7"->lev,
-        "\:6279\:53f7"->index,"\:8be5\:5c42\:6279\:6570"->total,"\:8f93\:5165"->part,"\:6839\:7b26\:53f7"->vars,
-        "\:88ab\:5f00\:65b9\:5f0f"->radicands,"\:6839\:5f0f\:5b9a\:4e49"->definitions|>;
+        "LevelID"->lev,"BatchID"->index,"this levelBatchCount"->total,"StoppedOperation"->operation}];
+      rgzGaugeBatchCurrentNode=<|"ID"->unit["ID"],"LevelID"->lev,
+        "BatchID"->index,"this levelBatchCount"->total,"Input"->part,"RootSymbol"->vars,
+        "Radicand"->radicands,"RadicalDefinition"->definitions|>;
       oldKey={identity,lev,index};
       oldPath=If[StringQ[dir],FileNameJoin[{dir,
         "level_"<>ToString[lev]<>"_unit_"<>ToString[index]<>".wl"}],None];
@@ -565,29 +566,29 @@ RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
               RGZGaugeBatchMerge[part,vars,radicands]]]],
         seconds,Missing["BatchTimeout"]]];
       If[Head[v]===Missing,
-        rgzGaugeBatchStoppedNode=<|"\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:5c42\:53f7"->lev,
-          "\:6279\:53f7"->index,"\:8be5\:5c42\:6279\:6570"->total,"\:8f93\:5165"->part,"\:6839\:7b26\:53f7"->vars,
-          "\:88ab\:5f00\:65b9\:5f0f"->radicands,"\:6839\:5f0f\:5b9a\:4e49"->definitions,
-          "\:505c\:6b62\:64cd\:4f5c"->Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c",operation]|>;
+        rgzGaugeBatchStoppedNode=<|"ID"->unit["ID"],"LevelID"->lev,
+          "BatchID"->index,"this levelBatchCount"->total,"Input"->part,"RootSymbol"->vars,
+          "Radicand"->radicands,"RadicalDefinition"->definitions,
+          "StoppedOperation"->Lookup[rgzGaugeProgress,"CurrentOperation",operation]|>;
         Throw[Failure["GaugeBatchTimeout",<|
-        "\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:5c42\:53f7"->lev,"\:6279\:53f7"->index,
-        "\:8be5\:5c42\:6279\:6570"->total,"\:505c\:6b62\:64cd\:4f5c"->
-          Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c",operation],"\:65f6\:9650"->seconds,
-        "\:8017\:65f6"->elapsed,"\:65b0\:8ba1\:7b97\:6279\:6570"->computedCount,
-        "\:7f13\:5b58\:6062\:590d\:6279\:6570"->resumeCount,
-        "\:8bf4\:660e"->"\:5728\:5f53\:524d\:6279\:8d85\:65f6\:5904\:505c\:6b62\:ff1b\:540c\:4e00\:8f93\:5165\:91cd\:8dd1\:53ef\:590d\:7528\:5df2\:5b8c\:6210\:6279\:6b21\:3002"|>],stop]];
+        "ID"->unit["ID"],"LevelID"->lev,"BatchID"->index,
+        "this levelBatchCount"->total,"StoppedOperation"->
+          Lookup[rgzGaugeProgress,"CurrentOperation",operation],"TimeLimit"->seconds,
+        "ElapsedSeconds"->elapsed,"NewComputeBatchCount"->computedCount,
+        "CacheRestoredBatchCount"->resumeCount,
+        "Description"->"Stopped at a batch timeout; rerun with the same input to reuse completed batches."|>],stop]];
       If[FailureQ[v] || v===$Failed || v===$Aborted,
         Throw[Failure["GaugeBatchReductionFailed",<|
-          "\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:5c42\:53f7"->lev,"\:6279\:53f7"->index,
-          "\:539f\:56e0"->v|>],stop]];
+          "ID"->unit["ID"],"LevelID"->lev,"BatchID"->index,
+          "Cause"->v|>],stop]];
       (* Cached zero is a valid completed node, not a missing result. *)
       If[!TrueQ[fromCache],
         saved=RGZGaugeBatchCacheWrite[v,nodePath,nodeKey];
         If[FailureQ[saved],Throw[saved,stop]];computedCount++];
       AssociateTo[rgzGaugeBatchProgress,{
-        "\:65b0\:8ba1\:7b97\:6279\:6570"->computedCount,"\:7f13\:5b58\:6062\:590d\:6279\:6570"->resumeCount,
-        "\:5f53\:524d\:6279\:8017\:65f6"->elapsed}];
-      RGZMXProgressUpdate["\:5b8c\:6210\:9879\:6570"->index];v
+        "NewComputeBatchCount"->computedCount,"CacheRestoredBatchCount"->resumeCount,
+        "CurrentbatchElapsedSeconds"->elapsed}];
+      RGZMXProgressUpdate["CompleteTermCount"->index];v
     ];
     current=Table[run[chunks[[n]],0,n,Length[chunks]],{n,Length[chunks]}];
     current=DeleteCases[current,0];
@@ -596,62 +597,62 @@ RGZGaugeResumeStopped[seconds_:60,OptionsPattern[]] := Module[
       next=Table[run[groups[[n]],level,n,Length[groups]],{n,Length[groups]}];
       current=DeleteCases[next,0]];
     z=If[current==={},0,First[current]];
-    RGZGaugeStep["\:5206\:6279\:5b8c\:6210\:ff1a\:6062\:590d\:539f\:6839\:5f0f\:5e76\:4fdd\:5b58\:5355\:9879\:7ed3\:679c"];
+    RGZGaugeStep["Batch complete: restore radicals and save the term"];
     physical=z/.definitions;
-    row=<|"\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:4e3b\:79ef\:5206"->unit["\:4e3b\:79ef\:5206"],
-      "\:539f\:7cfb\:6570"->Missing["UseShortCoefficients"],"\:6b8b\:5dee\:7cfb\:6570"->physical,
-      "\:6839\:5f0f\:7b26\:53f7\:7cfb\:6570"->z,"\:6839\:5f0f\:5b9a\:4e49"->definitions,
-      "\:72b6\:6001"->RGZGaugeState[physical],"\:6765\:6e90"->"\:5206\:6279\:7cbe\:786e\:5f52\:7ea6",
-      "\:8017\:65f6"->AbsoluteTime[]-start|>;
-    path=Lookup[unit,"\:7f13\:5b58\:8def\:5f84",None];key=Lookup[unit,"\:7f13\:5b58\:8eab\:4efd",None];
+    row=<|"ID"->unit["ID"],"MasterIntegral"->unit["MasterIntegral"],
+      "OriginalCoefficient"->Missing["UseShortCoefficients"],"ResidualCoefficient"->physical,
+      "RadicalSymbolCoefficient"->z,"RadicalDefinition"->definitions,
+      "Status"->RGZGaugeState[physical],"Source"->"BatchExactReduce",
+      "ElapsedSeconds"->AbsoluteTime[]-start|>;
+    path=Lookup[unit,"CachePath",None];key=Lookup[unit,"CacheIdentity",None];
     rgzGaugeBatchLastCoefficient=row;
     If[!TrueQ[physical===0] && LeafCount[z]>5000,
       Throw[Failure["GaugeScalarCoefficientPending",<|
-        "\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:505c\:6b62\:64cd\:4f5c"->"\:6700\:7ec8\:53c2\:6570\:7cfb\:6570\:5316\:7b80\:5c1a\:672a\:5b8c\:6210",
-        "\:8bf4\:660e"->"\:6839\:5f0f\:5408\:5e76\:7ed3\:679c\:5df2\:4fdd\:7559\:ff0c\:4f46\:5927\:578b\:53c2\:6570\:7cfb\:6570\:672a\:5b8c\:6210\:89c4\:8303\:5316\:ff1b\:672a\:5199\:5165\:5df2\:5b8c\:6210\:7cfb\:6570\:7f13\:5b58\:ff0c\:4e0d\:80fd\:636e\:6b64\:5ba3\:79f0\:975e\:96f6\:6216\:89c4\:8303\:65e0\:5173\:3002"|>],stop]];
+        "ID"->unit["ID"],"StoppedOperation"->"FinalParameterCoefficientSimplifystill Incomplete",
+        "Description"->"The combined radical result is retained, but large parameter coefficients remain unnormalized. No completed-coefficient cache was written; neither a nonzero result nor gauge independence is established."|>],stop]];
     (* Verify the original v2 coefficient cache identity before writing it.
        RGZGaugeCoefficient itself has not changed in this release. *)
     If[StringQ[path] && key===Hash[{
         Hash[{"RGZGaugeCoefficient-v2",DownValues[RGZGaugeCoefficient],
           DownValues[RGZGaugePoleSquares],DownValues[RGZLoopPoleMasses]},"SHA256"],
-        unit["\:53c2\:8003\:89c4\:8303"],{unit["\:4e3b\:79ef\:5206"],unit["Alpha\:77ed\:7cfb\:6570"],unit["\:53c2\:8003\:77ed\:7cfb\:6570"]}},"SHA256"],
+        unit["ReferenceGauge"],{unit["MasterIntegral"],unit["AlphaShortCoefficient"],unit["ReferenceShortCoefficient"]}},"SHA256"],
       RGZGaugeCacheWrite[row,path,key];
       cacheSaved=TimeConstrained[
         AssociationQ[RGZGaugeCacheRead[path,key]],10,False]];
     rgzGaugeBatchLastCoefficient=row;
-    <|"\:72b6\:6001"->"\:5355\:9879\:5b8c\:6210","\:7f16\:53f7"->unit["\:7f16\:53f7"],
-      "\:7cfb\:6570\:72b6\:6001"->row["\:72b6\:6001"],"\:52a0\:9879\:6570"->prep["\:52a0\:9879\:6570"],
-      "\:521d\:59cb\:6279\:6570"->prep["\:521d\:59cb\:6279\:6570"],"\:6839\:5f0f\:79cd\:7c7b"->Length[vars],
-      "\:65b0\:8ba1\:7b97\:6279\:6570"->computedCount,"\:7f13\:5b58\:6062\:590d\:6279\:6570"->resumeCount,
-      "\:8017\:65f6"->AbsoluteTime[]-start,"\:5df2\:4fdd\:5b58\:5230\:539f\:7cfb\:6570\:7f13\:5b58"->cacheSaved,
-      "\:8bf4\:660e"->"\:53ea\:5b8c\:6210\:5f53\:524d\:505c\:6b62\:9879\:ff1b\:4e0d\:540c\:6279\:6b21\:5df2\:76f8\:52a0\:3002\:5176\:4f59\:4e3b\:79ef\:5206\:9879\:5c1a\:9700\:68c0\:67e5\:3002"|>,stop];
+    <|"Status"->"SingleTermComplete","ID"->unit["ID"],
+      "CoefficientStatus"->row["Status"],"TermsCount"->prep["TermsCount"],
+      "initialBatchCount"->prep["initialBatchCount"],"RadicalTypes"->Length[vars],
+      "NewComputeBatchCount"->computedCount,"CacheRestoredBatchCount"->resumeCount,
+      "ElapsedSeconds"->AbsoluteTime[]-start,"Saveto OriginalCoefficientCache"->cacheSaved,
+      "Description"->"Only the stopped term is complete; batches have been summed. Other master-integral terms still require checks."|>,stop];
   result=CheckAbort[TimeConstrained[worker[],totalLimit,
     Failure["GaugeBatchTotalTimeout",<|
-      "\:7f16\:53f7"->unit["\:7f16\:53f7"],"\:65f6\:9650"->totalLimit,
-      "\:5c42\:53f7"->Lookup[rgzGaugeBatchProgress,"\:5c42\:53f7",0],
-      "\:6279\:53f7"->Lookup[rgzGaugeBatchProgress,"\:6279\:53f7",0],
-      "\:8be5\:5c42\:6279\:6570"->Lookup[rgzGaugeBatchProgress,"\:8be5\:5c42\:6279\:6570",0],
-      "\:8bf4\:660e"->"\:8fbe\:5230\:672c\:6b21\:603b\:65f6\:9650\:ff1b\:5df2\:5b8c\:6210\:6279\:6b21\:7f13\:5b58\:4fdd\:7559\:3002"|>]],
-    Failure["GaugeBatchAborted",<|"\:7f16\:53f7"->unit["\:7f16\:53f7"],
-      "\:8bf4\:660e"->"\:5df2\:4e2d\:6b62\:ff1b\:5df2\:5b8c\:6210\:6279\:6b21\:7f13\:5b58\:4fdd\:7559\:3002"|>]];
+      "ID"->unit["ID"],"TimeLimit"->totalLimit,
+      "LevelID"->Lookup[rgzGaugeBatchProgress,"LevelID",0],
+      "BatchID"->Lookup[rgzGaugeBatchProgress,"BatchID",0],
+      "this levelBatchCount"->Lookup[rgzGaugeBatchProgress,"this levelBatchCount",0],
+      "Description"->"The total time limit was reached; completed batch caches are retained."|>]],
+    Failure["GaugeBatchAborted",<|"ID"->unit["ID"],
+      "Description"->"Aborted; completed batch caches are retained."|>]];
   If[FailureQ[result] && !AssociationQ[rgzGaugeBatchStoppedNode] &&
       AssociationQ[rgzGaugeBatchCurrentNode],
     rgzGaugeBatchStoppedNode=Join[rgzGaugeBatchCurrentNode,<|
-      "\:505c\:6b62\:64cd\:4f5c"->Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c",""]|>]];
+      "StoppedOperation"->Lookup[rgzGaugeProgress,"CurrentOperation",""]|>]];
   AssociateTo[rgzGaugeBatchProgress,{
-    "\:72b6\:6001"->If[FailureQ[result],"\:5df2\:505c\:6b62","\:5355\:9879\:5b8c\:6210"],
-    "\:8017\:65f6"->AbsoluteTime[]-start}];
-  RGZMXProgressUpdate["\:72b6\:6001"->If[FailureQ[result],"\:5df2\:505c\:6b62","\:5355\:9879\:5b8c\:6210"]];
+    "Status"->If[FailureQ[result],"Stopped","SingleTermComplete"],
+    "ElapsedSeconds"->AbsoluteTime[]-start}];
+  RGZMXProgressUpdate["Status"->If[FailureQ[result],"Stopped","SingleTermComplete"]];
   result
 ];
 
 RGZGaugeBatchSummary[report_] := Module[{data,keys},
   data=Which[AssociationQ[report],report,FailureQ[report],report[[2]],
-    True,Return[Print["\:5206\:6279\:7ed3\:679c\:5934\:90e8\:ff1a",Head[report]]]];
-  If[FailureQ[report],Print["\:5206\:6279\:505c\:6b62\:6807\:7b7e\:ff1a",report[[1]]]];
-  keys=Select[{"\:72b6\:6001","\:7f16\:53f7","\:7cfb\:6570\:72b6\:6001","\:52a0\:9879\:6570","\:521d\:59cb\:6279\:6570","\:6839\:5f0f\:79cd\:7c7b",
-    "\:5c42\:53f7","\:6279\:53f7","\:8be5\:5c42\:6279\:6570","\:505c\:6b62\:64cd\:4f5c","\:65f6\:9650","\:8017\:65f6",
-    "\:65b0\:8ba1\:7b97\:6279\:6570","\:7f13\:5b58\:6062\:590d\:6279\:6570","\:5df2\:4fdd\:5b58\:5230\:539f\:7cfb\:6570\:7f13\:5b58","\:8bf4\:660e"},
+    True,Return[Print["BatchResulthead: ",Head[report]]]];
+  If[FailureQ[report],Print["BatchStoppedTag: ",report[[1]]]];
+  keys=Select[{"Status","ID","CoefficientStatus","TermsCount","initialBatchCount","RadicalTypes",
+    "LevelID","BatchID","this levelBatchCount","StoppedOperation","TimeLimit","ElapsedSeconds",
+    "NewComputeBatchCount","CacheRestoredBatchCount","Saveto OriginalCoefficientCache","Description"},
     KeyExistsQ[data,#]&];
   Print[Grid[({#,data[#]}& /@ keys),Frame->All,Alignment->Left]]
 ];
@@ -671,7 +672,7 @@ RGZGaugeInspectBatch[seconds_:10] := Module[{node,inputs,vars,cols,measure,z},
     Return[Failure["NoStoppedBatchNode",<||>]]];
   If[!NumericQ[seconds] || !TrueQ[seconds>0],
     Return[Failure["DiagnosticTimeLimit",<||>]]];
-  node=rgzGaugeBatchStoppedNode;inputs=node["\:8f93\:5165"];vars=node["\:6839\:7b26\:53f7"];
+  node=rgzGaugeBatchStoppedNode;inputs=node["Input"];vars=node["RootSymbol"];
   measure[e_] := {LeafCount[e],LeafCount[Numerator[e]],
     LeafCount[Denominator[e]],If[vars==={},0,
       Max[Exponent[Numerator[e],#]& /@ vars]],
@@ -680,8 +681,8 @@ RGZGaugeInspectBatch[seconds_:10] := Module[{node,inputs,vars,cols,measure,z},
     Missing["DiagnosticTimeout"]],Missing["DiagnosticAborted"]];
     If[ListQ[z],z,ConstantArray[z,5]],{j,Length[inputs]}];
   Grid[Prepend[Transpose[Prepend[cols,
-      {"\:8868\:8fbe\:5f0f\:8282\:70b9\:6570","\:5206\:5b50\:8282\:70b9\:6570","\:5206\:6bcd\:8282\:70b9\:6570","\:5206\:5b50\:6700\:9ad8\:6839\:5e42","\:5206\:6bcd\:6700\:9ad8\:6839\:5e42"}]],
-    Prepend[Table["\:8f93\:5165 "<>ToString[j],{j,Length[inputs]}],"\:68c0\:67e5\:9879\:76ee"]],
+      {"ExpressionLeafCount","NumeratorLeafCount","DenominatorLeafCount","NumeratorMaxRootPower","DenominatorMaxRootPower"}]],
+    Prepend[Table["Input "<>ToString[j],{j,Length[inputs]}],"CheckParts"]],
     Frame->All,Alignment->Left]
 ];
 
@@ -695,13 +696,13 @@ RGZGaugeSparseFrom[x_,vars_List] := Module[{rootRules,rootPattern},
   If[vars==={},Return[{{{},x}}]];
   rootPattern=Alternatives@@vars;
   If[!TrueQ[PolynomialQ[x,vars]],Return[Failure["NeedPolynomialInRoots",<|
-    "\:8bf4\:660e"->"\:8f93\:5165\:542b\:6839\:5f0f\:53d8\:91cf\:7684\:975e\:591a\:9879\:5f0f\:4f9d\:8d56\:ff1b\:4e0d\:628a\:5931\:8d25\:5f53\:4f5c\:96f6\:3002"|>]]];
+    "Description"->"The input is not polynomial in radical variables; failure is not treated as zero."|>]]];
   rootRules=Quiet[Check[CoefficientRules[x,vars],$Failed]];
   If[!ListQ[rootRules] || !AllTrue[rootRules,
       MatchQ[#,_Rule] && ListQ[First[#]] && Length[First[#]]===Length[vars] &&
       VectorQ[First[#],IntegerQ[#] && #>=0&] && FreeQ[Last[#],rootPattern]&],
     Return[Failure["NeedPolynomialInRoots",<|
-      "\:8bf4\:660e"->"\:65e0\:6cd5\:6309\:6839\:5f0f\:53d8\:91cf\:63d0\:53d6\:591a\:9879\:5f0f\:ff1b\:4e0d\:628a\:5931\:8d25\:5f53\:4f5c\:96f6\:3002"|>]]];
+      "Description"->"Cannot extract a polynomial in the radical variables; failure is not treated as zero."|>]]];
   ({First[#],Last[#]}& /@ rootRules)
 ];
 RGZGaugeSparseTimes[left_List,right_List] :=
@@ -737,7 +738,7 @@ RGZGaugeSparseTidy[ps_List] := Module[
         pending++;sparseSimplified=sparseCoefficient],
       pending++;sparseSimplified=sparseCoefficient];
     {ps[[j,1]],sparseSimplified},{j,Length[ps]}];
-  <|"\:591a\:9879\:5f0f"->RGZGaugeSparseGroup[tidiedPairs],"\:5f85\:53c2\:6570\:7cfb\:6570\:6570"->pending|>
+  <|"Polynomial"->RGZGaugeSparseGroup[tidiedPairs],"pending ParameterCoefficientCount"->pending|>
 ];
 RGZGaugeMergeContext[] := Hash[{"RGZGaugeMerge-v2.6",
   DownValues[RGZGaugeSparseMergeCore],DownValues[RGZGaugeSparseFrom],
@@ -754,41 +755,41 @@ RGZGaugeSparseMergeCore[part_List,vars_List,radicands_List] := Module[
   If[AnyTrue[Range[dim],
       !FreeQ[radicands[[#]],Alternatives@@Take[vars,#]]&],
     Return[Failure["RootDependencyOrder",<||>]]];
-  rgzGaugeSparseProgress=<|"\:6839\:5f0f\:53d8\:91cf\:6570"->dim|>;
-  RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:8bfb\:53d6\:5206\:5b50\:548c\:5206\:6bcd"];
+  rgzGaugeSparseProgress=<|"RadicalVariableCount"->dim|>;
+  RGZGaugeStep["Sparse combination: read numerator and denominator"];
   {leftNumerator,rightNumerator}=Numerator /@ part;{leftDenominator,rightDenominator}=Denominator /@ part;
   If[leftDenominator===rightDenominator,leftDenominatorMultiplier=1;rightDenominatorMultiplier=1,
-    RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:516c\:5171\:5206\:6bcd\:68c0\:6d4b\:ff08\:6700\:591a3\:79d2\:ff09"];
+    RGZGaugeStep["Sparse combination: find common denominator (up to 3 seconds)"];
     denominatorGCD=Quiet[Check[TimeConstrained[PolynomialGCD[leftDenominator,rightDenominator],3,
       Missing["DenominatorGCDTimeout"]],$Failed]];
     If[Head[denominatorGCD]===Missing || denominatorGCD===$Failed || TrueQ[denominatorGCD===0] ||
         !FreeQ[denominatorGCD,_PolynomialGCD],denominatorGCD=1];
-    RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:6784\:9020\:5206\:6bcd\:500d\:6570"];
+    RGZGaugeStep["Sparse combination: construct denominator multiples"];
     If[denominatorGCD===1,leftDenominatorMultiplier=leftDenominator;rightDenominatorMultiplier=rightDenominator,leftDenominatorMultiplier=Cancel[leftDenominator/denominatorGCD];rightDenominatorMultiplier=Cancel[rightDenominator/denominatorGCD]]];
   inputs={leftNumerator,rightNumerator,leftDenominatorMultiplier,rightDenominatorMultiplier,leftDenominator};
-  ps=Table[RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:63d0\:53d6\:6839\:5f0f\:5355\:9879\:5f0f "<>ToString[j]<>" / 5"];
+  ps=Table[RGZGaugeStep["Sparse combination: extract radical monomials "<>ToString[j]<>" / 5"];
     RGZGaugeSparseFrom[inputs[[j]],vars],{j,5}];
   If[AnyTrue[ps,FailureQ],Return[First[Select[ps,FailureQ]]]];
   AssociateTo[rgzGaugeSparseProgress,{
-    "\:8f93\:51651\:5206\:5b50\:5355\:9879\:5f0f\:6570"->Length[ps[[1]]],"\:8f93\:51652\:5206\:5b50\:5355\:9879\:5f0f\:6570"->Length[ps[[2]]]}];
+    "Input1NumeratorSingleTermexpressionCount"->Length[ps[[1]]],"Input2NumeratorSingleTermexpressionCount"->Length[ps[[2]]]}];
   relations=RGZGaugeSparseFrom[#,vars]& /@ radicands;
   If[AnyTrue[relations,FailureQ],Return[First[Select[relations,FailureQ]]]];
-  RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:5206\:6bcd\:6839\:5f0f\:5e73\:65b9\:7ea6\:5316"];
+  RGZGaugeStep["Sparse combination: reduce denominator radical squares"];
   den=RGZGaugeSparseReduce[RGZGaugeSparseTimes[ps[[5]],ps[[4]]],relations,dim];
-  tidyD=RGZGaugeSparseTidy[den];den=tidyD["\:591a\:9879\:5f0f"];
+  tidyD=RGZGaugeSparseTidy[den];den=tidyD["Polynomial"];
   If[den==={},Return[Failure["PoleRelationSingularity",<||>]]];
-  RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:5206\:5b50\:5355\:9879\:5f0f\:76f8\:4e58\:4e0e\:6839\:5f0f\:5e73\:65b9\:7ea6\:5316"];
+  RGZGaugeStep["Sparse combination: multiply numerator monomials and reduce radical squares"];
   num=RGZGaugeSparseGroup[Join[
     RGZGaugeSparseTimes[ps[[1]],ps[[4]]],
     RGZGaugeSparseTimes[ps[[2]],ps[[3]]]]];
   num=RGZGaugeSparseReduce[num,relations,dim];
-  RGZGaugeStep["\:7a00\:758f\:5408\:5e76\:ff1a\:68c0\:67e5\:5c0f\:578b\:53c2\:6570\:7cfb\:6570\:ff0c\:4fdd\:7559\:5927\:578b\:7cfb\:6570"];
-  tidyN=RGZGaugeSparseTidy[num];num=tidyN["\:591a\:9879\:5f0f"];
+  RGZGaugeStep["Sparse combination: check small parameter coefficients and retain large ones"];
+  tidyN=RGZGaugeSparseTidy[num];num=tidyN["Polynomial"];
   AssociateTo[rgzGaugeSparseProgress,{
-    "\:7ed3\:679c\:5206\:5b50\:5355\:9879\:5f0f\:6570"->Length[num],"\:7ed3\:679c\:5206\:6bcd\:5355\:9879\:5f0f\:6570"->Length[den],
-    "\:5f85\:53c2\:6570\:7cfb\:6570\:6570"->tidyN["\:5f85\:53c2\:6570\:7cfb\:6570\:6570"]+tidyD["\:5f85\:53c2\:6570\:7cfb\:6570\:6570"]}];
+    "ResultNumeratorSingleTermexpressionCount"->Length[num],"ResultDenominatorSingleTermexpressionCount"->Length[den],
+    "pending ParameterCoefficientCount"->tidyN["pending ParameterCoefficientCount"]+tidyD["pending ParameterCoefficientCount"]}];
   If[num==={},
-    If[tidyD["\:5f85\:53c2\:6570\:7cfb\:6570\:6570"]>0,
+    If[tidyD["pending ParameterCoefficientCount"]>0,
       Return[Failure["UnverifiedMergeDenominator",<||>]],Return[0]]];
   RGZGaugeSparseTo[num,vars]/RGZGaugeSparseTo[den,vars]
 ];
@@ -796,9 +797,9 @@ RGZGaugeSparseMergeCore[part_List,vars_List,radicands_List] := Module[
 RGZGaugeBatchMerge[part_List,vars_List,radicands_List] := Module[{key},
   key=Hash[{RGZGaugeMergeContext[],part,vars,radicands},"SHA256"];
   If[AssociationQ[rgzGaugeSparseTestMemo] &&
-      Lookup[rgzGaugeSparseTestMemo,"\:8eab\:4efd",None]===key,
-    rgzGaugeSparseProgress=rgzGaugeSparseTestMemo["\:8bca\:65ad"];
-    Return[rgzGaugeSparseTestMemo["\:7ed3\:679c"]]];
+      Lookup[rgzGaugeSparseTestMemo,"Identity",None]===key,
+    rgzGaugeSparseProgress=rgzGaugeSparseTestMemo["Diagnostic"];
+    Return[rgzGaugeSparseTestMemo["Result"]]];
   RGZGaugeSparseMergeCore[part,vars,radicands]
 ];
 
@@ -810,33 +811,33 @@ RGZGaugeTestStoppedMerge[seconds_:60] := Module[{node,result,time,key},
   If[!NumericQ[seconds] || !TrueQ[seconds>0],
     Return[Failure["DiagnosticTimeLimit",<||>]]];
   node=rgzGaugeBatchStoppedNode;
-  RGZMXProgressUpdate["\:90e8\:95e8"->"RGZ \:505c\:6b62\:8282\:70b9\:5355\:72ec\:6d4b\:8bd5","\:9636\:6bb5"->"\:7a00\:758f\:5408\:5e76",
-    "\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[],"\:72b6\:6001"->"\:8ba1\:7b97\:4e2d", "\:56fe\:53f7"->0,"\:56fe\:6570"->0,
-    "\:9879\:53f7"->1,"\:603b\:9879\:6570"->1,"\:5b8c\:6210\:9879\:6570"->0];
+  RGZMXProgressUpdate["Sector"->"RGZ isolated stopped-node test","Stage"->"SparseCombine",
+    "StageStartTime"->AbsoluteTime[],"Status"->"ComputeIn", "DiagramID"->0,"DiagramCount"->0,
+    "TermID"->1,"TotalTermCount"->1,"CompleteTermCount"->0];
   {time,result}=AbsoluteTiming[CheckAbort[TimeConstrained[
-    key=Hash[{RGZGaugeMergeContext[],node["\:8f93\:5165"],node["\:6839\:7b26\:53f7"],
-      node["\:88ab\:5f00\:65b9\:5f0f"]},"SHA256"];
-    RGZGaugeSparseMergeCore[node["\:8f93\:5165"],node["\:6839\:7b26\:53f7"],node["\:88ab\:5f00\:65b9\:5f0f"]],
+    key=Hash[{RGZGaugeMergeContext[],node["Input"],node["RootSymbol"],
+      node["Radicand"]},"SHA256"];
+    RGZGaugeSparseMergeCore[node["Input"],node["RootSymbol"],node["Radicand"]],
     seconds,Missing["SparseMergeTimeout"]],$Aborted]];
   If[Head[result]===Missing || result===$Aborted || FailureQ[result],
-    RGZMXProgressUpdate["\:72b6\:6001"->"\:5df2\:505c\:6b62"];
+    RGZMXProgressUpdate["Status"->"Stopped"];
     Return[Failure["GaugeSparseMergeStopped",<|
-      "\:7f16\:53f7"->node["\:7f16\:53f7"],"\:5c42\:53f7"->node["\:5c42\:53f7"],"\:6279\:53f7"->node["\:6279\:53f7"],
-      "\:505c\:6b62\:64cd\:4f5c"->Lookup[rgzGaugeProgress,"\:5f53\:524d\:64cd\:4f5c","\:7a00\:758f\:5408\:5e76"],
-      "\:65f6\:9650"->seconds,"\:8017\:65f6"->time,
-      "\:539f\:56e0\:6807\:7b7e"->Which[FailureQ[result],result[[1]],
-        Head[result]===Missing,result[[1]],True,"\:5df2\:4e2d\:6b62"],"\:539f\:56e0"->result|>]]];
-  rgzGaugeSparseTestMemo=<|"\:8eab\:4efd"->key,"\:7ed3\:679c"->result,"\:8bca\:65ad"->rgzGaugeSparseProgress|>;
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:5355\:8282\:70b9\:5b8c\:6210","\:5b8c\:6210\:9879\:6570"->1];
-  Join[<|"\:72b6\:6001"->"\:5355\:8282\:70b9\:5b8c\:6210","\:7f16\:53f7"->node["\:7f16\:53f7"],"\:5c42\:53f7"->node["\:5c42\:53f7"],
-    "\:6279\:53f7"->node["\:6279\:53f7"],"\:8017\:65f6"->time,"\:7ed3\:679c\:8282\:70b9\:6570"->LeafCount[result],
-    "\:662f\:5426\:5b57\:9762\:5f52\:96f6"->TrueQ[result===0]|>,rgzGaugeSparseProgress]
+      "ID"->node["ID"],"LevelID"->node["LevelID"],"BatchID"->node["BatchID"],
+      "StoppedOperation"->Lookup[rgzGaugeProgress,"CurrentOperation","SparseCombine"],
+      "TimeLimit"->seconds,"ElapsedSeconds"->time,
+      "CauseTag"->Which[FailureQ[result],result[[1]],
+        Head[result]===Missing,result[[1]],True,"Aborted"],"Cause"->result|>]]];
+  rgzGaugeSparseTestMemo=<|"Identity"->key,"Result"->result,"Diagnostic"->rgzGaugeSparseProgress|>;
+  RGZMXProgressUpdate["Status"->"SingleNodeComplete","CompleteTermCount"->1];
+  Join[<|"Status"->"SingleNodeComplete","ID"->node["ID"],"LevelID"->node["LevelID"],
+    "BatchID"->node["BatchID"],"ElapsedSeconds"->time,"ResultLeafCount"->LeafCount[result],
+    "Isliteral Zero"->TrueQ[result===0]|>,rgzGaugeSparseProgress]
 ];
 RGZGaugeSparseSummary[report_] := Module[{data},
   data=Which[AssociationQ[report],report,FailureQ[report],
-    Print["\:5355\:8282\:70b9\:505c\:6b62\:6807\:7b7e\:ff1a",report[[1]]];KeyDrop[report[[2]],{"\:539f\:56e0"}],
-    True,Return[Print["\:7ed3\:679c\:5934\:90e8\:ff1a",Head[report]]]];
+    Print["SingleNodeStoppedTag: ",report[[1]]];KeyDrop[report[[2]],{"Cause"}],
+    True,Return[Print["Resulthead: ",Head[report]]]];
   Print[Grid[({#,data[#]}& /@ Keys[data]),Frame->All,Alignment->Left]]
 ];
 
-Print["\:5df2\:52a0\:8f7d\:89c4\:8303\:7cfb\:6570\:68c0\:67e5 v2.6\:ff1a\:53ea\:5c55\:5f00\:6839\:5f0f\:5355\:9879\:5f0f\:ff1b\:5148 RGZGaugeTestStoppedMerge[60] \:5355\:72ec\:6d4b\:8bd5\:505c\:6b62\:8282\:70b9\:3002"] ;
+Print["Gauge coefficient checker v2.6 loaded; only radical monomials are expanded. First test the stopped node with RGZGaugeTestStoppedMerge[60]."] ;

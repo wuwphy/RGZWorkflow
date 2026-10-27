@@ -1,19 +1,48 @@
 (* SPDX-License-Identifier: GPL-3.0-or-later
    Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
 (* Full conventional amplitudes: no pinch contribution is added twice. *)
-qqJobFingerprint[gauge_,reg_]:=If[!FileExistsQ[FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}]],Missing["VerticesRequired"],Hash[{"RGZQQ/3",FileHash[FileNameJoin[{$packageRoot,"Kernel","Scattering.wl"}],"SHA256"],$Version,modelKey[],navFormulaFingerprint[],FileHash[FileNameJoin[{backendDirectory[],"RGZ_Quark_Amplitude.wl"}],"SHA256"],gauge,reg},"SHA256"]];
+qqJobFingerprint[gauge_,reg_]:=If[!FileExistsQ[FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}]],Missing["VerticesRequired"],Hash[{"RGZQQ/3",workflowFingerprint[],FileHash[FileNameJoin[{$packageRoot,"Kernel","Scattering.wl"}],"SHA256"],$Version,modelKey[],navFormulaFingerprint[],FileHash[FileNameJoin[{backendDirectory[],"RGZ_Quark_Amplitude.wl"}],"SHA256"],gauge,reg},"SHA256"]];
+invalidateQQDerived[] := ($results=KeyDrop[$results,
+ Select[Keys[$results],StringStartsQ[#,"QQ"]&&!MemberQ[{"QQ","QQBeforeGauge","QQProgress"},#]&]]);
+qqSupportedModelQ[c_] := AssociationQ[c]&&Lookup[c,"ClosedQuarkFlavors",None]===2&&
+ TrueQ[Lookup[c,"JacobianGhostIncluded",False]]&&Lookup[c,"QuarkClasses",None]==={1,2}&&
+ Lookup[c,"GhostClasses",None]==={1,2,3,4}&&Lookup[c,"ScalarGhostClasses",None]==={1,4};
+qqJobPacketQ[j_,key_,source_,directory_,content_] := AssociationQ[j]&&
+ Lookup[j,"Schema",None]==="RGZQQ/3"&&qqJobFingerprint[Lookup[j,"Gauge",None],Lookup[j,"RegulatorMass",None]]===key&&Lookup[j,"Fingerprint",None]===key&&Lookup[j,"Directory",None]===directory&&
+ Lookup[j,"MixedSourceHash",None]===source&&Lookup[j,"ModelFingerprint",None]===modelKey[]&&Lookup[j,"ModelContent",None]===content&&
+ TrueQ[Lookup[j,"JacobianGhostIncluded",False]]&&Lookup[j,"ClosedQuarkFlavors",None]===2&&
+ And@@(KeyExistsQ[j,#]&/@{"Gauge","RegulatorMass","Tree","OnShellSigmaV","LoopMeasureConversion","MixedTransverse","MixedSelfEnergy"})&&
+ MemberQ[{True,False},Lookup[j,"SelfPrepared",None]]&&AssociationQ[Lookup[j,"Integrands",None]]&&AssociationQ[Lookup[j,"Reduced",None]]&&
+ And@@(KeyExistsQ[j["Integrands"],#]&/@{"AV1","AV2","Box1","Box2","NAV1","NAV2","QuarkSelfEnergy"})&&
+ AllTrue[Keys[j["Reduced"]],MemberQ[Keys[j["Integrands"]],#]&]&&AssociationQ[Lookup[j,"NAVSource",None]]&&
+ KeyExistsQ[j["NAVSource"],"TransverseIntegrand"]&&Dimensions[j["MixedTransverse"]]==={5,5}&&Hash[j["MixedTransverse"],"SHA256"]===source&&
+ !qqFFInvalidQ[KeyTake[j,{"Gauge","RegulatorMass","Tree","OnShellSigmaV","LoopMeasureConversion","MixedTransverse","NAVSource","Reduced"}]]&&
+ NumericQ[j["LoopMeasureConversion"]]&&TrueQ[j["LoopMeasureConversion"]>0]&&
+ !qqFFInvalidQ[j["Integrands"]/.Missing["DeferredNAV",1|2]->0]&&
+ If[TrueQ[j["SelfPrepared"]],!qqFFInvalidQ[j["MixedSelfEnergy"]],
+  j["MixedSelfEnergy"]===Missing["PrepareSelfFirst"]||!qqFFInvalidQ[j["MixedSelfEnergy"]]];
+qqSessionJobValidQ[j_] := Module[{key,dir,content},
+ If[!AssociationQ[j]||!And@@(KeyExistsQ[j,#]&/@{"Gauge","RegulatorMass","MixedSourceHash"})||
+ !FileExistsQ[FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}]],Return[False]];
+ key=qqJobFingerprint[j["Gauge"],j["RegulatorMass"]];If[!IntegerQ[key],Return[False]];
+ dir=FileNameJoin[{cacheDirectory[],"RGZ_qq_"<>IntegerString[key,16]}];content=modelContent[];
+ TrueQ[qqSupportedModelQ[content]&&qqJobPacketQ[j,key,j["MixedSourceHash"],dir,content]]];
 Options[RGZQQStart]={"Gauge"->0,"RegulatorMass"->0};
-RGZQQStart[seconds_:300,OptionsPattern[]]:=engineEvaluation@Module[{r,mixed,nav,dir,key,probe,gauge=OptionValue["Gauge"],reg=OptionValue["RegulatorMass"],parts,packet,sigma,cached,sourceHash},
+RGZQQStart[seconds_:300,OptionsPattern[]]:=engineEvaluation@Module[{r,mixed,nav,dir,key,probe,gauge=OptionValue["Gauge"],reg=OptionValue["RegulatorMass"],parts,packet,sigma,cached,sourceHash,content},
+ If[!NumericQ[seconds]||!TrueQ[seconds>0],Return[Failure["TimeLimit",<||>]]];
+ r=ready[];If[FailureQ[r],Return[r]];
+ content=modelContent[];If[FailureQ[content],Return[content]];
+ If[!qqSupportedModelQ[content],Return[Failure["UnsupportedQQModelContent",<|"Explanation"->"Full QQ scattering requires the constraint ghost and exactly two dynamical quark flavours."|>]]];
  r=masslessQQReady[];If[FailureQ[r],Return[r]];
  r=loadPTEngine[];If[FailureQ[r],Return[r]];
- If[!FreeQ[{gauge,reg},_Failure|_Missing]||!FreeQ[gauge,RGZWorkflow`Engine`q],Return[Failure["QuarkAmplitudeParameters",<||>]]];
+ If[qqFFInvalidQ[{gauge,reg}]||!FreeQ[{gauge,reg},RGZWorkflow`Engine`q],Return[Failure["QuarkAmplitudeParameters",<||>]]];
  r=engineGet["RGZ_Residual39_M0_Diagnostic.wl"];If[FailureQ[r],Return[r]];
  r=engineGet["RGZ_Quark_Amplitude.wl",False];If[FailureQ[r],Return[r]];
- sigma=RGZWorkflow`Engine`rgzQQSigmaV0[gauge,reg];If[FailureQ[sigma],Return[sigma]];
+ sigma=RGZWorkflow`Engine`rgzQQSigmaV0[gauge,reg];If[qqFFInvalidQ[sigma],Return[Failure["QQResidueIncomplete",<||>]]];
  mixed=RGZResult["Mixed"];
  If[!AssociationQ[mixed]||!KeyExistsQ[mixed,"T"]||Dimensions[mixed["T"]]=!={5,5}||
- Lookup[mixed,"T\:573a\:987a\:5e8f",None]=!=RGZWorkflow`Engine`RGZMixBasis["T"]||
- !FreeQ[mixed["T"],_Failure|_Missing|$Failed|$Aborted],Return[Failure["MixedMatricesRequired",<|"Action"->"RGZMixedResult[] or RGZRestore[]"|>]]];
+ Lookup[mixed,"TFieldOrder",None]=!=RGZWorkflow`Engine`RGZMixBasis["T"]||
+ qqFFInvalidQ[mixed["T"]],Return[Failure["MixedMatricesRequired",<|"Action"->"RGZMixedResult[] or RGZRestore[]"|>]]];
  If[Lookup[mixed,"ModelFingerprint",None]=!=modelKey[]||Lookup[mixed,"ModelContent",None]=!=modelContent[],Return[Failure["MixedModelContentMismatch",<|"Action"->"Recompute the mixed matrices with the current model, including eta and both quark loops."|>]]];
  sourceHash=Hash[mixed["T"],"SHA256"];
  r=timed["QQNAVSource",RGZNAVSum[seconds,"QuarkMass"->0],seconds];If[FailureQ[r],Return[r]];nav=RGZResult["NAV"];
@@ -21,8 +50,10 @@ RGZQQStart[seconds_:300,OptionsPattern[]]:=engineEvaluation@Module[{r,mixed,nav,
  dir=FileNameJoin[{cacheDirectory[],"RGZ_qq_"<>IntegerString[key,16]}];If[!DirectoryQ[dir],CreateDirectory[dir]];
  If[FileExistsQ[FileNameJoin[{dir,"job.wxf"}]],
  cached=Quiet[Check[Import[FileNameJoin[{dir,"job.wxf"}],"WXF"],$Failed]];
- If[AssociationQ[cached]&&Lookup[cached,"Fingerprint",None]===key&&Lookup[cached,"MixedSourceHash",None]===sourceHash,
- storeResult["QQ",cached];Return[<|"Status"->"IntegrandsReady","Name"->"FullQQAmplitude","Reused"->True,"SelfPrepared"->TrueQ[Lookup[cached,"SelfPrepared",False]]|>]]];
+ If[!AssociationQ[cached]||Lookup[cached,"Fingerprint",None]=!=key,Return[Failure["QQJobCacheInvalid",<|"Directory"->dir|>]]];
+ If[Lookup[cached,"MixedSourceHash",None]===sourceHash,
+ If[!qqJobPacketQ[cached,key,sourceHash,dir,content],Return[Failure["QQJobCacheInvalid",<|"Directory"->dir|>]]];
+ invalidateQQDerived[];storeResult["QQ",cached];Return[<|"Status"->"IntegrandsReady","Name"->"FullQQAmplitude","Reused"->True,"SelfPrepared"->TrueQ[Lookup[cached,"SelfPrepared",False]]|>]]];
  probe=timed["FullProbeGraphs",RGZWorkflow`Engine`rgzQQProbeGraphs[dir,seconds],seconds];If[FailureQ[probe],Return[probe]];
  probe=MapAt[RGZWorkflow`Engine`RGZLoopNormalize,probe,{{Key["Tree"]},{Key["AVAndBoxes"]},{Key["QuarkSelfEnergy"]}}];
  probe=RGZWorkflow`Engine`rgzQQNormalizeColours[probe];
@@ -34,8 +65,9 @@ RGZQQStart[seconds_:300,OptionsPattern[]]:=engineEvaluation@Module[{r,mixed,nav,
  "NAVSource"-><|"TransverseIntegrand"->nav["TransverseIntegrand"]|>,"MixedSelfEnergy"->Missing["PrepareSelfFirst"],"SelfPrepared"->False,"Reduced"-><||>,"Status"->"IntegrandsReady",
  "LoopMeasureConversion"->1/(2 Pi)^4,"OnShellSigmaV"->sigma,"GaugeIndependenceVerified"->False,"Renormalization"->"MSbar coupling and on-shell quark residues; not yet evaluated"|>;
  packet=MapAt[(#/.{RGZWorkflow`Engine`\[Alpha]->gauge,RGZWorkflow`Engine`M->reg})&,packet,{{Key["Tree"]},{Key["Integrands"]}}];
+ If[!qqJobPacketQ[packet,key,sourceHash,dir,content],Return[Failure["QQJobIncomplete",<||>]]];
  r=atomicWXF[FileNameJoin[{dir,"job.wxf"}],packet];If[FailureQ[r],Return[r]];
- storeResult["QQ",packet];<|"Status"->"IntegrandsReady","Name"->"FullQQAmplitude","Rows"->7,"File"->FileNameJoin[{dir,"job.wxf"}]|>
+ invalidateQQDerived[];storeResult["QQ",packet];<|"Status"->"IntegrandsReady","Name"->"FullQQAmplitude","Rows"->7,"File"->FileNameJoin[{dir,"job.wxf"}]|>
 ];
 RGZQQRunPart[name_String,seconds_:300]:=engineEvaluation@Module[{job=RGZResult["QQ"],r,input,file,saved,cached,raw},
  If[!AssociationQ[job],Return[Failure["QQStartFirst",<||>]]];
@@ -80,14 +112,20 @@ RGZQQAmplitude[]:=engineEvaluation@Module[{job=RGZResult["QQ"],required,missing,
  storeResult["QQAmplitude",packet];
  KeyTake[packet,{"Status","Process","Renormalized","GaugeIndependenceVerified","OutstandingChecks"}]
 ];
-RGZQQSMatrix[]:=Module[{amp=RGZResult["QQAmplitude"]},
+RGZQQSMatrix[]:=Module[{r=ready[],amp,outstanding,required},
+ If[FailureQ[r],Return[r]];amp=RGZResult["QQAmplitude"];
  If[!AssociationQ[amp],Return[Failure["QQAmplitudeFirst",<|"Action"->"RGZQQAmplitude[]"|>]]];
- (* These checks are deliberately fail-closed. Residual39 alone is not this proof. *)
- If[!TrueQ[amp["Renormalized"]]||!TrueQ[amp["GaugeIndependenceVerified"]],
- Return[Failure["FullSMatrixNotVerified",<|"Renormalized"->amp["Renormalized"],
- "GaugeIndependenceVerified"->amp["GaugeIndependenceVerified"],"OutstandingChecks"->amp["OutstandingChecks"]|>]]];
- <|"Status"->"Verified","Amplitude"->amp["Amplitude"],
- "Convention"->"Sfi = deltafi + i (2 Pi)^4 delta4(Pf-Pi) Amplitude"|>
+ (* No independent full-amplitude certificate producer is implemented in 1.0.0.
+    Imported or manually changed completion flags cannot replace that evidence. *)
+ required={"Independent full-amplitude gauge evidence linked to the current task",
+  "Complete graph and mass-limit UV/IR coverage",
+  "Finite renormalized amplitude with explicit IR conditions and branch prescription"};
+ outstanding=Lookup[amp,"OutstandingChecks",{}];
+ If[!ListQ[outstanding]||!AllTrue[outstanding,StringQ],outstanding={}];
+ Failure["FullSMatrixNotVerified",<|"Renormalized"->Lookup[amp,"Renormalized",False],
+ "GaugeIndependenceVerified"->Lookup[amp,"GaugeIndependenceVerified",False],
+ "CertificationImplemented"->False,"OutstandingChecks"->DeleteDuplicates[Join[outstanding,required]],
+ "Explanation"->"Version 1.0.0 provides partial diagnostics, not a full-amplitude certification pipeline. Completion flags alone cannot certify an S matrix."|>]
 ];
 
 qqSelfProgress[stage_,index_,total_,state_:"Computing"] := (
@@ -124,11 +162,11 @@ RGZQQPrepareSelf[seconds_:600,OptionsPattern[]] := engineEvaluation@Module[
  answer=qqSelfMonitor[CheckAbort[TimeConstrained[Catch[
  (* Only the transverse matrix is used; no duplicated longitudinal matrices. *)
  work=RGZWorkflow`Engine`RGZGaugeStart[<|"T"->job["MixedTransverse"],"L"->ConstantArray[0,{8,8}],
- "T\:573a\:987a\:5e8f"->RGZWorkflow`Engine`RGZMixBasis["T"],"L\:573a\:987a\:5e8f"->RGZWorkflow`Engine`RGZMixBasis["L"]|>];require[work];
+ "TFieldOrder"->RGZWorkflow`Engine`RGZMixBasis["T"],"LFieldOrder"->RGZWorkflow`Engine`RGZMixBasis["L"]|>];require[work];
  Do[qqSelfProgress["Matrix",i,25];
  r=require[qqSelfCheckpoint[dir,"matrix-"<>ToString[i],key,
  RGZWorkflow`Engine`RGZGaugePVPairs[RGZWorkflow`Engine`RGZLoopPoleMasses[
- RGZWorkflow`Engine`RGZPTColour[-work["\:6811\:7ea7\:6a2a\:5411AA"]^2 work["\:81ea\:80fdT\:5206\:9879"][[i]]]]],seconds]];
+ RGZWorkflow`Engine`RGZPTColour[-work["TreeTransverseAA"]^2 work["SelfEnergyTParts"][[i]]]]],seconds]];
  AppendTo[batches,r],{i,25}];
  pairs=require[qqSelfCheckpoint[dir,"pairs",key,
  group=GatherBy[Flatten[batches,1],First];({#[[1,1]],Total[#[[All,2]]]}& /@ group),seconds]];
@@ -159,7 +197,7 @@ RGZQQPrepareSelf[seconds_:600,OptionsPattern[]] := engineEvaluation@Module[
  RGZWorkflow`Engine`RGZLoopPT[RGZWorkflow`Engine`p,RGZWorkflow`Engine`qqMu,RGZWorkflow`Engine`qqNu] Total[values]) /.
  {RGZWorkflow`Engine`p->RGZWorkflow`Engine`qqK3-RGZWorkflow`Engine`qqK1,RGZWorkflow`Engine`M->job["RegulatorMass"]},seconds]];
  AssociateTo[job,{"MixedSelfEnergy"->r,"SelfPrepared"->True}];
- saved=atomicWXF[FileNameJoin[{job["Directory"],"job.wxf"}],job];require[saved];storeResult["QQ",job];
+ saved=atomicWXF[FileNameJoin[{job["Directory"],"job.wxf"}],job];require[saved];invalidateQQDerived[];storeResult["QQ",job];
  <|"Status"->"Complete","Name"->"QQMixedSelf","File"->FileNameJoin[{dir,"connected.wxf"}]|>,stop],
  total,Failure["QQSelfTotalTimeout",<|"Seconds"->total|>]],Failure["QQSelfAborted",<||>]],
  Panel[Row[{Lookup[$qqProgress,"Stage",""],"  ",Lookup[$qqProgress,"Index",0]," / ",Lookup[$qqProgress,"Total",0]}]]];

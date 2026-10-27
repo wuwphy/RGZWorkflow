@@ -1,6 +1,6 @@
 (* SPDX-License-Identifier: GPL-3.0-or-later
    Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
-(* RGZWorkflow 0.3.0 (development snapshot 1): public API. Loading never starts a calculation. *)
+(* RGZWorkflow 1.0.0: public API. Loading never starts a calculation. *)
 BeginPackage["RGZWorkflow`"];
 RGZInitialize::usage = "RGZInitialize[workDirectory] creates isolated Data, Cache and Results directories and selects the bundled model. Option QuarkMasses -> {0,0} specifies the two base-model quark masses; full QQ external states currently remain massless.";
 RGZConfiguration::usage = "RGZConfiguration[] returns the current small configuration association.";
@@ -34,7 +34,7 @@ RGZExportResidual::usage = "RGZExportResidual[] writes a complete 39-row residua
 RGZQQStart::usage = "RGZQQStart[seconds] builds complete conventional massless distinct-flavour quark amplitudes with two dynamical quark flavors, defaulting to alpha=0 and M=0.";
 RGZQQPrepareSelf::usage = "RGZQQPrepareSelf[seconds,\"TotalSeconds\"->3600] prepares the mixed self-energy limits with per-coefficient checkpoints; progress is RGZResult[\"QQProgress\"].";
 RGZQQAmplitude::usage = "RGZQQAmplitude[] assembles all completed conventional graphs and four on-shell external residues; reports bare, unverified status explicitly.";
-RGZQQSMatrix::usage = "RGZQQSMatrix[] requires independent full-amplitude gauge and renormalization verification; fails while either proof is missing.";
+RGZQQSMatrix::usage = "RGZQQSMatrix[] validates linked current-source gauge, mass-limit, UV/IR and finite evidence before returning a conditional partonic amplitude. Flags alone cannot certify it.";
 RGZLoadFeynHelpers::usage = "RGZLoadFeynHelpers[] loads the installed Package-X interface in a FeynCalc session; no calculation is started.";
 RGZQQUVIRIntegral::usage = "RGZQQUVIRIntegral[expr, loop, seconds] separates UV/IR and finite parts of a supplied unreduced real-mass integral, retaining logarithmic scaleless integrals. ImplicitPrefactor defaults to 1/(2 Pi)^(4-2 Epsilon). This does not certify the full amplitude.";
 RGZQQScalelessLedger::usage = "RGZQQScalelessLedger[seconds] restores UV/IR transfers of explicit scaleless tensor cores in all six Landau M=0 probe graphs without rewriting graph caches.";
@@ -73,6 +73,26 @@ RGZQQGaugeEarlyCheck::usage = "Reduce the combined prepared six-diagram gauge di
 RGZQQGaugeCheck::usage = "Check every full one-loop color-spin-PV gauge difference at symbolic alpha.";
 RGZQQWardCoverage::usage = "Compare the full gauge difference with the complete existing pinch combination, then test its gauge difference; not a functional ST proof.";
 RGZQQGaugeRestore::usage = "Restore the QQ task saved before the symbolic-gauge calculation.";
+RGZExtraTreeAudit::usage = "RGZExtraTreeAudit[seconds] independently reads eta, omega, zeta and both quark quadratic terms in a FeynRules session and checks Gaussian/Clifford inverses.";
+RGZCheckExtraPropagators::usage = "RGZCheckExtraPropagators[] validates the saved current-model independent FR extra-field audit; it does not claim a separate FA propagator comparison.";
+RGZOneLoopCoverage::usage = "RGZOneLoopCoverage[seconds] inventories action vertices through four legs, checks export signatures and records one-loop truncation/topology requirements in the FR session.";
+RGZCheckOneLoopCoverage::usage = "RGZCheckOneLoopCoverage[] validates the current action-side vertex/truncation inventory; independent graph bijection remains explicit.";
+RGZQQMixedUVIRLedger::usage = "RGZQQMixedUVIRLedger[seconds, MatrixManifest -> file] replays saved pre-TID mixed kernels to record scaleless UV/IR transfers without rewriting source caches; graph/PV coverage is reported separately.";
+RGZQQCompleteMassLedger::usage = "RGZQQCompleteMassLedger[] links matching raw bounds, general mass-region cancellation, weighted matrix transfers and the probe/MSbar ledger into a new evidence packet; never edits source amplitudes.";
+RGZQQRawMassPoleAudit::usage = "RGZQQRawMassPoleAudit[seconds] independently bounds the original pre-limit coefficients in e=M^2 without reading saved M0-series slots.";
+RGZQQWeightedUVIRLedger::usage = "RGZQQWeightedUVIRLedger[seconds, MatrixManifest -> file] replays graph-weighted pre-TID and pre-PV units and verifies graph, sector and matrix reconstruction.";
+RGZQQMassRegionMatch::usage = "RGZQQMassRegionMatch[seconds] matches regulator tadpoles with bubble soft regions and quadratic hard corrections, with source-bound checkpoints; it does not certify full scaleless coverage.";
+RGZQQMassLimitLedger::usage = "RGZQQMassLimitLedger[seconds] audits saved pre-limit mixed-self pairs and discarded regulator tadpoles with explicit limit-order diagnostics; does not infer complete IR certification.";
+RGZQQFiniteAudit::usage = "RGZQQFiniteAudit[seconds] independently reconstructs common-epsilon finite form factors and tree-derived local counterterms, preserving all source packets.";
+RGZQQCertification::usage = "RGZQQCertification[] links compatible bare, MSbar, symbolic gauge and mass-limit reports and saves an explicit list of outstanding checks; never upgrades missing evidence.";
+RGZQQScalarPoleAudit::usage = "RGZQQScalarPoleAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file] records representation-dependent opposite UV/IR pole transfers; never certifies the new finite amplitude.";
+RGZQQScalarFormFactors::usage = "RGZQQScalarFormFactors[seconds, File -> pureLoopFF] applies D-dimensional tensor identities and collects scalar PV coefficients in a separate source-bound packet.";
+RGZQQScalarBasisAudit::usage = "RGZQQScalarBasisAudit[seconds, ScalarFile -> file] proves generic one-loop sector irreducibility using proper critical points; does not claim complete cross-family independence.";
+RGZQQScalarFactorRows::usage = "RGZQQScalarFactorRows[seconds, File -> scalarColorFile, RowSeconds -> 120] extracts common scalar factors from singlet/octet finite rows and checks every reduced coefficient. Original coefficient pairs remain available.";
+RGZQQScalarColorSimplify::usage = "RGZQQScalarColorSimplify[seconds, File -> scalarCompactFile, CoefficientSeconds -> 30] recombines direct/crossed color coefficients into exact t-channel singlet/octet form and selects shorter polynomial representations. Source reports remain unchanged.";
+RGZQQScalarFiniteSimplify::usage = "RGZQQScalarFiniteSimplify[seconds, File -> finiteAuditFile, CoefficientSeconds -> 30] separately simplifies finite coefficients in exact squared-pole coordinates; CompactFunctionArguments and HornerCoefficients default to True. Integral parameter values and source certification are preserved.";
+RGZQQScalarFiniteAudit::usage = "RGZQQScalarFiniteAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file, ReferenceMSbarFile -> file, ReferenceFiniteAuditFile -> file, PoleAuditFile -> file] verifies the epsilon-dependent finite basis transformation without changing certification.";
+RGZPaperResult::usage = "RGZPaperResult[] reads the author-supplied inert eight-row finite one-loop table and its domain/normalization metadata. It does not certify the current task.";
 Begin["`Private`"];
 $packageRoot = DirectoryName[DirectoryName[$InputFileName]];
 If[!AssociationQ[$config], $config = <||>];
@@ -80,7 +100,7 @@ If[!AssociationQ[$results], $results = <||>];
 If[!AssociationQ[$stageStatus], $stageStatus = <||>];
 If[!AssociationQ[$extensions], $extensions = <||>];
 If[!ListQ[$loaded], $loaded = {}];
-$RGZWorkflowVersion = "0.3.0";
-Scan[Get, FileNameJoin[{$packageRoot,"Kernel",#}]& /@ {"Core.wl","Tree.wl","Checks.wl","Identities.wl","Loops.wl","Scattering.wl","ScatteringProgress.wl","ScatteringFormFactors.wl","ScatteringRecovery.wl","ScatteringGauge.wl","ScatteringMeasure.wl","ScatteringCoefficient.wl","ScatteringPVChecks.wl","ScatteringGaugePreparation.wl","ScatteringGaugeEarly.wl","ScatteringProbeConvention.wl","ScatteringSpectralBranches.wl","ScatteringRenormalization.wl","Optional.wl"}];
+$RGZWorkflowVersion = "1.0.0";
+Scan[Get, FileNameJoin[{$packageRoot,"Kernel",#}]& /@ {"Core.wl","Tree.wl","TreeCoverage.wl","Checks.wl","Identities.wl","Loops.wl","Scattering.wl","ScatteringProgress.wl","ScatteringFormFactors.wl","ScatteringRecovery.wl","ScatteringGauge.wl","ScatteringMeasure.wl","ScatteringCoefficient.wl","ScatteringPVChecks.wl","ScatteringGaugePreparation.wl","ScatteringGaugeEarly.wl","ScatteringProbeConvention.wl","ScatteringSpectralBranches.wl","ScatteringRenormalization.wl","ScatteringCertification.wl","ScatteringMassRegions.wl","ScatteringRawMassAudit.wl","ScatteringWeightedLedger.wl","ScatteringMassCompletion.wl","ScatteringScalarFormFactors.wl","ScatteringScalarAudits.wl","ScatteringScalarCompact.wl","ScatteringScalarPrefactors.wl","EvidenceValidation.wl","PaperResult.wl","Optional.wl"}];
 End[];
 EndPackage[];

@@ -10,6 +10,8 @@ Module[{packageFile=FileNameJoin[{DirectoryName[$InputFileName],"Kernel","RGZWor
  Scan[Function[name,If[Names["Global`"<>name]=!={},
   ToExpression["Global`"<>name,InputForm,Function[sym,
    If[OwnValues[sym]==={}&&DownValues[sym]==={}&&UpValues[sym]==={}&&SubValues[sym]==={}&&NValues[sym]==={}&&DefaultValues[sym]==={}&&FormatValues[sym]==={}&&Options[sym]==={}&&Attributes[sym]==={},Remove[sym]],HoldAll]]]],names];
- Get[packageFile]
+ Get[packageFile];
+ Get[FileNameJoin[{DirectoryName[packageFile],"..","Tools","DiagnosticsCompatibility.wl"}]];
+ Get[FileNameJoin[{DirectoryName[packageFile],"..","Tools","WeightedAuditResume.wl"}]]
 ];
 End[];

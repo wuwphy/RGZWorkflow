@@ -1,0 +1,26 @@
+{
+  "Schema": "RGZPaperCompanion/1",
+  "Title": "Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework",
+  "PaperDate": "2026-10-26",
+  "MainPDFSHA256": "4704fef393ced2aae4c26e8bf66f52ef95f00e10fab024b06c873045d43336f2",
+  "SupplementPDFSHA256": "195dfc04b83782d4ece49d11caf6d556ec9f303a2e5ad4675b791e3309a38d24",
+  "FormFactorsSHA256": "ff920d329181c07eefba8785b21d0cbbb84310a7836eeb7a06d6d882dd4cb21e",
+  "SourceKind": "Author-supplied exact electronic table accompanying the referenced PDFs",
+  "ReferenceOnly": true,
+  "ExpectedRows": 8,
+  "ExpectedCoefficients": 144,
+  "ExpectedFunctionsIncludingRational": 31,
+  "OriginalScalarInventory": {
+    "A0": 3,
+    "B0": 12,
+    "C0": 9,
+    "D0": 6
+  },
+  "Scope": "Two dynamical flavors, distinct massless external quarks, alpha=0, M->0+, one-loop finite correction excluding the Born term",
+  "BranchPrescription": "rMinus/rPlus use the square root continued from the declared Euclidean domain; denominators carry +i0; logarithms and finite functions remain on the same sheet. Crossing a Landau singularity requires a separate boundary analysis.",
+  "Domain": "Nonzero nondegenerate internal squared masses; positive real parts in the Euclidean endpoint domain; nonexceptional s,t,u with u=-s-t; positive MSbar scale squared. Full live-task conditions must be retained from the linked evidence.",
+  "Normalization": "Prefactors already include the common loop normalization; do not multiply by another 1/(16 Pi^2). All integral mass arguments are squared masses.",
+  "Indexing": "Function index j refers to Functions[[j+1]]; j=0 is the rational remainder.",
+  "ColorConvention": "ColorID 1 is delta31 delta42; ColorID 2 is T^a31 T^a42, the singlet/octet basis.",
+  "DistributionNote": "Author expressions preserved; GPL SPDX comment prepended."
+}

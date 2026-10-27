@@ -22,22 +22,24 @@ rgzNAVWardSplit[tensor_]:=Module[{poly,right,left,remainder,pinched,restore,colo
  <|"PinchTensor"->pinched,"GenuineVertexTensor"->(remainder/.restore),"RightCoefficient"->(right/.restore),"LeftCoefficient"->(left/.restore),"ExactPolynomialReconstruction"->TrueQ[Cancel[Together[poly-rgzNAVRQ right-rgzNAVSL left-remainder]]===0]|>
 ];
 
-rgzNAVPinchBuild[nav_,dir_,seconds_]:=Module[{rows={},record,split,kernel,file,packet,r},
+rgzNAVPinchBuild[nav_,dir_,seconds_]:=Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{rows={},record,split,kernel,file,packet,r},
  Do[file=FileNameJoin[{dir,"ward-"<>ToString[n]<>".wxf"}];
  If[FileExistsQ[file],record=Import[file,"WXF"],
  split=TimeConstrained[rgzNAVWardSplit[nav["Connections"][[n]]["TransverseTensor"]],seconds,$TimedOut];
- If[split===$TimedOut,Return[Failure["NAVWardTimeout",<|"Connection"->n|>]]];
- If[FailureQ[split],Return[split]];
- If[!TrueQ[split["ExactPolynomialReconstruction"]],Return[Failure["NAVWardReconstruction",<|"Connection"->n|>]]];
+ If[split===$TimedOut,Throw[Failure["NAVWardTimeout",<|"Connection"->n|>],rgzFunctionReturnTag]];
+ If[FailureQ[split],Throw[split,rgzFunctionReturnTag]];
+ If[!TrueQ[split["ExactPolynomialReconstruction"]],Throw[Failure["NAVWardReconstruction",<|"Connection"->n|>],rgzFunctionReturnTag]];
  kernel=TimeConstrained[FCE[Contract[FCI[I SMP["g_s"] SUNN (split["PinchTensor"]/.q->-q)] FCI[RGZLoopPT[p,\[Mu],rgzNAVPinchMu]]]/.rgzNAVNu->\[Nu]],seconds,$TimedOut];
- If[kernel===$TimedOut,Return[Failure["NAVPinchProjectionTimeout",<|"Connection"->n|>]]];
+ If[kernel===$TimedOut,Throw[Failure["NAVPinchProjectionTimeout",<|"Connection"->n|>],rgzFunctionReturnTag]];
  record=<|"Connection"->n,"Fields"->nav["Connections"][[n]]["Fields"],"Kernel"->kernel,"ExactPolynomialReconstruction"->True|>;
- r=RGZWorkflow`Private`atomicWXF[file,record];If[FailureQ[r],Return[r]]];
+ r=RGZWorkflow`Private`atomicWXF[file,record];If[FailureQ[r],Throw[r,rgzFunctionReturnTag]]];
+ If[!TrueQ[RGZWorkflow`Private`navPinchConnectionQ[record,n,nav["Connections"][[n]]["Fields"]]],Throw[Failure["NAVWardCacheInvalid",<|"File"->file,"Connection"->n|>],rgzFunctionReturnTag]];
  AppendTo[rows,record];Print["NAV Ward ",n," / ",nav["ConnectionCount"]],{n,nav["ConnectionCount"]}];
  packet=<|"Schema"->"RGZNAVPinch/1","ConnectionCount"->Length[rows],"Connections"->rows,"Kernel"->Total[Lookup[rows,"Kernel"]],
  "Representation"->"Rational","Meaning"->"Two-sided on-shell quark Ward pinch of the complete NAV field matrix; replaces the AA NAV contribution."|>;
  r=RGZWorkflow`Private`atomicWXF[FileNameJoin[{dir,"result.wxf"}],packet];If[FailureQ[r],r,packet]
-];
+],rgzFunctionReturnTag]];
 (* Many matrix connections share identical scalar pole factors. Memoize
    exact partial fractions within one split; never bypass reconstruction. *)
 rgzNAVSplit[input_]:=Module[{memo=<||>},

@@ -1,6 +1,9 @@
 (* SPDX-License-Identifier: GPL-3.0-or-later
    Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
 (* Independent benchmark and actual FeynRules extraction are different results. *)
+treeStageFailure[name_,failure_Failure] := (
+ AssociateTo[$stageStatus,name->Join[Lookup[$stageStatus,name,<||>],
+  <|"Status"->"Stopped","FailureTag"->failure[[1]]|>]];failure);
 RGZTreeBenchmark[seconds_:60] := Module[{r,kt,kl,dt,dl,checks,s0,m0,u,g,a,mm,h,k,q,packet},
  h=g^2/2;k=s0-u^2;q=Sqrt[s0];
  kt={{m0^2-s0,h,h,-h,-h},{h,0,k,0,0},{h,k,0,0,0},{-h,0,0,0,k},{-h,0,0,k,0}};
@@ -19,21 +22,26 @@ RGZTreeBenchmark[seconds_:60] := Module[{r,kt,kl,dt,dl,checks,s0,m0,u,g,a,mm,h,k
 ];
 RGZExtractTree[seconds_:120] := Module[{r,packet,file},
  r=ready[];If[FailureQ[r],Return[r]];r=frReady[];If[FailureQ[r],Return[r]];
+ $results=KeyDrop[$results,{"Tree"}];Clear[RGZWorkflow`Engine`rgzExtractedTree];
  r=timed["ExtractTree",frEvaluation[engineGet["ExtractTree.wl",False]],seconds];If[FailureQ[r],Return[r]];
  packet=RGZWorkflow`Engine`rgzExtractedTree;
- If[!AssociationQ[packet]||Dimensions[packet["KT"]]=!={5,5}||Dimensions[packet["KL"]]=!={8,8},Return[Failure["InvalidExtractedKernel",<||>]]];
- If[packet["CheckT"]=!=ConstantArray[0,{5,5}]||packet["CheckL"]=!=ConstantArray[0,{8,8}],Return[Failure["ExtractedInverseFailed",<||>]]];
+ If[!AssociationQ[packet]||!And@@(KeyExistsQ[packet,#]&/@{"KT","KL","DT","DL","CheckT","CheckL","AA_T","AA_L"})||
+ qqFFInvalidQ[packet]||!FreeQ[packet,_Inverse|_LinearSolve]||
+ Dimensions[packet["KT"]]=!={5,5}||Dimensions[packet["KL"]]=!={8,8}||
+ Dimensions[packet["DT"]]=!={5,5}||Dimensions[packet["DL"]]=!={8,8},Return[treeStageFailure["ExtractTree",Failure["InvalidExtractedKernel",<||>]]]];
+ If[packet["CheckT"]=!=ConstantArray[0,{5,5}]||packet["CheckL"]=!=ConstantArray[0,{8,8}],Return[treeStageFailure["ExtractTree",Failure["ExtractedInverseFailed",<||>]]]];
  packet=Join[packet,<|"Source"->"FeynRulesQuadraticTerms","ModelFingerprint"->modelKey[]|>];
- file=FileNameJoin[{dataDirectory[],"Tree.wxf"}];r=atomicWXF[file,packet];If[FailureQ[r],Return[r]];
+ file=FileNameJoin[{dataDirectory[],"Tree.wxf"}];r=atomicWXF[file,packet];If[FailureQ[r],Return[treeStageFailure["ExtractTree",r]]];
  storeResult["Tree",packet];<|"Status"->"Complete","Name"->"Tree","Dimensions"->{{5,5},{8,8}},"File"->file|>
 ];
 RGZExportVertices[seconds_:300] := Module[{r,vertices,file,metadata},
  r=ready[];If[FailureQ[r],Return[r]];r=frReady[];If[FailureQ[r],Return[r]];
+ $results=KeyDrop[$results,{"FRVerticesMetadata"}];
  r=timed["ExportVertices",frEvaluation[engineCode["FeynmanRules[LTotal,FlavorExpand->True,MinParticles->2,MaxParticles->4,ConservedQuantumNumbers->False,ScreenOutput->False]"]],seconds];
  If[FailureQ[r],Return[r]];vertices=r;
- If[!ListQ[vertices]||!AllTrue[vertices,MatchQ[#,{_List,_}]&]||Length[vertices]===0,Return[Failure["InvalidFRVertices",<||>]]];
- file=FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}];r=atomicWXF[file,vertices];If[FailureQ[r],Return[r]];
- metadata=<|"ModelFingerprint"->modelKey[],"Count"->Length[vertices],"LegCounts"->Counts[Length[#[[1]]]&/@vertices]|>;
- r=atomicWXF[FileNameJoin[{dataDirectory[],"VerticesMetadata.wxf"}],metadata];If[FailureQ[r],Return[r]];
+ If[!ListQ[vertices]||!AllTrue[vertices,MatchQ[#,{_List,_}]&]||Length[vertices]===0||qqFFInvalidQ[vertices],Return[treeStageFailure["ExportVertices",Failure["InvalidFRVertices",<||>]]]];
+ file=FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}];r=atomicWXF[file,vertices];If[FailureQ[r],Return[treeStageFailure["ExportVertices",r]]];
+ metadata=<|"ModelFingerprint"->modelKey[],"VerticesSHA256"->FileHash[file,"SHA256"],"Count"->Length[vertices],"LegCounts"->Counts[Length[#[[1]]]&/@vertices]|>;
+ r=atomicWXF[FileNameJoin[{dataDirectory[],"VerticesMetadata.wxf"}],metadata];If[FailureQ[r],Return[treeStageFailure["ExportVertices",r]]];
  storeResult["FRVerticesMetadata",metadata];<|"Status"->"Complete","Name"->"FRVertices","Rows"->Length[vertices],"Statistics"->metadata["LegCounts"],"File"->file|>
 ];

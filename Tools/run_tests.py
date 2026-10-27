@@ -4,11 +4,14 @@
 import argparse, datetime, json, os, pathlib, re, subprocess, sys, tempfile, time
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 SUITES={
- 'core':['RunTests.wls','QuarkMasses.wls','ResultGuards.wls'],
- 'algebra':['QuarkCoefficientGrouped.wls','QuarkCoefficientNumerator.wls','QuarkCoefficientSubgroups.wls','QuarkSpectralBranches.wls'],
- 'integration':['FeynRules.wls','ReleaseTreeChecks.wls'],
- 'physics':['QuarkScattering.wls','QuarkFormFactors.wls','QuarkLoopOrder.wls','QuarkGaugeEarly.wls','QuarkMSbar.wls'],
+ 'core':['RunTests.wls','DiagnosticsCompatibility.wls','DiagnosticsNotebook.wls','PaperResult.wls','EvidenceValidation.wls'],
+ 'algebra':['WeightedAuditResume.wls','WeightedScalarIdentity.wls'],
 }
+
+def work_is_isolated(work):
+ work=work.resolve();root=ROOT.resolve();production=(root/'Work').resolve()
+ return all(work!=p and p not in work.parents and work not in p.parents for p in (root,production))
+
 def main():
  p=argparse.ArgumentParser(description=__doc__)
  p.add_argument('--kernel',required=True,help='WolframKernel executable (no shell command)')
@@ -19,8 +22,7 @@ def main():
  if args.timeout<=0:p.error('--timeout must be positive')
  suites=list(SUITES) if args.suite=='all' else [args.suite]
  work=args.work.resolve() if args.work else pathlib.Path(tempfile.mkdtemp(prefix='rgz-release-integration-'))
- if work==ROOT/'Work' or (ROOT/'Work') in work.parents:p.error('Production Work is forbidden')
- if args.suite=='physics' and not (work/'Data/RGZ_all_raw.wxf').is_file():p.error('physics needs --work with isolated integration exports, or use --suite all')
+ if not work_is_isolated(work):p.error('Work must be isolated from the source tree and production Work, including aliases and ancestors')
  stamp=datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S')
  out=ROOT/'Evidence/runs'/f'{stamp}-{os.getpid()}';out.mkdir(parents=True)
  env=dict(os.environ,RGZ_TEST_WORK=str(work),RGZ_TEST_CORES='0',RGZ_TEST_ENVIRONMENT_RECORD=str(out/'environment.json'))
@@ -28,9 +30,8 @@ def main():
  def sanitize(text):
   for value,alias in [(str(ROOT),'${PROJECT}'),(str(work),'${TEST_WORK}'),(tempfile.gettempdir(),'${TEMP}'),(str(pathlib.Path.home()),'${HOME}')]:text=text.replace(value,alias)
   return re.sub(r'/private/var/' + r'folders/[^\s,\]\}"<>]+','${TEMP}',text)
- report={'release':'0.3.0-dev.1','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
+ report={'release':'1.0.0','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
  tests=[]
- if 'physics' in suites:tests.append(('environment','Tests/ReleaseEnvironment.wls'))
  for suite in suites:
   tests.extend((suite,'Tests/'+f) for f in SUITES[suite])
  tests.append(('syntax','Tools/check_sources.wls'))

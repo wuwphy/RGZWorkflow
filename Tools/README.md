@@ -1,10 +1,8 @@
-# Release tools
+# Tools
 
-- `check_release.py`: read-only structural, link, source privacy, license, loader and manifest checks; Python standard library.
-- `run_tests.py`: curated fresh-kernel test tiers and sanitized logs/JSON; explicit kernel executable required.
-- `check_sources.wls`: syntax-only parsing of all shipped Wolfram/model/test sources.
-- `check_notebooks.wls`: held input parsing, public API lookup and zero saved-output checks; no notebook cell evaluation.
-- `update_manifest.py --write`: explicitly refresh hashes after reviewing intended source/evidence edits.
-- `build_release.py`: read-only package collection into deterministic ZIP plus SHA256; excludes work/caches/run logs. Does not upload or initialize Git.
-
-Do not run legacy audit scripts against production Work directories. See [Development](../Documentation/Development.md).
+- `DiagnosticsCompatibility.wl`, `WeightedAuditResume.wl`: required runtime audit adapters, loaded by the root entry point. Their bytes are preserved to retain existing audit identities.
+- `build_examples.wls`, `diagnostics_cells.json`: rebuild the two clean input-only notebooks. Back up evaluated notebooks before using the builder.
+- `compare_paper_result.wls`: exact comparison of the computed scalar result with the inert paper table.
+- `run_tests.py`: essential fresh-kernel checks in isolated work directories.
+- `check_sources.wls`, `check_notebooks.wls`: source syntax and clean notebook validation.
+- `check_release.py`, `update_manifest.py --write`, `build_release.py`: validate files and create the source ZIP. Work, artifacts and generated run logs are excluded.

@@ -9,7 +9,8 @@ qqIRLinearMoment[a_,b_,A_,B_] := Module[{y,poly,quot,rem},
  quot=PolynomialQuotient[poly,A+B y,y];rem=PolynomialRemainder[poly,A+B y,y];
  Total[Table[Coefficient[quot,y,k]/(k+1),{k,0,Max[0,Exponent[quot,y]]}]]+
  rem (Log[A+B]-Log[A])/B];
-qqIREndpointCertificate[m_] := Module[{v=qqPVParse[m],n,ind,j,counts,rank,dist,zeros,mass,conditions={},candidates={},edge,comp,A,B,value,method,k,a,b},
+qqIREndpointCertificate[m_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{v=qqPVParse[m],n,ind,j,counts,rank,dist,zeros,mass,conditions={},candidates={},edge,comp,A,B,value,method,k,a,b},
  If[v===$Failed,Return[$Failed]];{ind,edge,mass}=v;n=Length[mass];
  If[!MemberQ[{2,3,4},n]||Length[edge]=!=n(n-1)/2,Return[$Failed]];
  If[ind==={0},ind={}];
@@ -25,7 +26,7 @@ qqIREndpointCertificate[m_] := Module[{v=qqPVParse[m],n,ind,j,counts,rank,dist,z
     a massless vertex exclude massive soft thresholds in this domain. *)
  Do[If[!MemberQ[zeros,k],AppendTo[conditions,Re[mass[[k]]]>0]],{k,n}];
  Do[If[!MemberQ[zeros,k],A=mass[[k]]-dist[[z,k]];
-   If[TrueQ[A===0],Return[$Failed]];AppendTo[conditions,Re[A]>0]],{z,zeros},{k,n}];
+   If[TrueQ[A===0],Throw[$Failed,rgzFunctionReturnTag]];AppendTo[conditions,Re[A]>0]],{z,zeros},{k,n}];
  If[Length[zeros]===2,
   {a,b}=zeros;
   If[TrueQ[dist[[a,b]]===0],AppendTo[candidates,zeros],AppendTo[conditions,Unequal[dist[[a,b]],0]]]];
@@ -43,7 +44,7 @@ qqIREndpointCertificate[m_] := Module[{v=qqPVParse[m],n,ind,j,counts,rank,dist,z
  If[!TrueQ[B===0],conditions=DeleteDuplicates[Append[conditions,Unequal[B,0]]]];
  value=(-1)^rank qqIRLinearMoment[counts[[a]],counts[[b]],A,B]/FeynCalc`EpsilonIR;
  <|"IR"->value,"IRMethod"->"TriangleMasslessFaceMoment","IRConditions"->conditions,
- "IRDerivation"->"(-1)^R/epsilon_IR times integral_0^1 y^a(1-y)^b/(A+B y) dy; principal log difference on Re(A),Re(A+B)>0"|>];
+ "IRDerivation"->"(-1)^R/epsilon_IR times integral_0^1 y^a(1-y)^b/(A+B y) dy; principal log difference on Re(A),Re(A+B)>0"|>],rgzFunctionReturnTag]];
 
 (* Keep logarithms as independent atoms. Rational cancellation between
    masters must happen before interpreting a large pole as a residual. *)

@@ -3,6 +3,7 @@
 (* Guard old completion flags without changing physical diagram fingerprints. *)
 DownValues[qqFFAssembleBare]=DownValues[RGZQQAmplitude]/.RGZQQAmplitude->qqFFAssembleBare;
 RGZQQAmplitude[] := Module[{job=RGZResult["QQ"],bad},
+ If[AssociationQ[job]&&(!And@@(KeyExistsQ[job,#]&/@{"Tree","OnShellSigmaV","Reduced"})||!AssociationQ[job["Reduced"]]||(TrueQ[Lookup[job,"SelfPrepared",False]]&&!KeyExistsQ[job,"MixedSelfEnergy"])),Return[Failure["QQAmplitudeIncomplete",<|"Action"->"RGZQQStart[] and recompute missing components."|>]]];
  If[AssociationQ[job],bad=Select[Join[{"Tree","OnShellSigmaV"},If[TrueQ[Lookup[job,"SelfPrepared",False]],{"MixedSelfEnergy"},{}]],
  KeyExistsQ[job,#]&&qqFFInvalidQ[job[#]]&];
  If[AssociationQ[Lookup[job,"Reduced",None]],bad=Join[bad,Select[Keys[job["Reduced"]],qqFFInvalidQ[job["Reduced"][#]]&]]];
@@ -49,13 +50,13 @@ RGZQQRepairIncomplete[seconds_:600] := engineEvaluation@Block[{$IterationLimit=I
  r=loadPTEngine[];If[FailureQ[r],Return[r]];
  If[!TrueQ[Lookup[job,"SelfPrepared",False]]||qqFFInvalidQ[job["MixedSelfEnergy"]],
  r=qqRepairSelfFromFinite[job,seconds];If[FailureQ[r]||qqFFInvalidQ[r],Return[If[FailureQ[r],r,Failure["QQSelfIncomplete",<||>]]]];
- AssociateTo[job,{"MixedSelfEnergy"->r,"SelfPrepared"->True}];storeResult["QQ",job];AppendTo[repaired,"MixedSelfEnergy"]];
+ AssociateTo[job,{"MixedSelfEnergy"->r,"SelfPrepared"->True}];invalidateQQDerived[];storeResult["QQ",job];AppendTo[repaired,"MixedSelfEnergy"]];
  Do[file=FileNameJoin[{job["Directory"],name<>"-reduced.wxf"}];
  valid=Function[p,AssociationQ[p]&&Lookup[p,"Fingerprint",None]===job["Fingerprint"]&&Lookup[p,"Part",None]===name&&!qqFFInvalidQ[Lookup[p,"Expression",$Failed]]];
  If[qqRepairArchive[file,valid]||!KeyExistsQ[job["Reduced"],name]||qqFFInvalidQ[job["Reduced"][name]],AppendTo[bad,name]],
  {name,{"AV1","AV2","Box1","Box2","NAV1","NAV2"}}];
  If[Join[bad,repaired]==={},Return[<|"Status"->"Complete","Name"->"QQRecovery","Statistics"-><|"Reused"->True,"Repaired"->{}|>|>]];
- $results=KeyDrop[$results,{"QQAmplitude","QQFormFactors"}];
+ invalidateQQDerived[];
  r=atomicWXF[FileNameJoin[{job["Directory"],"job.wxf"}],job];If[FailureQ[r],Return[r]];
  Do[r=RGZQQRunPart[name,seconds];If[FailureQ[r],Break[]];AppendTo[repaired,name],{name,bad}];
  If[FailureQ[r],Return[r]];

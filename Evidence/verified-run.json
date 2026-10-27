@@ -1,0 +1,205 @@
+{
+  "Schema": "RGZVerifiedRunSummary/1",
+  "Release": "1.0.0",
+  "Date": "2026-10-27",
+  "ReadOnlySummary": true,
+  "Scope": "Saved current-workspace run within its declared nonzero, nondegenerate mass domain, nonexceptional kinematics and analytic branch. This summary does not initialize or certify a new Work directory.",
+  "Certification": {
+    "Status": "CertifiedWithinDeclaredDomain",
+    "FullSMatrixVerified": true,
+    "OutstandingChecks": [],
+    "SourceFingerprint": 81218636053516518294877454586646208059890807642593349469848912179547470967678,
+    "ModelFingerprint": 87897440242196603755017976133565759116789722358000046350304798534370613035961,
+    "Checks": {
+      "CurrentModel": true,
+      "SameBareSource": true,
+      "SymbolicGaugeZero": true,
+      "GaugeSourceCurrent": true,
+      "GaugeMixedSourceMatches": true,
+      "UVClosed": true,
+      "IRClosed": true,
+      "FinitePartBuilt": true,
+      "AllRowPolesZero": true,
+      "MixedMassLedgerComplete": true,
+      "FullScalelessLedgerComplete": true,
+      "FiniteConventionIndependentlyVerified": true,
+      "DomainDeclared": true,
+      "LandauM0Scope": true,
+      "BareLoopPayloadMatchesMSbar": true,
+      "BareTreePayloadMatchesMSbar": true,
+      "FiniteAuditRowsConsistent": true,
+      "GaugeComparisonRowsConsistent": true,
+      "FinitePayloadsValid": true,
+      "CurrentBareMeasure": true,
+      "FiniteAmplitudeAssemblyConsistent": true,
+      "BareJobSourceCurrent": true,
+      "GaugePreparationSourceCurrent": true,
+      "MassEvidenceCurrent": true
+    },
+    "BranchPrescription": "Continue the RGZ square root and logarithms from the declared Euclidean domain on a common sheet with +i0; crossing a Landau singularity requires a separate boundary analysis.",
+    "IRValidityConditionsWL": "{Re[RGZWorkflow`Engine`\u03bc^2] > 0, Re[-RGZWorkflow`Engine`qqT + RGZWorkflow`Engine`\u03bc^2] > 0, Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2]/2 > 0, Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2)/2] > 0, -Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2]/2 > 0, -Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2)/2] > 0, RGZWorkflow`Engine`qqT != 0, RGZWorkflow`Engine`qqS != 0, -RGZWorkflow`Engine`qqS - RGZWorkflow`Engine`qqT != 0, -RGZWorkflow`Engine`qqT != 0, RGZWorkflow`Parameters`muR2 > 0, (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2)/2 - I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4] != 0, (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`\u03bc^2)/2 + I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`\u03bc^2)^2/4] != 0}",
+    "Artifact": {
+      "Path": "Work/Cache/qq-certification-4314dc1e1e8308ec112b02694033245132c31dce96c3644241356885fe2c1516.wxf",
+      "SHA256": "16544c7857492179de39fbb6f15a84b1d6910042baeba365a9ff35792b7a32a5"
+    }
+  },
+  "WeightedAudit": {
+    "Status": "WeightedGraphCoverageVerified",
+    "RecordsAudited": 256,
+    "GraphsAudited": 2890,
+    "SourceGraphCoverageVerified": true,
+    "PrePVCoverageVerified": true,
+    "MatrixSourceMatchesQQ": true,
+    "AllWeightedTransfersZero": true,
+    "Artifact": {
+      "Path": "Work/Cache/qq-weighted-ledger-260910d55beef8fa75e11e5fbd43fcd1d3badd36bda02541de283c4829036c22/weighted-ledger.wxf",
+      "SHA256": "f4c32a474453020003e1cb5c13228b526f7e272639f00c05b533b2010ec4c187"
+    }
+  },
+  "MassLedger": {
+    "Status": "MassAndScalelessCoverageVerified",
+    "MassLimitUVIRCertified": true,
+    "ScalelessLedgerComplete": true,
+    "OutstandingChecks": [],
+    "MissingEvidence": [],
+    "Checks": {
+      "SameSource": true,
+      "SameMassInput": true,
+      "CurrentModel": true,
+      "SameMixedMatrix": true,
+      "CompletedTadpoleInventory": true,
+      "IndependentRawBounds": true,
+      "GeneralRegionMatch": true,
+      "MatchingRegionInventory": true,
+      "WeightedGraphAndPVCoverage": true,
+      "NoUnappliedMixedTransfer": true,
+      "CompleteProbeLedger": true,
+      "ProbeLedgerUsedByMSbar": true,
+      "ConditionalExternalResidueInventory": true
+    },
+    "LinkedEvidenceHashesVerified": true,
+    "Artifact": {
+      "Path": "Work/Cache/qq-completed-mass-ledger-962259a7601020c19dad6e19633a57d51ed478b2863d19f7bf01f366436fa4de.wxf",
+      "SHA256": "42674f62d1b63b38c464b036ed53b0373e84d1c987fe3468bb9e617015892008"
+    }
+  },
+  "MassRegions": {
+    "Status": "RegionCorrectionsCancel",
+    "BubblesExpected": 11,
+    "BubblesAudited": 11,
+    "GeneralParameterRegionCancellation": true
+  },
+  "RawMassBounds": {
+    "Status": "RawMassPoleBoundVerified",
+    "ExpectedPairs": 26,
+    "PairsAudited": 26,
+    "AllPairsWithinBound": true
+  },
+  "ScalarResult": {
+    "Status": "ScalarRowPrefactorsVerified",
+    "CheckedCoefficients": 144,
+    "PrefactorReconstructionVerified": true,
+    "ExactCoefficientEquivalenceVerified": true,
+    "Artifact": {
+      "Path": "Work/Cache/qq-scalar-factored-de1db01e7496fa143eac9777ac3c9619645725c22b5ef2f8dcc7a5adf866bc51/factored.wxf",
+      "SHA256": "ec6e77c97734313ecaf6e01c8b8f8c3a9bbeb3e285e2bf62d780dc9e9c301400"
+    }
+  },
+  "PaperComparison": {
+    "LiveFile": "Work/Cache/qq-scalar-factored-de1db01e7496fa143eac9777ac3c9619645725c22b5ef2f8dcc7a5adf866bc51/factored.wxf",
+    "LiveSHA256": "ec6e77c97734313ecaf6e01c8b8f8c3a9bbeb3e285e2bf62d780dc9e9c301400",
+    "ReferenceFile": "Paper/data/form-factors.wl",
+    "ReferenceSHA256": "ff920d329181c07eefba8785b21d0cbbb84310a7836eeb7a06d6d882dd4cb21e",
+    "FunctionSetsEqual": true,
+    "Rows": [
+      {
+        "ColorID": 1,
+        "SpinID": 1,
+        "LiveCoefficients": 15,
+        "PaperCoefficients": 15,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 2,
+        "SpinID": 1,
+        "LiveCoefficients": 31,
+        "PaperCoefficients": 31,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 1,
+        "SpinID": 2,
+        "LiveCoefficients": 19,
+        "PaperCoefficients": 19,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 2,
+        "SpinID": 2,
+        "LiveCoefficients": 19,
+        "PaperCoefficients": 19,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 1,
+        "SpinID": 3,
+        "LiveCoefficients": 13,
+        "PaperCoefficients": 13,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 2,
+        "SpinID": 3,
+        "LiveCoefficients": 13,
+        "PaperCoefficients": 13,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 1,
+        "SpinID": 4,
+        "LiveCoefficients": 15,
+        "PaperCoefficients": 15,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      },
+      {
+        "ColorID": 2,
+        "SpinID": 4,
+        "LiveCoefficients": 19,
+        "PaperCoefficients": 19,
+        "PrefactorEqual": true,
+        "CoefficientsEqual": true,
+        "NonzeroDifferences": 0
+      }
+    ],
+    "AllCoefficientsEqual": true,
+    "CurrentSourceFingerprint": 81218636053516518294877454586646208059890807642593349469848912179547470967678,
+    "ReferenceSourceFingerprint": 61866098637853011682937170700695746952056475129054070663871584189143318985862
+  },
+  "RawRuntimeResultsBundled": false,
+  "EmptyCacheIndependentRerunPerformed": false,
+  "DistributionCleanup": {
+    "CalculationSnapshotUnchanged": true,
+    "PreservedRuntimeFileCount": 85,
+    "ModelCompanionsUnchanged": true,
+    "CurrentWorkRetained": true,
+    "EssentialNativeScriptsPassed": 9,
+    "PythonFilesystemTestsPassed": 3,
+    "ExternalFeynRulesModelLoadPassed": true,
+    "ExternalFeynRulesVertexCount": 48,
+    "ExternalFeynRulesActionInventoryCount": 51
+  }
+}

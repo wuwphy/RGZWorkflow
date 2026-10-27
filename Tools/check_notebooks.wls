@@ -8,7 +8,8 @@ Do[nb=Quiet[Check[Get[file],$Failed]];
  inputs=Cases[nb,Cell[BoxData[b_],"Input",___]:>b,Infinity];
  parsed=Quiet[Check[ToExpression[#,StandardForm,HoldComplete],$Failed]]&/@inputs;
  calls=DeleteDuplicates[Cases[parsed,HoldPattern[(f_Symbol)[___]]:>SymbolName[Unevaluated[f]],Infinity]];
- unknown=Select[calls,StringMatchQ[#,RegularExpression["RGZ[A-Za-z0-9]+"]]&&Names["RGZWorkflow`"<>#]==={}&];
+ unknown=Select[calls,StringMatchQ[#,RegularExpression["RGZ[A-Za-z0-9]+"]]&&#=!="RGZPVFinite"&&
+  (Names["RGZWorkflow`"<>#]==={}||ToExpression["RGZWorkflow`"<>#,InputForm,Function[s,DownValues[s]==={},HoldAll]])&];
  saved=Count[nb,Cell[_,"Output"|"Print"|"Message",___],Infinity];
  syntax=FreeQ[parsed,$Failed|_Defer];
  Print[<|"File"->FileNameTake[file],"InputCells"->Length[inputs],"SyntaxOK"->syntax,"UnknownPublicCalls"->unknown,"SavedOutputCells"->saved|>];

@@ -14,11 +14,18 @@ qqGaugeValidJob[] := Module[{j=RGZResult["QQ"],r=ready[]},
 qqGaugeSymbolicParametersQ[] := AllTrue[{"m","mG","M","\[Mu]","\[Alpha]","p","q","qqS","qqT","qqK1","qqK2","qqK3","qqK4"},
  Function[n,ToExpression["RGZWorkflow`Engine`"<>n,InputForm,Function[sym,OwnValues[sym]==={},HoldAll]]]];
 Options[RGZQQGaugeStart]={"IRPrescription"->"DimensionalScalelessZero"};
-RGZQQGaugeStart[seconds_:600,OptionsPattern[]] := Module[{r,j,old=RGZResult["QQ"],sigma},
+RGZQQGaugeStart[seconds_:600,OptionsPattern[]] := Module[{answer,staged},
+ (* Keep the active result snapshot until both task construction and IR tagging
+    succeed. Completed source caches and attempt diagnostics remain reusable. *)
+ answer=Block[{$results=$results},
+  answer=qqGaugeStartTransaction[seconds,OptionValue["IRPrescription"]];
+  If[!FailureQ[answer],staged=$results];answer];
+ If[FailureQ[answer],Return[answer]];$results=staged;answer];
+qqGaugeStartTransaction[seconds_,ir_] := Module[{r,j,old=RGZResult["QQ"],oldAmplitude=RGZResult["QQAmplitude"],oldFactors=RGZResult["QQFormFactors"],sigma},
  r=masslessQQReady[];If[FailureQ[r],Return[r]];
  If[!NumericQ[seconds]||!TrueQ[seconds>0],Return[Failure["TimeLimit",<||>]]];
  If[!qqGaugeSymbolicParametersQ[],Return[Failure["SymbolicParametersRequired",<||>]]];
- If[OptionValue["IRPrescription"]=!=qqGaugeIR,Return[Failure["QQIRPrescription",<|"Explanation"->"Only common dimensional regularization with scaleless integrals zero is implemented; UV/IR poles are not separated."|>]]];
+ If[ir=!=qqGaugeIR,Return[Failure["QQIRPrescription",<|"Explanation"->"Only common dimensional regularization with scaleless integrals zero is implemented; UV/IR poles are not separated."|>]]];
  r=ready[];If[FailureQ[r],Return[r]];r=fcReady[];If[FailureQ[r],Return[r]];
  If[OwnValues[Evaluate[qqGaugeAlpha]]=!={},Return[Failure["AssignedGaugeParameter",<||>]]];
  r=loadPTEngine[];If[FailureQ[r],Return[r]];
@@ -35,7 +42,7 @@ RGZQQGaugeStart[seconds_:600,OptionsPattern[]] := Module[{r,j,old=RGZResult["QQ"
  RGZQQStart[seconds,"Gauge"->qqGaugeAlpha,"RegulatorMass"->0]]];
  If[FailureQ[r],Return[r]];
  If[AssociationQ[old]&&Lookup[old,"GaugeIRPrescription",None]=!=qqGaugeIR,
- storeResult["QQBeforeGauge",<|"QQ"->old,"QQAmplitude"->RGZResult["QQAmplitude"],"QQFormFactors"->RGZResult["QQFormFactors"]|>]];
+ storeResult["QQBeforeGauge",<|"QQ"->old,"QQAmplitude"->oldAmplitude,"QQFormFactors"->oldFactors|>]];
  j=RGZResult["QQ"];AssociateTo[j,"GaugeIRPrescription"->qqGaugeIR];
  r=atomicWXF[FileNameJoin[{j["Directory"],"job.wxf"}],j];If[FailureQ[r],Return[r]];
  storeResult["QQ",j];$results=KeyDrop[$results,{"QQAmplitude","QQFormFactors","QQGaugeAmplitude","QQGaugeDirect","QQWardCoverage"}];
@@ -64,9 +71,14 @@ RGZQQGaugeAssemble[] := Module[{j=qqGaugeValidJob[],r,p},If[FailureQ[j],Return[j
  p=Join[p,<|"IRPrescription"->qqGaugeIR,"ModelFingerprint"->modelKey[],"GaugeJobFingerprint"->j["Fingerprint"]|>];
  r=atomicWXF[FileNameJoin[{j["Directory"],"gauge-amplitude.wxf"}],p];If[FailureQ[r],Return[r]];
  storeResult["QQGaugeAmplitude",p];$results=KeyDrop[$results,{"QQGaugeDirect","QQWardCoverage"}];<|"Status"->"BareOneLoopAssembled","File"->r["File"]|>];
-RGZQQGaugeRestore[] := Module[{b=RGZResult["QQBeforeGauge"]},
- If[!AssociationQ[b],Return[Failure["QQPreviousTaskMissing",<||>]]];
+qqGaugeBackupValidQ[b_] := AssociationQ[b]&&TrueQ[qqSessionJobValidQ[Lookup[b,"QQ",None]]];
+RGZQQGaugeRestore[] := Module[{r=ready[],b=RGZResult["QQBeforeGauge"]},
+ If[FailureQ[r],Return[r]];
+ If[MissingQ[b],Return[Failure["QQPreviousTaskMissing",<||>]]];
+ If[!qqGaugeBackupValidQ[b],Return[Failure["QQPreviousTaskInvalid",<|"Action"->"Use a complete original QQ task matching the current workspace, model and sources; or start a fresh fixed-gauge task."|>]]];
+ invalidateQQDerived[];
  Scan[Function[n,If[AssociationQ[b[n]],storeResult[n,b[n]],$results=KeyDrop[$results,{n}]]],{"QQ","QQAmplitude","QQFormFactors"}];
+ $results=KeyDrop[$results,{"QQBeforeGauge"}];
  <|"Status"->"PreviousQQTaskRestored"|>];
 qqGaugePacket[] := Module[{p=RGZResult["QQGaugeAmplitude"],j=qqGaugeValidJob[]},
  If[FailureQ[j],Return[j]];
@@ -126,9 +138,9 @@ qqGaugePropagatorDerivative[] := Module[{file,t,k,d,e,dk,dd,fail=<|"GaugeParamet
 qqGaugeWardEvidence[] := Module[{derivative,props=RGZResult["Propagators"],contacts=RGZResult["PropagatorConnections"],nav=RGZResult["NAVPinch"],checks},
  derivative=TimeConstrained[qqGaugePropagatorDerivative[],60,<|"GaugeParameterOnlyBB"->False,"FullPropagatorGaugeDerivative"->False|>];
  checks=Join[derivative,<|"DdimensionalQuarkWard"->And@@qqBoxWardLineChecks[],
- "ActualPropagators"->(ListQ[props]&&Length[props]===69&&AllTrue[Join[Lookup[props,"模型减闵氏"],Lookup[props,"模型减二次核"]],TrueQ[#===0]&]),
+ "ActualPropagators"->(ListQ[props]&&Length[props]===69&&AllTrue[Join[Lookup[props,"ModelMinusMinkowski"],Lookup[props,"ModelMinusQuadraticKernel"]],TrueQ[#===0]&]),
  "MultiplierContacts"->(AssociationQ[contacts]&&Length[contacts]===8&&AllTrue[Values[contacts],TrueQ[#===0]&]),
- "FullNAVReconstruction"->(AssociationQ[nav]&&Lookup[nav,"Fingerprint",None]===navFormulaFingerprint[]&&ListQ[Lookup[nav,"Connections",None]]&&Length[nav["Connections"]]===Lookup[nav,"ConnectionCount",-1]&&Length[nav["Connections"]]>0&&AllTrue[nav["Connections"],TrueQ[Lookup[#,"ExactPolynomialReconstruction",False]]&])|>];checks];
+ "FullNAVReconstruction"->TrueQ[qqPVValidNAVProof[nav,navFormulaFingerprint[]]]|>];checks];
 (* Reuse the established generic-D M0 prescription, but sum each Laurent
    order per master and restore finite masters separately. No global Together. *)
 qqGaugePinchM0[expr_,key_,dir_,seconds_] := Module[{pairs,terms={},rows,values,r,finite,restored={},stop=Unique["qqGaugeM0"],require},Catch[
@@ -155,16 +167,16 @@ qqGaugePinchAmplitude[seconds_] := engineEvaluation@Module[{p,j=qqGaugeValidJob[
  If[Lookup[p,"Mode",None]=!="FourPinch"||!fullNAVIncluded[],Return[Failure["QQFullMatrixPinchRequired",<|"Action"->"RGZPTStart[] and complete all four pinch parts"|>]]];
  (* Check the actual mixed matrix source; the old PT job did not retain its hash. *)
  work=RGZWorkflow`Engine`RGZGaugeStart[<|"T"->j["MixedTransverse"],"L"->ConstantArray[0,{8,8}],
- "T场顺序"->RGZWorkflow`Engine`RGZMixBasis["T"],"L场顺序"->RGZWorkflow`Engine`RGZMixBasis["L"]|>];If[FailureQ[work],Return[work]];
+ "TFieldOrder"->RGZWorkflow`Engine`RGZMixBasis["T"],"LFieldOrder"->RGZWorkflow`Engine`RGZMixBasis["L"]|>];If[FailureQ[work],Return[work]];
  expected=RGZWorkflow`Engine`RGZPTCommonSelf[work];
- If[Hash[expected,"SHA256"]=!=Hash[p["共同约定自能T分项"],"SHA256"],Return[Failure["QQPinchMixedSourceMismatch",<||>]]];
- key=Hash[{Hash[p["候选总和T"],"SHA256"],j["Fingerprint"],pinchFormulaFingerprint[],navFormulaFingerprint[],qqGaugeIR},"SHA256"];
+ If[Hash[expected,"SHA256"]=!=Hash[p["CommonConventionSelfEnergyTParts"],"SHA256"],Return[Failure["QQPinchMixedSourceMismatch",<||>]]];
+ key=Hash[{Hash[p["CandidateSumT"],"SHA256"],j["Fingerprint"],pinchFormulaFingerprint[],navFormulaFingerprint[],qqGaugeIR},"SHA256"];
  file=FileNameJoin[{cacheDirectory[],"qq-gauge-pinch-m0-"<>IntegerString[key,16,64]<>".wxf"}];
  If[FileExistsQ[file],r=Import[file,"WXF"];If[AssociationQ[r]&&Lookup[r,"Key",None]===key&&!qqFFInvalidQ[Lookup[r,"Value",$Failed]],Return[r["Value"]]]];
  (* Match the existing mixed-self attachment exactly: scalar=-D Pi D,
     then -g_s^2 J P_T J; both conventional and PT inputs include the loop measure. *)
  scalar=qqGaugePinchM0[RGZWorkflow`Engine`RGZLoopPoleMasses[
- RGZWorkflow`Engine`RGZPTColour[p["候选总和T"]]],key,file<>"-parts",seconds];If[qqFFInvalidQ[scalar],Return[Failure["QQPinchM0Incomplete",<|"Cause"->scalar|>]]];
+ RGZWorkflow`Engine`RGZPTColour[p["CandidateSumT"]]],key,file<>"-parts",seconds];If[qqFFInvalidQ[scalar],Return[Failure["QQPinchM0Incomplete",<|"Cause"->scalar|>]]];
  r=FeynCalc`Contract[FeynCalc`FCI[-FeynCalc`SMP["g_s"]^2/I
  RGZWorkflow`Engine`rgzQQBornCurrent[RGZWorkflow`Engine`qqMu,RGZWorkflow`Engine`qqNu]
  RGZWorkflow`Engine`RGZLoopPT[RGZWorkflow`Engine`p,RGZWorkflow`Engine`qqMu,RGZWorkflow`Engine`qqNu] scalar]];
@@ -186,7 +198,7 @@ RGZQQWardCoverage[seconds_:1200,OptionsPattern[]] := Module[{p,r,evidence,pinch,
  "Name"->"QQWardCoverage","WardEvidence"->evidence,"CoverageVerified"->bridge["AllCoefficientsZero"],"PinchDifferenceZero"->zero["AllCoefficientsZero"],
  "GaugeIndependenceVerified"->(bridge["AllCoefficientsZero"]&&zero["AllCoefficientsZero"]),"CoverageBridge"->bridge,"PinchCheck"->zero,
  "GaugeJobFingerprint"->p["GaugeJobFingerprint"],"IRPrescription"->qqGaugeIR,"ReferenceGauge"->ref,"PointTest"->False,
- "FunctionalOneLoopSTProved"->False,"Scope"->"This on-shell massless quenched qqprime process; not a proof of the full effective-action ST/Nielsen identities.","Renormalized"->False,"UVIRSeparated"->False|>],seconds];
+ "FunctionalOneLoopSTProved"->False,"Scope"->"This on-shell massless qqprime process with two dynamical quark flavours; not a proof of the full effective-action ST/Nielsen identities.","Renormalized"->False,"UVIRSeparated"->False|>],seconds];
  If[FailureQ[r],Return[r]];file=FileNameJoin[{cacheDirectory[],"qq-ward-coverage-"<>IntegerString[Hash[{p["GaugeJobFingerprint"],ref},"SHA256"],16,64]<>".wxf"}];
  r=Join[r,<|"File"->file|>];p=atomicWXF[file,r];If[FailureQ[p],Return[p]];storeResult["QQWardCoverage",r];
  Join[KeyTake[r,{"Status","Name","File"}],<|"Statistics"->KeyTake[r,{"CoverageVerified","PinchDifferenceZero","GaugeIndependenceVerified"}]|>]];

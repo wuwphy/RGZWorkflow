@@ -67,8 +67,8 @@ RGZQQScalelessLedger[seconds_:1200,OptionsPattern[]] := Module[
  <|"Status"->out["Status"],"Name"->"QQScalelessLedger","Rows"->Length[ff["Rows"]],"Statistics"-><|"ScalelessCores"->Total[Lookup[records,"ScalelessCores"]],"CoreScanComplete"->True|>,"File"->out["File"]|>];
 
 Options[RGZQQMSbarCounterterms]={"ClosedQuarkFlavors"->Automatic};
-RGZQQMSbarCounterterms[OptionsPattern[]] := Module[{g=FeynCalc`SMP["g_s"],n=FeynCalc`SUNN,d=FeynCalc`SMP["Delta_UV"],nf=OptionValue["ClosedQuarkFlavors"],content,ag,aa},
- If[nf===Automatic,content=modelContent[];If[FailureQ[content],Return[content]];nf=content["ClosedQuarkFlavors"]];
+RGZQQMSbarCounterterms[OptionsPattern[]] := Module[{g=FeynCalc`SMP["g_s"],n=FeynCalc`SUNN,d=FeynCalc`SMP["Delta_UV"],nf=OptionValue["ClosedQuarkFlavors"],content,ag,aa,r},
+ If[nf===Automatic,r=ready[];If[FailureQ[r],Return[r]];content=modelContent[];If[FailureQ[content],Return[content]];nf=content["ClosedQuarkFlavors"]];
  If[!IntegerQ[nf]||nf<0,Return[Failure["QuarkFlavorCount",<||>]]];
  (* Tr(Ta Tb)=delta(ab)/2; retain Nf contributions independently. *)
  ag=(-11 n/6+nf/3) g^2 d/(16 Pi^2);
@@ -85,27 +85,48 @@ qqMSbarFiniteMaster[m_,scale_] := Which[m===1,1,MatchQ[m,_FeynCalc`A0],First[m](
 (* Finite coefficient in the common dimensional regulator; the PV finite
    masters subtract UV and IR poles with the same bar-epsilon convention.
    No four-dimensional Fierz identity or evanescent spin structure is used. *)
-qqMSbarFiniteRow[pairs_,table_,scale_,seconds_] := Module[{terms={},r2={},c,c0,u,i,u1,i1,i2,z,idx=0},
+qqMSbarFiniteRow[pairs_,table_,scale_,seconds_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{terms={},r2={},c,c0,u,i,u1,i1,i2,z,poles,idx=0},
  Do[idx++;qqProgressOperation["Finite PV coefficient "<>ToString[idx]<>" / "<>ToString[Length[pairs]]];qqProgressUpdate[<|"Master"->pair[[1]],"ScalarMasterIndex"->idx,"ScalarMasterTotal"->Length[pairs]|>];c=pair[[2]];qqProgressUpdate[<|"InputLeaves"->LeafCount[c],"ItemStarted"->AbsoluteTime[],"StepLimitSeconds"->seconds|>];c0=TimeConstrained[c/.D->4,seconds,$TimedOut];
- If[qqFFInvalidQ[c0],Return[Failure["QQMSbarFiniteCoefficientStopped",<||>]]];
+ If[qqFFInvalidQ[c0],Throw[Failure["QQMSbarFiniteCoefficientStopped",<||>],rgzFunctionReturnTag]];
  AppendTo[terms,c0 qqMSbarFiniteMaster[pair[[1]],scale]];
  If[!FreeQ[c,D]&&pair[[1]]=!=1,
-  u=table[pair[[1]]]["UV"];i=table[pair[[1]]]["IR"];
-  u1=Coefficient[Expand[qqUVIRPole[u/.D->4-2 FeynCalc`EpsilonUV,FeynCalc`EpsilonUV]],FeynCalc`EpsilonUV,-1];
+  poles=If[AssociationQ[table],Lookup[table,Key[pair[[1]]],$Failed],$Failed];
+  If[!AssociationQ[poles],Throw[Failure["QQMSbarFinitePolesRequired",<|"Master"->pair[[1]]|>],rgzFunctionReturnTag]];
+  u=Lookup[poles,"UV",$Failed];i=Lookup[poles,"IR",$Failed];
+  If[qqFFInvalidQ[{u,i}]||!FreeQ[{u,i},qqFFMasterHeads|FeynCalc`PaVeUVPart|FeynCalc`PaXEvaluateIR|_ConditionalExpression|_Piecewise|_X`PVC|_X`PVD],
+   Throw[Failure["QQMSbarFinitePolesRequired",<|"Master"->pair[[1]]|>],rgzFunctionReturnTag]];
+  z=TimeConstrained[{qqUVIRPole[u/.D->4-2 FeynCalc`EpsilonUV,FeynCalc`EpsilonUV],qqUVIRPole[i,FeynCalc`EpsilonIR]},seconds,$TimedOut];
+  If[qqFFInvalidQ[z],Throw[Failure["QQMSbarFinitePoleExpansionStopped",<|"Master"->pair[[1]]|>],rgzFunctionReturnTag]];{u,i}=z;
+  u1=Coefficient[Expand[u],FeynCalc`EpsilonUV,-1];
   i1=Coefficient[Expand[i],FeynCalc`EpsilonIR,-1];i2=Coefficient[Expand[i],FeynCalc`EpsilonIR,-2];
+  If[Expand[u-u1/FeynCalc`EpsilonUV]=!=0||Expand[i-i1/FeynCalc`EpsilonIR-i2/FeynCalc`EpsilonIR^2]=!=0,
+   Throw[Failure["QQMSbarFinitePoleOrderUnsupported",<|"Master"->pair[[1]]|>],rgzFunctionReturnTag]];
   z=TimeConstrained[-2 (D[c,D]/.D->4)(u1+i1)+2 (D[c,{D,2}]/.D->4)i2,seconds,$TimedOut];
-  If[qqFFInvalidQ[z],Return[Failure["QQMSbarRationalTermStopped",<||>]]];AppendTo[r2,z]],{pair,pairs}];
+  If[qqFFInvalidQ[z],Throw[Failure["QQMSbarRationalTermStopped",<||>],rgzFunctionReturnTag]];AppendTo[r2,z]],{pair,pairs}];
  z=TimeConstrained[qqUVIRCompactPole[Total[r2]],seconds,$TimedOut];If[qqFFInvalidQ[z],z=Total[r2]];
- <|"FiniteIntegralPart"->Total[terms],"DimensionalRationalPart"->z,"FiniteFormFactor"->Total[terms]+z|>];
+ <|"FiniteIntegralPart"->Total[terms],"DimensionalRationalPart"->z,"FiniteFormFactor"->Total[terms]+z|>],rgzFunctionReturnTag]];
+
+(* A row checkpoint supplies only finite coefficients, never verified pole fields. *)
+qqMSbarFinitePacketQ[p_] := AssociationQ[p]&&
+ Sort[Keys[p]]===Sort[{"FiniteIntegralPart","DimensionalRationalPart","FiniteFormFactor"}]&&
+ !qqFFInvalidQ[p]&&p["FiniteFormFactor"]===p["FiniteIntegralPart"]+p["DimensionalRationalPart"]&&
+ FreeQ[p,FeynCalc`EpsilonUV|FeynCalc`EpsilonIR|FeynCalc`Epsilon|FeynCalc`SMP["Delta_UV"]];
+qqMSbarRowBasisQ[p_] := ListQ[Lookup[p,"ColorBasis",None]]&&ListQ[Lookup[p,"SpinStructures",None]]&&
+ AllTrue[p["Rows"],Function[row,AssociationQ[row]&&IntegerQ[Lookup[row,"ColorID",None]]&&IntegerQ[Lookup[row,"SpinID",None]]&&
+  1<=row["ColorID"]<=Length[p["ColorBasis"]]&&1<=row["SpinID"]<=Length[p["SpinStructures"]]]]&&
+ Length[DeleteDuplicates[({#["ColorID"],#["SpinID"]}&/@p["Rows"])]]===Length[p["Rows"]];
+qqMSbarFiniteAmplitude[p_] := Total[(p["ColorBasis"][[#["ColorID"]]] p["SpinStructures"][[#["SpinID"]]] #["FiniteFormFactor"])&/@p["Rows"]];
 
 (* Reuse only a complete, internally consistent artifact with the exact source key.
    A failed pole check or an interrupted finite row is never a completed cache. *)
 qqMSbarReusableQ[p_,key_,finite_,count_] := AssociationQ[p]&&Lookup[p,"Key",None]===key&&
  !qqFFInvalidQ[p]&&TrueQ[Lookup[p,"MSbarUVClosed",False]]&&TrueQ[Lookup[p,"IRPolesCancelled",False]]&&
  Lookup[p,"FinitePartBuilt",None]===finite&&Lookup[p,"PostprocessingJacobianInsertions",None]===0&&Lookup[p,"ClosedQuarkFlavors",None]===2&&TrueQ[Lookup[p,"JacobianGhostIncluded",False]]&&
- ListQ[Lookup[p,"Rows",None]]&&Length[p["Rows"]]===count&&
+ ListQ[Lookup[p,"Rows",None]]&&Length[p["Rows"]]===count&&qqMSbarRowBasisQ[p]&&
  AllTrue[p["Rows"],Lookup[#,"RemainingUVPole",None]===0&&Lookup[#,"RemainingIRPole",None]===0&]&&
- (!finite||(AllTrue[p["Rows"],KeyExistsQ[#,"FiniteFormFactor"]&]&&And@@(KeyExistsQ[p,#]&/@{"OneLoopFiniteAmplitude","TreeAmplitude","Amplitude"})&&
+ (!finite||(AllTrue[p["Rows"],qqMSbarFinitePacketQ[KeyTake[#,{"FiniteIntegralPart","DimensionalRationalPart","FiniteFormFactor"}]]&]&&And@@(KeyExistsQ[p,#]&/@{"OneLoopFiniteAmplitude","TreeAmplitude","Amplitude"})&&
+ p["OneLoopFiniteAmplitude"]===qqMSbarFiniteAmplitude[p]&&
  p["Amplitude"]===p["TreeAmplitude"]+p["OneLoopFiniteAmplitude"]&&
  FreeQ[Lookup[p["Rows"],"FiniteFormFactor",Missing[]],FeynCalc`EpsilonUV|FeynCalc`EpsilonIR|FeynCalc`Epsilon|FeynCalc`SMP["Delta_UV"]]));
 
@@ -129,7 +150,7 @@ RGZQQMSbar[seconds_:1200,OptionsPattern[]] := Module[
  ff=qqUVIRReadFF[u["FormFactorsFile"]];If[FailureQ[ff],Return[ff]];
  If[ff["InputSHA256"]=!=u["InputSHA256"]||ff["SourceFingerprint"]=!=a["Fingerprint"],Return[Failure["QQMSbarSourceMismatch",<||>]]];
  If[!And@@(MemberQ[Lookup[l["Parts"],"Part",{}],#]&/@{"AV1","AV2","Box1","Box2","NAV1","NAV2"}),Return[Failure["QQMSbarIncompleteCoreScan",<||>]]];
- key=Hash[{"QQMSbar/2",u["Key"],l["Key"],a["Fingerprint"],scale,finiteQ,FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringMSbar.wl"}],"SHA256"]},"SHA256"];
+ key=Hash[{"QQMSbar/3",u["Key"],l["Key"],a["Fingerprint"],FileHash[u["FormFactorsFile"],"SHA256"],scale,finiteQ,FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringMSbar.wl"}],"SHA256"]},"SHA256"];
  file=FileNameJoin[{cacheDirectory[],"qq-msbar-"<>IntegerString[key,16,64]<>".wxf"}];
  cached=If[FileExistsQ[file],Quiet[Check[Import[file,"WXF"],$Failed]],$Failed];
  If[qqMSbarReusableQ[cached,key,finiteQ,Length[u["Rows"]]],
@@ -159,10 +180,11 @@ RGZQQMSbar[seconds_:1200,OptionsPattern[]] := Module[
   Do[qqProgressUpdate[<|"Stage"->"QQMSbar:Finite","Index"->n,"Total"->Length[rows],"StepLimitSeconds"->co|>];qqProgressOperation["Build finite MSbar PV row "<>ToString[n]<>" / "<>ToString[Length[rows]]];
    rowFile=FileNameJoin[{dir,"finite-"<>ToString[n]<>".wxf"}];rowKey=Hash[{key,n,rows[[n]]},"SHA256"];
    cached=If[FileExistsQ[rowFile],Quiet[Check[Import[rowFile,"WXF"],$Failed]],$Failed];
-   If[AssociationQ[cached]&&Lookup[cached,"Key",None]===rowKey&&AssociationQ[Lookup[cached,"Value",None]]&&!qqFFInvalidQ[cached["Value"]]&&And@@(KeyExistsQ[cached["Value"],#]&/@{"FiniteIntegralPart","DimensionalRationalPart","FiniteFormFactor"}),qqProgressUpdate[<|"CacheState"->"Reused","ReusedCheckpoints"->(Lookup[$qqProgress,"ReusedCheckpoints",0]+1)|>];rows[[n]]=Join[rows[[n]],cached["Value"]];Continue[]];
+   If[AssociationQ[cached]&&Lookup[cached,"Key",None]===rowKey&&qqMSbarFinitePacketQ[Lookup[cached,"Value",None]],qqProgressUpdate[<|"CacheState"->"Reused","ReusedCheckpoints"->(Lookup[$qqProgress,"ReusedCheckpoints",0]+1)|>];rows[[n]]=Join[rows[[n]],cached["Value"]];Continue[]];
    sourceRow=SelectFirst[ff["Rows"],ff["ColorBasis"][[#["ColorID"]]]===u["ColorBasis"][[rows[[n]]["ColorID"]]]&&ff["SpinStructures"][[#["SpinID"]]]===u["SpinStructures"][[rows[[n]]["SpinID"]]]&,Missing[]];
    If[!AssociationQ[sourceRow],Throw[Failure["QQMSbarFiniteSourceRow",<|"Index"->n|>],stop]];
    fin=qqMSbarFiniteRow[sourceRow["MasterCoefficients"],u["MasterPoles"],scale,co];If[FailureQ[fin],Throw[fin,stop]];
+   If[!qqMSbarFinitePacketQ[fin],Throw[Failure["QQMSbarFiniteRowIncomplete",<|"Index"->n|>],stop]];
    spin=u["SpinStructures"][[rows[[n]]["SpinID"]]];
    qqProgressOperation["Save finite MSbar row "<>ToString[n]];
    saved=atomicWXF[rowFile,<|"Key"->rowKey,"Value"->fin|>];If[FailureQ[saved],Throw[saved,stop]];
@@ -177,6 +199,7 @@ RGZQQMSbar[seconds_:1200,OptionsPattern[]] := Module[
  "IRValidityConditions"->Join[Lookup[u,"IRValidityConditions",{}],{scale>0}],
  "UVRenormalized"->(allUV&&allIR&&TrueQ[finiteQ]),"Renormalized"->False,"ScalelessLedgerComplete"->False,"FullSMatrixVerified"->False,
  "Scope"->"Computed Landau, M=0 two-flavor one-loop amplitude with eta included in the base mixed self energy and raw probe-core ledger. Earlier full mixed-matrix mass-limit ledger not certified; no automatic full-S-matrix promotion.",
+ "FiniteConstruction"->"SourceBoundCommonEpsilon/1","FormFactorsSHA256"->FileHash[u["FormFactorsFile"],"SHA256"],
  "FinitePVConvention"->"RGZPVFinite is the constant term after common UV/IR bar-epsilon subtraction at the specified scale; rational coefficient epsilon terms are retained separately. Finite multiscale masters remain exact functions, not numerical values.","File"->file|>;
  If[allUV&&allIR&&TrueQ[finiteQ],finiteAmp=Total[(u["ColorBasis"][[#["ColorID"]]] u["SpinStructures"][[#["SpinID"]]] #["FiniteFormFactor"])&/@rows];
   If[!FreeQ[Lookup[rows,"FiniteFormFactor"],FeynCalc`EpsilonUV|FeynCalc`EpsilonIR|FeynCalc`Epsilon|FeynCalc`SMP["Delta_UV"]],Return[Failure["QQMSbarResidualPoleLabel",<||>]]];

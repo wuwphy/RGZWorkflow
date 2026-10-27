@@ -135,6 +135,17 @@ qqFFSelectOrder[packet_Association,order_] := Module[{field,input},
  If[qqFFInvalidQ[input],Return[Failure["QQAmplitudeIncomplete",<|"Parts"->{field}|>]]];
  Join[packet,<|"Amplitude"->input,"LoopOrder"->order,"SelectedComponent"->field,
  "AmplitudeConvention"->"M; assembled Tree and OneLoop divided by I exactly once"|>]];
+(* Validate the represented decomposition before trusting its completion flag. *)
+qqFFPacketQ[p_] := AssociationQ[p]&&Lookup[p,"Schema",None]==="RGZQQFormFactors/1"&&
+ Lookup[p,"Status",None]==="Complete"&&TrueQ[Lookup[p,"ReconstructionVerified",False]]&&
+ And@@(KeyExistsQ[p,#]&/@{"Key","File","InputSHA256","SourceFingerprint","ColorBasis","SpinStructures","Rows"})&&
+ IntegerQ[p["Key"]]&&IntegerQ[p["InputSHA256"]]&&StringQ[p["File"]]&&
+ ListQ[p["ColorBasis"]]&&ListQ[p["SpinStructures"]]&&ListQ[p["Rows"]]&&!qqFFInvalidQ[p]&&
+ AllTrue[p["Rows"],Function[row,AssociationQ[row]&&IntegerQ[Lookup[row,"ColorID",None]]&&IntegerQ[Lookup[row,"SpinID",None]]&&
+  1<=row["ColorID"]<=Length[p["ColorBasis"]]&&1<=row["SpinID"]<=Length[p["SpinStructures"]]&&
+  qqFFVectorPairsQ[Lookup[row,"MasterCoefficients",None]]&&KeyExistsQ[row,"FormFactor"]&&
+  row["FormFactor"]===Total[Times@@@row["MasterCoefficients"]]] ]&&
+ Length[DeleteDuplicates[({#["ColorID"],#["SpinID"]}&/@p["Rows"])]]===Length[p["Rows"]];
 qqFFBuild[packet_,simplify_,coSeconds_,reducePV_:False] := Module[{input=packet["Amplitude"],expanded,terms,parts,colors,spins,
  basis=qqFFColors[],colorMap,spinMap,col,spin,reduced,check,rows={},records,groups,structures,masterPairs,preMasterPairs,pvIdentities,pvReduction,
  forms={},pvProvenance={},used,key,file,cache,saved,inputHash,dir,answer,groupFile,groupPacket,unreduced=0,stop=Unique["qqFFStop"]},Catch[
@@ -144,8 +155,11 @@ qqFFBuild[packet_,simplify_,coSeconds_,reducePV_:False] := Module[{input=packet[
  key=Hash[{"QQFormFactors/2",inputHash,Lookup[packet,"LoopOrder","Unspecified"],Lookup[packet,"Fingerprint",None],Lookup[packet,"AssemblyConvention",None],$Version,FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringFormFactors.wl"}],"SHA256"],FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringStructuralExpand.wl"}],"SHA256"],FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringPVRelations.wl"}],"SHA256"],FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringPVGram.wl"}],"SHA256"],FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringPVVectors.wl"}],"SHA256"],simplify,coSeconds,reducePV},"SHA256"];
  dir=FileNameJoin[{cacheDirectory[],"RGZ_qq_form_factors_"<>IntegerString[key,16,64]}];
  If[!DirectoryQ[dir],CreateDirectory[dir]];file=FileNameJoin[{dir,"form-factors.wxf"}];
- If[FileExistsQ[file],cache=Import[file,"WXF"];
- If[AssociationQ[cache]&&Lookup[cache,"Key",None]===key&&TrueQ[cache["ReconstructionVerified"]]&&!qqFFInvalidQ[cache],storeResult["QQFormFactors",cache];Throw[<|"Status"->"Complete","Name"->"QQFormFactors","LoopOrder"->Lookup[packet,"LoopOrder","Unspecified"],"Rows"->Length[cache["Rows"]],"File"->file,"Statistics"-><|"Reused"->True,"ReconstructionVerified"->True|>|>,stop]]];
+ If[FileExistsQ[file],cache=Quiet[Check[Import[file,"WXF"],$Failed]];
+ If[qqFFPacketQ[cache]&&cache["Key"]===key&&cache["InputSHA256"]===inputHash&&
+ Lookup[cache,"SourceFingerprint",None]===Lookup[packet,"Fingerprint",None]&&
+ Lookup[cache,"LoopOrder","Unspecified"]===Lookup[packet,"LoopOrder","Unspecified"]&&
+ Lookup[cache,"AssemblyConvention",None]===Lookup[packet,"AssemblyConvention",None],storeResult["QQFormFactors",cache];Throw[<|"Status"->"Complete","Name"->"QQFormFactors","LoopOrder"->Lookup[packet,"LoopOrder","Unspecified"],"Rows"->Length[cache["Rows"]],"File"->file,"Statistics"-><|"Reused"->True,"ReconstructionVerified"->True|>|>,stop]]];
  qqProgressOperation["Convert amplitude to FeynCalc internal form"];
  parts=If[TrueQ[input===0],{},qqFFStructuralParts[FeynCalc`FCI[input]]];If[FailureQ[parts],Throw[parts,stop]];
  colors=DeleteDuplicates[parts[[All,1]]];spins=DeleteDuplicates[parts[[All,2]]];
@@ -209,6 +223,7 @@ qqFFBuild[packet_,simplify_,coSeconds_,reducePV_:False] := Module[{input=packet[
  "UnreducedSpinStructures"->unreduced,"TensorPVReductionRequested"->reducePV,"PVEntryCount"->Total[Length[#["MasterCoefficients"]]& /@ forms],
  "MasterBasisIndependent"->False,"PVReductionScope"->"Exact single-scale/bubble identities, parameter permutations, Gram-null IBP and twin-parameter integration; optional nonsingular lower-point momentum/metric recurrences and native reduction; unsupported entries retained",
  "Renormalized"->False,"GaugeIndependenceVerified"->False,"File"->file|>;
+ If[!qqFFPacketQ[answer],Throw[Failure["QQFFPacketIncomplete",<||>],stop]];
  saved=atomicWXF[file,answer];If[FailureQ[saved],Throw[saved,stop]];storeResult["QQFormFactors",answer];
  <|"Status"->"Complete","Name"->"QQFormFactors","LoopOrder"->Lookup[packet,"LoopOrder","Unspecified"],"Rows"->Length[forms],"File"->file,
  "Statistics"-><|"Colors"->2,"SpinStructures"->Length[structures],"ReconstructionVerified"->True|>|>,stop]];

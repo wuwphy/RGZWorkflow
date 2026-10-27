@@ -5,7 +5,7 @@
 Get[FileNameJoin[{$packageRoot,"Kernel","ScatteringPVScalarOrder.wl"}]];
 $qqGaugePreparationVersion=Hash[{FileHash[$InputFileName,"SHA256"],
  FileHash[FileNameJoin[{$packageRoot,"Kernel","ScatteringPVScalarOrder.wl"}],"SHA256"]},"SHA256"];
-qqGaugeScalarBasisQ[p_] := AssociationQ[p]&&ListQ[Lookup[p,"Rows",None]]&&
+qqGaugeScalarBasisQ[p_] := qqFFPacketQ[p]&&
  AllTrue[If[p["Rows"]==={}, {},Flatten[Lookup[p["Rows"],"MasterCoefficients",{}],1]],
   MatchQ[#,{1|_FeynCalc`A0|_FeynCalc`B0|_FeynCalc`C0|_FeynCalc`D0,_}]&]&&
  !qqFFInvalidQ[p];

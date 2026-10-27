@@ -18,21 +18,34 @@ qqIntegralValueQ[x_] := FreeQ[x,_Failure|_Missing|_TerminatedEvaluation|
  $Failed|$Aborted|$TimedOut|Indeterminate|ComplexInfinity|_DirectedInfinity|_HoldForm|
  FeynCalc`TID`Private`tidSingleIntegral];
 
+(* Validate dependencies without expanding the represented expressions. *)
+qqIntegralAcyclicQ[values_List] := Module[{n=Length[values],dependencies,parents,remaining,queue,cursor=1,node,parent,i,dependency},
+ dependencies=DeleteDuplicates[Cases[#,qqIntegralAbbreviation[j_Integer]:>j,{0,Infinity}]]&/@values;
+ If[!AllTrue[Flatten[dependencies],1<=#<=n&],Return[False]];
+ parents=ConstantArray[{},n];remaining=Length/@dependencies;
+ Do[Do[AppendTo[parents[[dependency]],i],{dependency,dependencies[[i]]}],{i,n}];
+ queue=Flatten[Position[remaining,0,{1},Heads->False]];
+ While[cursor<=Length[queue],node=queue[[cursor]];cursor++;
+  Do[remaining[[parent]]--;If[remaining[[parent]]===0,AppendTo[queue,parent]],{parent,parents[[node]]}]];
+ Length[queue]===n];
+
 (* Freeze the abbreviation graph without FRH-expanding its shared scalar
    factors. Expanding a rank-five result here can multiply its size by orders
    of magnitude and undo the benefit of TID's Isolate representation. *)
-qqIntegralFreeze[x_] := Module[{held,values={},more,rules,i=1},
+qqIntegralFreeze[x_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{held,values={},more,rules,packet,i=1},
  held=DeleteDuplicates[Cases[x,_HoldForm,{0,Infinity}]];
  While[i<=Length[held],
   more=ReleaseHold[held[[i]]];
-  If[more===held[[i]],Return[$Failed]];
+  If[more===held[[i]],Throw[$Failed,rgzFunctionReturnTag]];
   AppendTo[values,more];
   held=DeleteDuplicates[Join[held,Cases[more,_HoldForm,{0,Infinity}]]];i++];
  (* TID isolates scalar coefficients only; index-bearing abbreviations must
     not bypass the index-renaming operation outside HoldForm. *)
  If[!FreeQ[values,_FeynCalc`LorentzIndex],Return[$Failed]];
  rules=Dispatch[MapIndexed[Rule[#1,qqIntegralAbbreviation[First[#2]]]&,held]];
- <|"Value"->(x/.rules),"Abbreviations"->(values/.rules)|>];
+ packet=<|"Value"->(x/.rules),"Abbreviations"->(values/.rules)|>;
+ If[qqIntegralAcyclicQ[packet["Abbreviations"]],packet,$Failed]],rgzFunctionReturnTag]];
 (* Resolve the frozen DAG to ordinary expressions before returning to TID.
    No HoldForm or session-local definition may reach an outer checkpoint. *)
 qqIntegralThaw[packet_,head_] := Module[{values=packet["Abbreviations"],resolve,state=<||>,stop=Unique["thawStop"],answer},
@@ -52,7 +65,7 @@ qqIntegralPacketQ[packet_,key_] := AssociationQ[packet]&&Lookup[packet,"Key",Non
  KeyExistsQ[packet,"Value"]&&ListQ[Lookup[packet,"Abbreviations",None]]&&
  qqIntegralValueQ[{packet["Value"],packet["Abbreviations"]}]&&
  AllTrue[Cases[{packet["Value"],packet["Abbreviations"]},qqIntegralAbbreviation[i_]:>i,Infinity],
-  IntegerQ[#]&&1<=#<=Length[packet["Abbreviations"]]&];
+  IntegerQ[#]&&1<=#<=Length[packet["Abbreviations"]]&]&&qqIntegralAcyclicQ[packet["Abbreviations"]];
 
 SetAttributes[qqWithTensorIntegralCache,HoldRest];
 qqWithTensorIntegralCache[job_,body_] := Module[{original,definitions,signature,dir,memo=<||>,instances=<||>,answer,heads={}},

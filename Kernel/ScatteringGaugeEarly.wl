@@ -36,7 +36,7 @@ RGZQQGaugeEarlyPrepare[seconds_:600,OptionsPattern[]] := Module[
  If[names===All,names=qqGaugeEarlyParts];
  If[!ListQ[names]||names==={}||!DuplicateFreeQ[names]||!SubsetQ[qqGaugeEarlyParts,names],Return[Failure["QQEarlyParts",<|"Allowed"->qqGaugeEarlyParts|>]]];
  r=engineGet["RGZ_Quark_Amplitude.wl",False];If[FailureQ[r],Return[r]];
- key=Hash[{"QQGaugeEarly/1",j["Fingerprint"],ref,qqGaugeEarlyAlgorithmHash[],$Version},"SHA256"];
+ key=Hash[{"QQGaugeEarly/2",j["Fingerprint"],Lookup[j,"MixedSourceHash",None],ref,qqGaugeEarlyAlgorithmHash[],$Version},"SHA256"];
  dir=FileNameJoin[{cacheDirectory[],"qq-gauge-early-"<>IntegerString[key,16,64]}];If[!DirectoryQ[dir],CreateDirectory[dir]];
  r=qqGaugeTimed["QQGaugeEarlyPrepare",Catch[
  Do[file=FileNameJoin[{dir,name<>"-ward.wxf"}];
@@ -53,7 +53,7 @@ RGZQQGaugeEarlyPrepare[seconds_:600,OptionsPattern[]] := Module[
  built=atomicWXF[file,p];If[FailureQ[built],Throw[built]]];AppendTo[rows,p],{name,names}];True],seconds];
  If[FailureQ[r],Return[r]];If[r=!=True,Return[r]];
  p=<|"Status"->If[Sort[names]===Sort[qqGaugeEarlyParts],"IntegrandDifferencesPrepared","PartialIntegrandDifferencesPrepared"],"Parts"->names,"Rows"->rows,
- "Expression"->Total[Lookup[rows,"Expression"]],"Directory"->dir,"Fingerprint"->j["Fingerprint"],"AlgorithmHash"->qqGaugeEarlyAlgorithmHash[],"ReferenceGauge"->ref,"Gauge"->j["Gauge"],"GaugeIndependenceVerified"->False|>;
+ "Expression"->Total[Lookup[rows,"Expression"]],"Directory"->dir,"Fingerprint"->j["Fingerprint"],"MixedSourceHash"->Lookup[j,"MixedSourceHash",None],"AlgorithmHash"->qqGaugeEarlyAlgorithmHash[],"ReferenceGauge"->ref,"Gauge"->j["Gauge"],"GaugeIndependenceVerified"->False|>;
  file=FileNameJoin[{dir,"prepared.wxf"}];r=atomicWXF[file,p];If[FailureQ[r],Return[r]];storeResult["QQGaugeEarlyPrepared",p];
  <|"Status"->p["Status"],"Name"->"QQGaugeEarlyPrepared","Rows"->Length[rows],"Statistics"->(KeyTake[#,{"Part","RawLeaves","DifferenceLeaves","OutputLeaves","StructuralGroupsAfter"}]& /@rows),"File"->file|>];
 (* Restore each distinct affine square once, rather than scanning all routes
@@ -65,22 +65,23 @@ qqGaugeEarlyRestoreSquares[input_] := Module[{powers,rules},
  input/.Dispatch[rules]];
 (* Preserve the backend's exact pole reconstruction, but do not redo it for
    repeated denominators or merely renamed polynomial variables. *)
-qqGaugeEarlyPoleSplit[input_,gauge_,reg_] := Module[
+qqGaugeEarlyPoleSplit[input_,gauge_,reg_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[
  {powers,rules={},q=RGZWorkflow`Engine`q,squares,var,route,poly,z,prepared,r},
  powers=DeleteDuplicates[Cases[FeynCalc`FCI[input],pow:Power[den_,n_Integer?Negative]/;
   !FreeQ[den,FeynCalc`Pair[FeynCalc`Momentum[v_,D],FeynCalc`Momentum[v_,D]]/;!FreeQ[v,q]]:>pow,{0,Infinity}]];
  Do[qqProgressOperation["Split unique early pole factor "<>ToString[i]<>" / "<>ToString[Length[powers]]];
  squares=DeleteDuplicates[Cases[powers[[i,1]],FeynCalc`Pair[FeynCalc`Momentum[v_,D],FeynCalc`Momentum[v_,D]]/;!FreeQ[v,q]:>v,{0,Infinity}]];
- If[Length[squares]=!=1,Return[Failure["QuarkDenominatorRouting",<|"Denominator"->powers[[i,1]]|>]]];
+ If[Length[squares]=!=1,Throw[Failure["QuarkDenominatorRouting",<|"Denominator"->powers[[i,1]]|>],rgzFunctionReturnTag]];
  route=First[squares];var=Unique["RGZWorkflow`Private`earlyPole"];
  poly=powers[[i,1]]/.FeynCalc`FCI[FeynCalc`SPD[route,route]]->var;
- If[!PolynomialQ[poly,var],Return[Failure["QuarkNonPolynomialDenominator",<||>]]];
- z=RGZWorkflow`Engine`rgzQQPoleFactor[poly^(-powers[[i,2]]),var,route,gauge,reg];If[qqFFInvalidQ[z],Return[z]];
+ If[!PolynomialQ[poly,var],Throw[Failure["QuarkNonPolynomialDenominator",<||>],rgzFunctionReturnTag]];
+ z=RGZWorkflow`Engine`rgzQQPoleFactor[poly^(-powers[[i,2]]),var,route,gauge,reg];If[qqFFInvalidQ[z],Throw[z,rgzFunctionReturnTag]];
  AppendTo[rules,powers[[i]]->z],{i,Length[powers]}];
  r=FeynCalc`FCI[input]/.Dispatch[rules];
  qqProgressOperation["Distribute pole denominators with scalar coefficients protected"];
  prepared=qqFFSelectiveExpand[r,_FeynCalc`FeynAmpDenominator];
- FeynCalc`FeynAmpDenominatorCombine[prepared["Masked"],FeynCalc`FCI->True]/.prepared["Rules"]];
+ FeynCalc`FeynAmpDenominatorCombine[prepared["Masked"],FeynCalc`FCI->True]/.prepared["Rules"]],rgzFunctionReturnTag]];
 (* Existing tensor stages are linear in loop-independent scalar weights.
    Protect those weights while their structural Expand calls execute. *)
 qqGaugeEarlyProtectedApply[fn_,input_] := Module[{p},
@@ -117,7 +118,8 @@ qqGaugeEarlyIntegratedRemainder[j_,ref_] := Module[{measure=qqDeclaredLoopMeasur
  qqGaugeLinearDifference[measure j["MixedSelfEnergy"]+2 j["OnShellSigmaV"] j["Tree"],j["Gauge"],ref]];
 (* Shift complete tensor cores, including their numerators, before the second
    grouping pass. Scalar weights are loop independent by qqTensorPieces. *)
-qqGaugeEarlyRouteInput[input_] := Module[{r,pieces,anchored={},again},
+qqGaugeEarlyRouteInput[input_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{r,pieces,anchored={},again},
  qqProgressOperation["Early common routes: linearize protected chains"];
  r=qqLinearizeChains[input];qqProgressUpdate[<|"OutputLeaves"->LeafCount[r]|>];
  qqProgressOperation["Early common routes: combine protected denominators"];
@@ -125,10 +127,10 @@ qqGaugeEarlyRouteInput[input_] := Module[{r,pieces,anchored={},again},
  qqProgressOperation["Early common routes: partial fractions and cancel route squares"];
  r=qqCancelRoutePowers[qqRouteApart[r]];
  pieces=qqTensorPieces[r];If[FailureQ[pieces],Return[pieces]];
- Do[r=qqTensorAnchor[piece[[2]]];If[FailureQ[r],Return[r]];AppendTo[anchored,piece[[1]] r],{piece,pieces}];
+ Do[r=qqTensorAnchor[piece[[2]]];If[FailureQ[r],Throw[r,rgzFunctionReturnTag]];AppendTo[anchored,piece[[1]] r],{piece,pieces}];
  again=qqTensorPieces[Total[anchored]];If[FailureQ[again],Return[again]];
  qqProgressUpdate[<|"EarlyRouteCoresBefore"->Length[pieces],"EarlyRouteCoresAfter"->Length[again]|>];
- Total[Times@@@again]];
+ Total[Times@@@again]],rgzFunctionReturnTag]];
 (* Reuse the existing checkpointed TID driver, protecting its denominator
    combination too. This private copy changes no physical part definitions. *)
 DownValues[qqGaugeEarlyReduceGroups]=DownValues[qqReduceTensorGroups]/.
@@ -143,7 +145,7 @@ RGZQQGaugeEarlyCheck[seconds_:1200,OptionsPattern[]] := Module[
  If[!MemberQ[{True,False},reduce],Return[Failure["QQPVReductionOption",<||>]]];
  If[!And@@(NumericQ[#]&&TrueQ[#>0]& /@{seconds,co,ts}),Return[Failure["TimeLimit",<||>]]];
   $results=KeyDrop[$results,{"QQGaugeEarly"}];
- If[!AssociationQ[p]||qqFFUnresolvedScalarQ[Lookup[p,"Expression",0]]||Lookup[p,"AlgorithmHash",None]=!=qqGaugeEarlyAlgorithmHash[]||Lookup[p,"Fingerprint",None]=!=j["Fingerprint"]||Lookup[p,"ReferenceGauge",None]=!=ref||Sort[Lookup[p,"Parts",{}]]=!=Sort[qqGaugeEarlyParts],Return[Failure["QQEarlyPrepareAllFirst",<|"Action"->"RGZQQGaugeEarlyPrepare[]"|>]]];
+ If[!AssociationQ[p]||qqFFUnresolvedScalarQ[Lookup[p,"Expression",0]]||Lookup[p,"AlgorithmHash",None]=!=qqGaugeEarlyAlgorithmHash[]||Lookup[p,"Fingerprint",None]=!=j["Fingerprint"]||Lookup[p,"MixedSourceHash",None]=!=Lookup[j,"MixedSourceHash",None]||Lookup[p,"ReferenceGauge",None]=!=ref||Sort[Lookup[p,"Parts",{}]]=!=Sort[qqGaugeEarlyParts],Return[Failure["QQEarlyPrepareAllFirst",<|"Action"->"RGZQQGaugeEarlyPrepare[]"|>]]];
  If[!TrueQ[Lookup[j,"SelfPrepared",False]],Return[Failure["QQPrepareSelfFirst",<||>]]];
  r=engineGet["RGZ_Quark_Amplitude.wl",False];If[FailureQ[r],Return[r]];
  job=Join[j,<|"Directory"->p["Directory"]|>];
@@ -158,7 +160,7 @@ RGZQQGaugeEarlyCheck[seconds_:1200,OptionsPattern[]] := Module[
  delta=(reduced+delta)/I;
  Block[{$qqGaugeNativePV=reduce},qqGaugeCompare[delta,ref,seconds,co,"EarlyIntegrandDirect"]]],seconds];
  If[FailureQ[r],Return[r]];If[!AssociationQ[r],Return[Failure["QQEarlyCheckIncomplete",<||>]]];
- r=Join[r,<|"Method"->"RawIntegrandGaugeDifferenceBeforeTID","GaugeJobFingerprint"->j["Fingerprint"],"IRPrescription"->qqGaugeIR,
+ r=Join[r,<|"Method"->"RawIntegrandGaugeDifferenceBeforeTID","GaugeJobFingerprint"->j["Fingerprint"],"MixedSourceHash"->Lookup[j,"MixedSourceHash",None],"ModelFingerprint"->Lookup[j,"ModelFingerprint",None],"ModelContent"->Lookup[j,"ModelContent",None],"IRPrescription"->qqGaugeIR,
  "GaugeIndependenceVerified"->TrueQ[r["AllCoefficientsZero"]],"Renormalized"->False,"UVIRSeparated"->False|>];
- file=FileNameJoin[{p["Directory"],"comparison.wxf"}];key=atomicWXF[file,r];If[FailureQ[key],Return[key]];storeResult["QQGaugeEarly",r];
+ file=FileNameJoin[{p["Directory"],"comparison.wxf"}];AssociateTo[r,"File"->file];key=atomicWXF[file,r];If[FailureQ[key],Return[key]];storeResult["QQGaugeEarly",r];
  <|"Status"->r["Status"],"Name"->"QQGaugeEarly","Rows"->Length[r["Rows"]],"Statistics"->r["Statistics"],"File"->file|>];

@@ -1,25 +1,33 @@
-# Reproducibility contract for the paper
+# Reproducing the calculation
 
-The supplied manuscript is presently a five-page draft with author placeholders and unfinished sections. Its title and PDF SHA256 are recorded in `SOURCE_SNAPSHOT.json`; the PDF and unfinished article are not bundled or presented as final publication. No arXiv ID/DOI has been invented.
+Start with [Start Here](<../Examples/RGZWorkflow — Start Here.nb>) and continue with [Diagnostics](<../Examples/RGZWorkflow — Diagnostics.nb>). Both distributed notebooks contain inputs only. Historical evaluated copies remain in the local cleanup backup and Work/Review.
 
-A reproducible paper release needs **both** frozen source and matching completed data. This archive currently supplies the source and explicitly listed regression evidence, not a precomputed full amplitude.
+| Order | Required calculation |
+| --- | --- |
+| 1 | FeynRules: tree extraction, vertex export, extra-field quadratic action and action-vertex coverage |
+| 2 | Fresh FeynCalc kernel: propagator, vertex and labelled-permutation comparisons |
+| 3 | Complete mixed matrix and all AV/NAV/box contributions, including external residues |
+| 4 | Pure one-loop D-dimensional form factors and symbolic general-gauge difference |
+| 5 | Preserve the gauge comparison file; restore the fixed Landau/M0 task |
+| 6 | UV/IR analysis, scaleless/PV ledgers, local MSbar counterterms and finite representation |
+| 7 | Tadpole ledger, mass-region matching, raw pole bounds and graph-weighted coverage |
+| 8 | Complete mass ledger, independent finite audit and source-linked certification |
+| 9 | Scalar pole/finite audits, simplification, singlet/octet conversion and 144-coefficient row presentation |
 
-| Paper subject | Source / entry point | Required completed evidence |
-|---|---|---|
-| Action and conventions | Default Models companions | Exact action/field statistics, truncation, model SHA256 |
-| Quadratic kernels and vertices | Start Here sections 1–2 | FR export, 69-entry scope, 48 vertices, 702 orders; separate missing free-field audits |
-| Mixed one-loop self energy | `RGZMixedComputeAll`, `RGZMixedResult` | All matrix pairs and disjoint boson/ghost/quark sectors, completeness summary |
-| Pure one-loop amplitude | `RGZQQAmplitude`, `RGZQQFormFactors` | Matching tree and LoopOrder=1 packets, exact reconstruction, coefficients |
-| Gauge comparison | `RGZQQGaugeEarlyCheck` | Symbolic alpha, all coefficients, current model/fingerprint and prescriptions |
-| UV/IR and MSbar | Dedicated diagnostics notebook | Raw-core/PV ledgers, local CT provenance, separated poles and closure flags |
-| Mass dependence | Explicit parameter/branch limits | Surviving RGZ corrections, domain and degenerate-pole treatment |
+Run each stage only after its prerequisites succeed. A timeout is incomplete evidence. Rerun the same command to reuse completed checkpoints. Weighted assembly also saves T/L components and source-bound prefixes. Its exact scalar shortcut retains full D dependence, compares with the saved source and falls back to the original replay when inapplicable.
 
-## Data deposit
+The weighted notebook limits match the reference workflow: 144000 seconds overall, 12000 per graph and 600 per integral. These are ceilings, not predicted runtimes. Kernel and required adapter sources must stay compatible with the selected task; never edit verification flags.
 
-Deposit large WXF results in a separately versioned archive (for example a DOI-backed repository), not Git. Include a machine-readable manifest with release label, source archive SHA256, model SHA256, dependency versions, parameters, loop measure, branch/IR prescriptions, stage completion, expected row counts, raw/renormalized flags and each data-file SHA256. Make a small independent import/reconstruction check reproduce representative coefficients.
+The scope is distinct-flavour massless external quarks, two dynamical flavours, alpha=0 and M->0+, with nonzero nondegenerate internal masses and nonexceptional s,t,u=-s-t. Preserve the declared IR conditions, positive renormalization scale squared and common analytic continuation from the Euclidean domain with +i0. See [scope](ModelAndScope.md) and [renormalization](QuarkRenormalization.md).
 
-Do not relabel legacy probe-model results as results of the two-flavour model. Do not infer an IR-finite cross section merely from UV pole subtraction. Old Session files are not portable full-kernel snapshots.
+## Compare with the paper
 
-## Freeze procedure
+`RGZPaperResult[]` reads the inert author table and checks its hash. It does not seed caches or certify current results. After computing the final scalar rows, run:
 
-Run the release suites in isolated directories; populate validation evidence; complete the checklist. Update citation metadata with the actual authors, arXiv ID and data DOI when assigned. Tag the exact source revision and publish the generated archive plus its SHA256. Uploading to arXiv/GitHub/Zenodo is a separate action; this package creation does not publish anything.
+```sh
+/path/to/WolframKernel -script Tools/compare_paper_result.wls
+```
+
+This compares eight prefactors and all 144 coefficients over the 31-function catalogue, using exact algebra. The report goes to `Evidence/runs/paper-reproduction/`. The current completed run matches exactly; its compact summary is in [verified-run.json](../Evidence/verified-run.json).
+
+The paper PDFs are not bundled. Their hashes and conventions are in [paper provenance](../Paper/provenance.json). Current validation used compatible cached calculations; an empty-cache independent rerun has not been performed.

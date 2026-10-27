@@ -22,7 +22,7 @@
    Original TID/PV checkpoints are retained; no model/hash changes. *)
 
 If[DownValues[RGZMXIntegralUnit]==={} || DownValues[RGZMXWrite]==={},
-  Print["\:8bf7\:5148\:8f7d\:5165 RGZ_Mixed_OneLoop_Overall.wl\:ff0c\:518d\:8f7d\:5165\:672c\:8865\:4e01\:3002"];
+  Print["Load RGZ_Mixed_OneLoop_Overall.wl before this patch."];
   Abort[]];
 
 ClearAll[RGZMXSetAcceleration,RGZMXFastScalar,RGZMXFastRational,RGZMXFastApart,
@@ -30,15 +30,15 @@ ClearAll[RGZMXSetAcceleration,RGZMXFastScalar,RGZMXFastRational,RGZMXFastApart,
   RGZMXUnitDiagnostics,RGZMXIntegralUnit,rgzMXFastLastMethod,
   RGZMXFastPVCount,RGZMXUpgradeCachedUnit,RGZMXRefreshIntegral];
 If[!AssociationQ[rgzMXAcceleration],rgzMXAcceleration=<|
-  "\:542f\:7528"->True,"\:5355\:6838\:65f6\:9650"->300,"\:9884\:5904\:7406\:65f6\:9650"->10|>];
+  "Enabled"->True,"SingleKernelTimeLimit"->300,"PreprocessTimeLimit"->10|>];
 
-Options[RGZMXSetAcceleration]={"\:542f\:7528"->True,"\:5355\:6838\:65f6\:9650"->300,"\:9884\:5904\:7406\:65f6\:9650"->10};
+Options[RGZMXSetAcceleration]={"Enabled"->True,"SingleKernelTimeLimit"->300,"PreprocessTimeLimit"->10};
 RGZMXSetAcceleration[OptionsPattern[]] := Module[{unit,prep,enabled},
-  unit=OptionValue["\:5355\:6838\:65f6\:9650"];prep=OptionValue["\:9884\:5904\:7406\:65f6\:9650"];
-  enabled=OptionValue["\:542f\:7528"];
+  unit=OptionValue["SingleKernelTimeLimit"];prep=OptionValue["PreprocessTimeLimit"];
+  enabled=OptionValue["Enabled"];
   If[!MemberQ[{True,False},enabled] || !NumericQ[unit] || !TrueQ[unit>0] ||
     !NumericQ[prep] || !TrueQ[prep>0],Return[Failure["InvalidAccelerationOptions",<||>]]];
-  rgzMXAcceleration=<|"\:542f\:7528"->enabled,"\:5355\:6838\:65f6\:9650"->unit,"\:9884\:5904\:7406\:65f6\:9650"->prep|>
+  rgzMXAcceleration=<|"Enabled"->enabled,"SingleKernelTimeLimit"->unit,"PreprocessTimeLimit"->prep|>
 ];
 
 (* m is a mass, while root is its square. Never replace a labelled mass
@@ -52,7 +52,8 @@ RGZMXFastApart[r_,x_Symbol,y_Symbol] := Flatten[
   RGZMXTerms[Expand[Apart[#,y]]]& /@
     RGZMXTerms[Expand[Apart[r,x]]],1];
 
-RGZMXFastRational[kernel_] := Module[
+RGZMXFastRational[kernel_] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[
   {denoms,metadata={},k,cq,cp,route,shifted={},sign=-1,r,x,y,s,terms,back,bad},
   (* Loop scalar products must remain independent. Otherwise conversion
      can mistake an assigned q^2 for an external constant. *)
@@ -61,7 +62,7 @@ RGZMXFastRational[kernel_] := Module[
     !MatchQ[ChangeDimension[FCI[SPD[p,q]],D],HoldPattern[
       Pair[Momentum[p,D],Momentum[q,D]]|Pair[Momentum[q,D],Momentum[p,D]]]],
     Return[Failure["AssignedLoopScalarProducts",<|
-      "\:8bf4\:660e"->"q^2 \:6216 p.q \:5df2\:88ab\:8d4b\:503c\:ff1b\:5148\:6062\:590d\:72ec\:7acb\:5708\:52a8\:91cf\:6807\:91cf\:79ef\:ff0c\:518d\:79ef\:5206\:3002"|>]]];
+      "Description"->"q^2 or p.q has an assigned value. Restore independent loop scalar products before integration."|>]]];
   (* Scalar projection is required. No Lorentz/Dirac/tensor objects. *)
   If[!FreeQ[kernel,_LorentzIndex|_ExplicitLorentzIndex|_DiracGamma|_DiracChain],
     Return[Missing["NotScalar"]]];
@@ -70,10 +71,10 @@ RGZMXFastRational[kernel_] := Module[
   If[denoms==={},Return[Missing["NoQuadraticFAD"]]];
   Do[
     k=Expand[d[[1]]];
-    If[!PolynomialQ[k,{p,q}],Return[Missing["UnsupportedRouting",k]]];
+    If[!PolynomialQ[k,{p,q}],Throw[Missing["UnsupportedRouting",k],rgzFunctionReturnTag]];
     cq=Coefficient[k,q];cp=Coefficient[k,p];
     If[!MemberQ[{-1,1},cq] || !MemberQ[{-1,0,1},cp] ||
-      !TrueQ[Expand[k-cq q-cp p]===0],Return[Missing["UnsupportedRouting",k]]];
+      !TrueQ[Expand[k-cq q-cp p]===0],Throw[Missing["UnsupportedRouting",k],rgzFunctionReturnTag]];
     route=cp/cq;
     AppendTo[metadata,{route,d[[2]]}];
     If[route=!=0,AppendTo[shifted,route]],{d,denoms}];
@@ -96,9 +97,9 @@ RGZMXFastRational[kernel_] := Module[
   terms=RGZMXFastApart[r,x,y];
   back=Cancel[Together[r-Total[terms]]];
   If[!TrueQ[back===0],Return[Missing["RationalIdentityNotVerified"]]];
-  <|"\:539f\:5f0f"->r,"\:5206\:9879"->terms,"\:53d8\:91cf"->{x,y,s},
-    "\:8d28\:91cf"->DeleteDuplicates[metadata],"\:6362\:5143\:91cd\:6784\:5dee\:503c"->back|>
-];
+  <|"OriginalExpression"->r,"Contributions"->terms,"Variable"->{x,y,s},
+    "Mass"->DeleteDuplicates[metadata],"ChangeOfVariablesReconstructionDifference"->back|>
+],rgzFunctionReturnTag]];
 
 (* D-dimensional angular average, including a shifted tadpole:
    <(p.r)^(2n)>=(2n-1)!! (p^2 r^2)^n/[D(D+2)...].
@@ -126,7 +127,8 @@ RGZMXFastTadpole[poly_,var_,other_,s_,root_,order_Integer] := Module[
   I Pi^2 A0[root] Cancel[Together[out]]
 ];
 
-RGZMXFastTerm[term_,variables_List,metadata_List] := Module[
+RGZMXFastTerm[term_,variables_List,metadata_List] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[
   {x=variables[[1]],y=variables[[2]],s=variables[[3]],num,den,factors,
    factor,power,c,root,rx=None,ry=None,nx=0,ny=0,scale=1,z,mx,my,fd},
   z=Cancel[Together[term]];num=Numerator[z];den=Denominator[z];
@@ -137,14 +139,14 @@ RGZMXFastTerm[term_,variables_List,metadata_List] := Module[
     Which[
       FreeQ[factor,x|y],scale*=factor^power,
       FreeQ[factor,y] && Exponent[factor,x]===1,
-        If[nx=!=0,Return[Missing["MultipleXPoles"]]];
+        If[nx=!=0,Throw[Missing["MultipleXPoles"],rgzFunctionReturnTag]];
         c=Coefficient[factor,x];root=Cancel[-Coefficient[factor,x,0]/c];
         rx=root;nx=power;scale*=c^power,
       FreeQ[factor,x] && Exponent[factor,y]===1,
-        If[ny=!=0,Return[Missing["MultipleYPoles"]]];
+        If[ny=!=0,Throw[Missing["MultipleYPoles"],rgzFunctionReturnTag]];
         c=Coefficient[factor,y];root=Cancel[-Coefficient[factor,y,0]/c];
         ry=root;ny=power;scale*=c^power,
-      True,Return[Missing["NonseparableDenominator",factor]]],{item,Rest[factors]}];
+      True,Throw[Missing["NonseparableDenominator",factor],rgzFunctionReturnTag]],{item,Rest[factors]}];
   num/=scale;
   Which[
     nx===0 && ny===0,0,
@@ -159,41 +161,41 @@ RGZMXFastTerm[term_,variables_List,metadata_List] := Module[
       (* Only genuine repeated poles reach TID, with rank-zero numerator. *)
       fd=ChangeDimension[FCI[FAD@@Join[ConstantArray[{q,mx},nx],
         ConstantArray[{q-p,my},ny]]],D];
-      RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:91cd\:590d\:6781\:70b9\:ff1a\:65e0\:52a8\:91cf\:5206\:5b50\:7684 TID"];
+      RGZMXProgressUpdate["Substep"->"Repeated pole: TID without a momentum numerator"];
       num TID[fd,q,ToPaVe->True,UsePaVeBasis->True,ApartFF->False]
   ]
-];
+],rgzFunctionReturnTag]];
 
 (* Bound algebraic preprocessing separately. An unsupported term sends
    the WHOLE original kernel to ordinary TID; partial results are not
    mixed with a second evaluation of the original kernel. *)
 RGZMXFastScalar[kernel_] := Module[{data,terms,result,secs},
-  secs=rgzMXAcceleration["\:9884\:5904\:7406\:65f6\:9650"];
+  secs=rgzMXAcceleration["PreprocessTimeLimit"];
   data=CheckAbort[TimeConstrained[RGZMXFastRational[kernel],secs,
     Missing["PreparationTimeout"]],$Aborted];
   If[data===$Aborted,Return[$Aborted]];
   If[Head[data]===Missing || FailureQ[data],Return[data]];
   (* An unsupported term sends the whole unit back to ordinary TID. *)
-  result=RGZMXFastTerm[#,data["\:53d8\:91cf"],data["\:8d28\:91cf"]]&/@data["\:5206\:9879"];
+  result=RGZMXFastTerm[#,data["Variable"],data["Mass"]]&/@data["Contributions"];
   If[MemberQ[result,$Aborted],Return[$Aborted]];
   If[AnyTrue[result,Head[#]===Missing || FailureQ[#]&],
     Return[Missing["ScalarReductionUnsupported"]]];
-  terms=Total[result]/.data["\:53d8\:91cf"][[3]]->SPD[p,p];
-  If[!FreeQ[terms,data["\:53d8\:91cf"][[1]]|data["\:53d8\:91cf"][[2]]|_TID|_FeynAmpDenominator],
+  terms=Total[result]/.data["Variable"][[3]]->SPD[p,p];
+  If[!FreeQ[terms,data["Variable"][[1]]|data["Variable"][[2]]|_TID|_FeynAmpDenominator],
     Return[Missing["ScalarReductionIncomplete"]]];
   FCI[terms]
 ];
 
 RGZMXFastEvaluate[kernel_] := Module[{r},
   rgzMXFastLastMethod="TID";
-  If[TrueQ[rgzMXAcceleration["\:542f\:7528"]],
-    RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:6807\:91cf\:6052\:7b49\:5f0f\:ff1a\:6d88\:53bb\:52a8\:91cf\:5206\:5b50"];
+  If[TrueQ[rgzMXAcceleration["Enabled"]],
+    RGZMXProgressUpdate["Substep"->"ScalarIdentity: eliminate MomentumNumerator"];
     r=RGZMXFastScalar[kernel];
     If[r===$Aborted,Return[$Aborted]];
     If[MatchQ[r,Failure["AssignedLoopScalarProducts",_]],Return[r]];
     If[Head[r]=!=Missing && !FailureQ[r] && r=!=$Failed,
-      rgzMXFastLastMethod="\:6807\:91cf\:6052\:7b49\:5f0f\:7ea6\:5316";Return[r]]];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"TID\:ff08\:6807\:91cf\:9884\:5904\:7406\:4e0d\:9002\:7528\:ff09"];
+      rgzMXFastLastMethod="ScalarIdentityReduce";Return[r]]];
+  RGZMXProgressUpdate["Substep"->"TID (ScalarPreprocessNotapplicable)"];
   TID[kernel,q,ToPaVe->True,UsePaVeBasis->True,ApartFF->False]
 ];
 
@@ -206,27 +208,27 @@ RGZMXFastPVCount[expr_] := Length[DeleteDuplicates[Cases[expr,
    bound to the exact input, old environment and fast reducer definitions.
    Unsupported/slow upgrades retain the original valid TID result. *)
 RGZMXUpgradeCachedUnit[old_Association,path_,context_,seconds_] := Module[
-  {original=old["\:7ed3\:679c"],fastContext,upgradePath=None,saved,z,time,
+  {original=old["Result"],fastContext,upgradePath=None,saved,z,time,
    limit,record,r,good},
-  If[!TrueQ[rgzMXAcceleration["\:542f\:7528"]] || RGZMXFastPVCount[original]===0,
+  If[!TrueQ[rgzMXAcceleration["Enabled"]] || RGZMXFastPVCount[original]===0,
     Return[original]];
-  limit=Min[seconds,rgzMXAcceleration["\:9884\:5904\:7406\:65f6\:9650"]];
+  limit=Min[seconds,rgzMXAcceleration["PreprocessTimeLimit"]];
   fastContext=Join[context,{"AA-SCALAR-SIDECAR-v3",limit,
     Hash[{DownValues[RGZMXFastScalar],DownValues[RGZMXFastRational],
       DownValues[RGZMXFastApart],DownValues[RGZMXFastTerm],
       DownValues[RGZMXFastTadpole],DownValues[RGZMXFastMass]},"SHA256"]}];
   If[StringQ[path],upgradePath=path<>".scalar_v3.wl"];
   If[StringQ[upgradePath] && FileExistsQ[upgradePath],saved=Get[upgradePath];
-    If[AssociationQ[saved] && Lookup[saved,"\:7248\:672c",0]===3 &&
-      SameQ[Lookup[saved,"\:8f93\:5165",Missing[]],old["\:8f93\:5165"]] &&
-      SameQ[Lookup[saved,"\:73af\:5883",Missing[]],fastContext],
-      If[Lookup[saved,"\:72b6\:6001",""]==="\:5b8c\:6210" && KeyExistsQ[saved,"\:7ed3\:679c"],
-        AssociateTo[rgzMXLastIntegralUnit,"\:7b97\:6cd5"->"\:6807\:91cf\:7f13\:5b58\:6062\:590d"];
-        Return[saved["\:7ed3\:679c"]]];
-      If[Lookup[saved,"\:72b6\:6001",""]==="\:4fdd\:7559\:539fPV\:7ed3\:679c",Return[original]]]];
-  RGZMXProgressUpdate["\:5b50\:6b65\:9aa4"->"\:65e7\:79ef\:5206\:6838\:ff1a\:76f4\:63a5\:6807\:91cf\:7ea6\:5316"];
+    If[AssociationQ[saved] && Lookup[saved,"Version",0]===3 &&
+      SameQ[Lookup[saved,"Input",Missing[]],old["Input"]] &&
+      SameQ[Lookup[saved,"Environment",Missing[]],fastContext],
+      If[Lookup[saved,"Status",""]==="Complete" && KeyExistsQ[saved,"Result"],
+        AssociateTo[rgzMXLastIntegralUnit,"Algorithm"->"ScalarCacheRestored"];
+        Return[saved["Result"]]];
+      If[Lookup[saved,"Status",""]==="RetainOriginalPVResult",Return[original]]]];
+  RGZMXProgressUpdate["Substep"->"LegacyIntegrateKernel: direct ScalarReduce"];
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
-    RGZMXFastScalar[old["\:8f93\:5165"]],limit,Missing["UpgradeTimeout"]],$Aborted]];
+    RGZMXFastScalar[old["Input"]],limit,Missing["UpgradeTimeout"]],$Aborted]];
   (* A normal user abort stops the graph; a bounded unsupported upgrade
      is safe to replace by the original, fully evaluated TID checkpoint. *)
   If[z===$Aborted,Return[Failure["ScalarUpgradeAborted",<||>]]];
@@ -234,14 +236,14 @@ RGZMXUpgradeCachedUnit[old_Association,path_,context_,seconds_] := Module[
   good=z=!=$Failed && !FailureQ[z] &&
     FreeQ[z,_Missing|_TID|_PaVeReduce|_FeynAmpDenominator] &&
     RGZMXFastPVCount[z]===0;
-  record=<|"\:7248\:672c"->3,"\:8f93\:5165"->old["\:8f93\:5165"],"\:73af\:5883"->fastContext,
-    "\:72b6\:6001"->If[good,"\:5b8c\:6210","\:4fdd\:7559\:539fPV\:7ed3\:679c"],"\:8017\:65f6"->time,
-    "\:539f\:59cb\:7f13\:5b58"->path,"\:7ed3\:679c"->If[good,z,original]|>;
-  If[!good,AssociateTo[record,"\:5347\:7ea7\:672a\:5b8c\:6210\:539f\:56e0"->z]];
+  record=<|"Version"->3,"Input"->old["Input"],"Environment"->fastContext,
+    "Status"->If[good,"Complete","RetainOriginalPVResult"],"ElapsedSeconds"->time,
+    "OriginalCache"->path,"Result"->If[good,z,original]|>;
+  If[!good,AssociateTo[record,"UpgradeIncompleteCause"->z]];
   If[StringQ[upgradePath],r=RGZMXWrite[record,upgradePath];
     If[FailureQ[r],Return[r]]];
-  AssociateTo[rgzMXLastIntegralUnit,{"\:7b97\:6cd5"->If[good,
-    "\:65e7\:7f13\:5b58\:8f6c\:4e3a\:6807\:91cf\:79ef\:5206","\:590d\:7528\:539fPV\:7f13\:5b58"],"\:5347\:7ea7\:8017\:65f6"->time}];
+  AssociateTo[rgzMXLastIntegralUnit,{"Algorithm"->If[good,
+    "LegacyCacheconvertIsScalarProductpart","reuseOriginalPVCache"],"UpgradeElapsedSeconds"->time}];
   If[good,z,original]
 ];
 
@@ -250,44 +252,44 @@ RGZMXUpgradeCachedUnit[old_Association,path_,context_,seconds_] := Module[
 RGZMXIntegralUnit[kernel_,path_,context_,seconds_] := Module[
   {old,record,z,time,den,r,status,unitSeconds},
   If[StringQ[path] && FileExistsQ[path],old=Get[path];
-    If[AssociationQ[old] && Lookup[old,"\:7248\:672c",0]===1 &&
-      Lookup[old,"\:72b6\:6001",""]==="\:5b8c\:6210" &&
-      SameQ[Lookup[old,"\:8f93\:5165",Missing[]],kernel] &&
-      SameQ[Lookup[old,"\:73af\:5883",Missing[]],context] && KeyExistsQ[old,"\:7ed3\:679c"],
-      AssociateTo[rgzMXLastIntegralUnit,"\:72b6\:6001"->"\:6062\:590d\:7f13\:5b58"];
+    If[AssociationQ[old] && Lookup[old,"Version",0]===1 &&
+      Lookup[old,"Status",""]==="Complete" &&
+      SameQ[Lookup[old,"Input",Missing[]],kernel] &&
+      SameQ[Lookup[old,"Environment",Missing[]],context] && KeyExistsQ[old,"Result"],
+      AssociateTo[rgzMXLastIntegralUnit,"Status"->"RestoreCache"];
       Return[RGZMXUpgradeCachedUnit[old,path,context,seconds]]]];
-  record=<|"\:7248\:672c"->1,"\:8f93\:5165"->kernel,"\:73af\:5883"->context,"\:72b6\:6001"->"\:5904\:7406\:4e2d"|>;
+  record=<|"Version"->1,"Input"->kernel,"Environment"->context,"Status"->"process In"|>;
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
-  unitSeconds=Min[seconds,rgzMXAcceleration["\:5355\:6838\:65f6\:9650"]];
-  rgzMXFastLastMethod="\:672a\:5f00\:59cb";
+  unitSeconds=Min[seconds,rgzMXAcceleration["SingleKernelTimeLimit"]];
+  rgzMXFastLastMethod="NotStarted";
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
     If[FreeQ[kernel,_FeynAmpDenominator],
       den=Denominator[Together[kernel]];
-      If[!FreeQ[den,q],Failure["UnsplitLoopDenominator",<|"\:8f93\:5165\:6587\:4ef6"->path|>],0],
+      If[!FreeQ[den,q],Failure["UnsplitLoopDenominator",<|"InputFile"->path|>],0],
       RGZMXFastEvaluate[kernel]],unitSeconds,$Aborted],$Aborted]];
   If[z=!=$Aborted && z=!=$Failed && !FailureQ[z] &&
     !FreeQ[z,_TID|_FeynAmpDenominator|_Missing],
-    z=Failure["IncompleteScalarReduction",<|"\:8f93\:5165\:6587\:4ef6"->path|>]];
-  status=Which[z===$Aborted,"\:8d85\:65f6\:6216\:4e2d\:6b62",z===$Failed || FailureQ[z],"\:8ba1\:7b97\:5931\:8d25",True,"\:5b8c\:6210"];
-  record=Join[record,<|"\:72b6\:6001"->status,"\:8017\:65f6"->time,"\:7ed3\:679c"->z,
-    "\:7b97\:6cd5"->rgzMXFastLastMethod,"\:5355\:6838\:65f6\:9650"->unitSeconds|>];
-  AssociateTo[rgzMXLastIntegralUnit,{"\:72b6\:6001"->status,"\:8017\:65f6"->time,
-    "\:7b97\:6cd5"->rgzMXFastLastMethod,"\:5355\:6838\:65f6\:9650"->unitSeconds}];
+    z=Failure["IncompleteScalarReduction",<|"InputFile"->path|>]];
+  status=Which[z===$Aborted,"TimeoutOrAborted",z===$Failed || FailureQ[z],"ComputeFailed",True,"Complete"];
+  record=Join[record,<|"Status"->status,"ElapsedSeconds"->time,"Result"->z,
+    "Algorithm"->rgzMXFastLastMethod,"SingleKernelTimeLimit"->unitSeconds|>];
+  AssociateTo[rgzMXLastIntegralUnit,{"Status"->status,"ElapsedSeconds"->time,
+    "Algorithm"->rgzMXFastLastMethod,"SingleKernelTimeLimit"->unitSeconds}];
   If[StringQ[path],r=RGZMXWrite[record,path];If[FailureQ[r],Return[r]]];
-  If[status==="\:5b8c\:6210",z,Failure["IntegralUnitStopped",<|
-    "\:9879\:53f7"->Lookup[rgzMXLastIntegralUnit,"\:9879\:53f7"],"\:8f93\:5165\:6587\:4ef6"->path,
-    "\:72b6\:6001"->status,"\:539f\:56e0"->z,"\:5355\:6838\:65f6\:9650"->unitSeconds|>]]
+  If[status==="Complete",z,Failure["IntegralUnitStopped",<|
+    "TermID"->Lookup[rgzMXLastIntegralUnit,"TermID"],"InputFile"->path,
+    "Status"->status,"Cause"->z,"SingleKernelTimeLimit"->unitSeconds|>]]
 ];
 
 RGZMXUnitDiagnostics[] := Module[{a,path,r,objects,momenta},
   If[!AssociationQ[rgzMXLastIntegralUnit],Return[Missing["NoUnitRun"]]];
-  a=rgzMXLastIntegralUnit;path=Lookup[a,"\:8f93\:5165\:6587\:4ef6",None];
+  a=rgzMXLastIntegralUnit;path=Lookup[a,"InputFile",None];
   r=If[StringQ[path] && FileExistsQ[path],Get[path],<||>];
-  Join[KeyTake[a,{"\:9879\:53f7","\:603b\:9879\:6570","\:8f93\:5165\:6587\:4ef6","\:8f93\:5165\:5927\:5c0f","\:72b6\:6001","\:8017\:65f6","\:7b97\:6cd5","\:5355\:6838\:65f6\:9650"}],
-    If[AssociationQ[r] && KeyExistsQ[r,"\:8f93\:5165"],
-      objects=Cases[r["\:8f93\:5165"],_PropagatorDenominator,Infinity];
-      <|"\:4f20\:64ad\:5b50\:6570"->Length[objects],"\:4f20\:64ad\:5b50"->DeleteDuplicates[objects],
-        "\:5708\:52a8\:91cf\:5206\:5b50"->(r["\:8f93\:5165"]/. _FeynAmpDenominator->1)|>,<||>]]
+  Join[KeyTake[a,{"TermID","TotalTermCount","InputFile","InputSize","Status","ElapsedSeconds","Algorithm","SingleKernelTimeLimit"}],
+    If[AssociationQ[r] && KeyExistsQ[r,"Input"],
+      objects=Cases[r["Input"],_PropagatorDenominator,Infinity];
+      <|"PropagatorCount"->Length[objects],"Propagator"->DeleteDuplicates[objects],
+        "LoopMomentumNumerator"->(r["Input"]/. _FeynAmpDenominator->1)|>,<||>]]
 ];
 
 (* Rebuild ONLY the integral representation for one unfinished T/L scalar
@@ -300,40 +302,40 @@ RGZMXRefreshIntegral[n_Integer,component_String:"T",seconds_:600] := Module[
   If[!MemberQ[{"T","L"},component] || !NumericQ[seconds] || !TrueQ[seconds>0],
     Return[Failure["RefreshArguments",<||>]]];
   If[!AssociationQ[rgzMXJob],Return[Failure["StartFirst",<||>]]];
-  If[n<1 || n>Length[rgzMXJob["\:9010\:56fe"]],Return[Failure["GraphNumber",<||>]]];
-  row=RGZMXMigrateRow[rgzMXJob["\:9010\:56fe"][[n]]];states=row["\:72b6\:6001"];
-  splitStage="\:5206\:89e3"<>component;integralStage="\:79ef\:5206"<>component;
-  scalarStage="\:6807\:91cf"<>component;
-  If[Lookup[states,scalarStage,""]==="\:5b8c\:6210",
-    Return[<|"\:7f16\:53f7"->n,"\:9636\:6bb5"->scalarStage,"\:72b6\:6001"->"\:5df2\:5b8c\:6210\:ff0c\:8df3\:8fc7"|>]];
-  If[Lookup[states,splitStage,""]=!="\:5b8c\:6210" || !KeyExistsQ[row,splitStage],
-    Return[Failure["RunPreviousStage",<|"\:7f3a\:5c11\:9636\:6bb5"->{splitStage}|>]]];
+  If[n<1 || n>Length[rgzMXJob["PerDiagram"]],Return[Failure["GraphNumber",<||>]]];
+  row=RGZMXMigrateRow[rgzMXJob["PerDiagram"][[n]]];states=row["Status"];
+  splitStage="Decompose"<>component;integralStage="Integrate"<>component;
+  scalarStage="Scalar"<>component;
+  If[Lookup[states,scalarStage,""]==="Complete",
+    Return[<|"ID"->n,"Stage"->scalarStage,"Status"->"Complete; skipped"|>]];
+  If[Lookup[states,splitStage,""]=!="Complete" || !KeyExistsQ[row,splitStage],
+    Return[Failure["RunPreviousStage",<|"MissingStage"->{splitStage}|>]]];
   oldCount=If[KeyExistsQ[row,integralStage],RGZMXFastPVCount[row[integralStage]],
     Missing["IntegralNotRun"]];
-  RGZMXProgressUpdate["\:90e8\:95e8"->row["\:7c7b\:522b"],"\:56fe\:53f7"->n,
-    "\:56fe\:6570"->Length[rgzMXJob["\:9010\:56fe"]],"\:9636\:6bb5"->"\:91cd\:6574"<>integralStage,
-    "\:5b50\:6b65\:9aa4"->"\:6574\:7406\:65e7\:79ef\:5206\:6838","\:9879\:53f7"->0,"\:603b\:9879\:6570"->0,"\:5b8c\:6210\:9879\:6570"->0,
-    "\:72b6\:6001"->"\:8ba1\:7b97\:4e2d","\:9636\:6bb5\:5f00\:59cb\:65f6\:95f4"->AbsoluteTime[]];
+  RGZMXProgressUpdate["Sector"->row["Category"],"DiagramID"->n,
+    "DiagramCount"->Length[rgzMXJob["PerDiagram"]],"Stage"->"Reorganize"<>integralStage,
+    "Substep"->"organize LegacyIntegrateKernel","TermID"->0,"TotalTermCount"->0,"CompleteTermCount"->0,
+    "Status"->"ComputeIn","StageStartTime"->AbsoluteTime[]];
   {time,z}=AbsoluteTiming[CheckAbort[TimeConstrained[
     RGZMXIntegrate[row[splitStage],
-      FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"tid_units_v1"}],seconds],
+      FileNameJoin[{rgzMXJob["CacheDirectory"],"tid_units_v1"}],seconds],
     seconds,$Aborted],$Aborted]];
   If[z===$Aborted || z===$Failed || FailureQ[z],
-    RGZMXProgressUpdate["\:72b6\:6001"->"\:91cd\:6574\:672a\:5b8c\:6210\:ff1b\:539f\:56fe\:8bb0\:5f55\:4fdd\:7559"];
-    Return[Failure["IntegralRefreshStopped",<|"\:7f16\:53f7"->n,
-      "\:9636\:6bb5"->integralStage,"\:8017\:65f6"->time,"\:539f\:56e0"->z|>]]];
+    RGZMXProgressUpdate["Status"->"Reorganization is incomplete; original diagram records are retained"];
+    Return[Failure["IntegralRefreshStopped",<|"ID"->n,
+      "Stage"->integralStage,"ElapsedSeconds"->time,"Cause"->z|>]]];
   newCount=RGZMXFastPVCount[z];
-  states=Join[states,<|integralStage->"\:5b8c\:6210",scalarStage->"\:672a\:8fd0\:884c"|>];
-  result=<|"\:7f16\:53f7"->n,"\:9636\:6bb5"->integralStage,"\:72b6\:6001"->"\:91cd\:6574\:5b8c\:6210",
-    "\:8017\:65f6"->time,"\:91cd\:6574\:524d\:5f85\:7ea6\:5316PV\:6570"->oldCount,"\:91cd\:6574\:540e\:5f85\:7ea6\:5316PV\:6570"->newCount|>;
+  states=Join[states,<|integralStage->"Complete",scalarStage->"NotRun"|>];
+  result=<|"ID"->n,"Stage"->integralStage,"Status"->"ReorganizeComplete",
+    "ElapsedSeconds"->time,"ReorganizeBeforepending ReducePVCount"->oldCount,"ReorganizeAfterpending ReducePVCount"->newCount|>;
   newRow=Join[KeyDrop[row,{scalarStage}],<|integralStage->z,
-    "\:72b6\:6001"->states,"\:6807\:91cf\:7f13\:5b58\:91cd\:6574"->Join[Lookup[row,"\:6807\:91cf\:7f13\:5b58\:91cd\:6574",<||>],
+    "Status"->states,"ScalarCacheReorganize"->Join[Lookup[row,"ScalarCacheReorganize",<||>],
       <|component->result|>]|>];
-  path=FileNameJoin[{rgzMXJob["\:7f13\:5b58\:76ee\:5f55"],"graph_"<>ToString[n]<>".wl"}];
+  path=FileNameJoin[{rgzMXJob["CacheDirectory"],"graph_"<>ToString[n]<>".wl"}];
   r=RGZMXWrite[newRow,path];If[FailureQ[r],Return[r]];
-  all=rgzMXJob["\:9010\:56fe"];all[[n]]=newRow;
-  AssociateTo[rgzMXJob,"\:9010\:56fe"->all];
-  RGZMXProgressUpdate["\:72b6\:6001"->"\:5b8c\:6210"];
+  all=rgzMXJob["PerDiagram"];all[[n]]=newRow;
+  AssociateTo[rgzMXJob,"PerDiagram"->all];
+  RGZMXProgressUpdate["Status"->"Complete"];
   result
 ];
 
@@ -348,18 +350,18 @@ ClearAll[RGZMXRunAccelerated,RGZMixSetAcceleration,
   RGZMixRefreshIntegral,RGZMixUnitDiagnostics];
 RGZMXRunAccelerated[n_Integer,stage_String,seconds_:300] := Module[
   {row,component,integralStage,splitStage,refreshRecord,r},
-  If[TrueQ[rgzMXAcceleration["\:542f\:7528"]] &&
-      MemberQ[{"\:6807\:91cfT","\:6807\:91cfL"},stage] && AssociationQ[rgzMXJob] &&
-      1<=n<=Length[rgzMXJob["\:9010\:56fe"]],
-    row=RGZMXMigrateRow[rgzMXJob["\:9010\:56fe"][[n]]];
+  If[TrueQ[rgzMXAcceleration["Enabled"]] &&
+      MemberQ[{"ScalarT","ScalarL"},stage] && AssociationQ[rgzMXJob] &&
+      1<=n<=Length[rgzMXJob["PerDiagram"]],
+    row=RGZMXMigrateRow[rgzMXJob["PerDiagram"][[n]]];
     component=StringTake[stage,-1];
-    integralStage="\:79ef\:5206"<>component;splitStage="\:5206\:89e3"<>component;
-    refreshRecord=Lookup[Lookup[row,"\:6807\:91cf\:7f13\:5b58\:91cd\:6574",<||>],component,<||>];
-    If[Lookup[row["\:72b6\:6001"],stage,""]=!="\:5b8c\:6210" &&
-      Lookup[row["\:72b6\:6001"],splitStage,""]==="\:5b8c\:6210" &&
-      Lookup[row["\:72b6\:6001"],integralStage,""]==="\:5b8c\:6210" &&
+    integralStage="Integrate"<>component;splitStage="Decompose"<>component;
+    refreshRecord=Lookup[Lookup[row,"ScalarCacheReorganize",<||>],component,<||>];
+    If[Lookup[row["Status"],stage,""]=!="Complete" &&
+      Lookup[row["Status"],splitStage,""]==="Complete" &&
+      Lookup[row["Status"],integralStage,""]==="Complete" &&
       KeyExistsQ[row,integralStage] &&
-      Lookup[refreshRecord,"\:72b6\:6001",""]=!="\:91cd\:6574\:5b8c\:6210" &&
+      Lookup[refreshRecord,"Status",""]=!="ReorganizeComplete" &&
       RGZMXFastPVCount[row[integralStage]]>0,
       r=RGZMXRefreshIntegral[n,component,seconds];
       If[FailureQ[r],Return[r]]]];
@@ -374,6 +376,5 @@ RGZMixRefreshIntegral[n_Integer,component_String:"T",seconds_:600] :=
   RGZMXRefreshIntegral[n,component,seconds];
 RGZMixUnitDiagnostics[] := RGZMXUnitDiagnostics[];
 
-RGZMXReport["\:6458\:8981",
-  "\:6df7\:5408\:77e9\:9635\:6807\:91cf\:52a0\:901f\:5df2\:52a0\:8f7d\:ff1b\:539f\:7f13\:5b58\:4fdd\:7559\:ff0c\:672a\:5b8c\:6210\:7684\:6807\:91cf\:9636\:6bb5\:81ea\:52a8\:91cd\:6574\:65e7\:79ef\:5206\:3002\:8bbe\:7f6e\:ff1aRGZMixSetAcceleration[\"\:5355\:6838\:65f6\:9650\"->120,\"\:9884\:5904\:7406\:65f6\:9650\"->15]\:3002"];
-
+RGZMXReport["Summary",
+  "Scalar accelerator loaded. Original caches are retained; incomplete scalar stages reorganize old integrals. Configure with RGZMixSetAcceleration[\"SingleKernelTimeLimit\"->120,\"PreprocessTimeLimit\"->15]."];

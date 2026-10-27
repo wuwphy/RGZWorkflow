@@ -23,8 +23,6 @@ The supported external process is distinct-flavour, massless qq' -> qq', with tr
 
 `QuarkMasses -> {mq1,mq2}` controls base-model/closed-bubble masses and cache fingerprints. Massive external kinematics, residues and mass counterterms are not implemented; QQ start calls reject nonzero masses. Default-model MSbar operations are scoped to their stated Landau/M=0 prescription, with current model content and provenance required.
 
-Gauge independence, UV renormalization and IR finiteness are separate claims. A zero pinch difference is not an independent functional ST proof. `RGZQQSMatrix[]` remains fail-closed when full proofs are missing. No new full updated-model gauge or finite-amplitude result is certified by this development release.
+Gauge independence, UV renormalization and IR finiteness are separate claims. A zero pinch difference is not an independent functional ST proof. `RGZQQCertification[]` links current bare, gauge, mass-limit, UV/IR and finite-assembly evidence. `RGZQQSMatrix[]` returns a conditional amplitude only when every required check passes; otherwise it returns `FullSMatrixNotVerified`. Changing completion flags cannot bypass this boundary. The completed saved run is summarized in [verification](../Evidence/README.md); that record does not certify a new Work directory.
 
-## Experimental extension
-
-`Models/Experimental/FermionicHorizon` contains a separate two-flavour auxiliary-spinor extension based on arXiv:2107.08569v2. It has a finite four-particle FA expansion and its own covariance-insertion topology. Its normalization note distinguishes Eqs.(28)/(45) and Eq.(174). It is not enabled by the default model or loop enumeration; no release claim relies on its S-matrix or renormalization.
+The full QQ entry point accepts only the implemented class mapping: quarks `F[1]` and `F[2]`, ghosts `U[1]` through `U[4]`, and scalar ghost classes `U[1]` and `U[4]`, with the constraint ghost included and two dynamical quark flavours. A custom ModelBase is not an automatic implementation of a different matter sector; unsupported QQ mappings fail explicitly.

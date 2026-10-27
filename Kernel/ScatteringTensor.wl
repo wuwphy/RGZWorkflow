@@ -129,7 +129,8 @@ qqTensorNumeratorSimplify[core_,seconds_] := Module[{den,num,candidate},
    that were invisible before shifting. Apply the exact polynomial division
    again, and re-anchor EACH resulting integral: deleting a propagator can
    remove the zero-route line required by TID (notably shifted tadpoles). *)
-qqReduceAnchoredCore[core_,seconds_,depth_:0] := Module[{lowered,parts,results={},next,r},
+qqReduceAnchoredCore[core_,seconds_,depth_:0] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[{lowered,parts,results={},next,r},
  qqProgressOperation["Cancel route squares after loop-momentum shift"];
  lowered=qqCancelRoutePowers[core];
  If[lowered===core||depth>=32,Return[RGZWorkflow`Engine`rgzQQReduce[core]]];
@@ -139,11 +140,11 @@ qqReduceAnchoredCore[core_,seconds_,depth_:0] := Module[{lowered,parts,results={
      in dimensional regularization, including the constant contact term. *)
   If[FreeQ[part[[2]],FeynCalc`FeynAmpDenominator],AppendTo[results,0];Continue[]];
   qqProgressOperation["Re-anchor lower-rank integral "<>ToString[Length[results]+1]<>" / "<>ToString[Length[parts]]];
-  next=qqTensorAnchor[part[[2]]];If[FailureQ[next],Return[next]];
+  next=qqTensorAnchor[part[[2]]];If[FailureQ[next],Throw[next,rgzFunctionReturnTag]];
   next=qqTensorNumeratorSimplify[next,seconds];
-  r=qqReduceAnchoredCore[next,seconds,depth+1];If[FailureQ[r],Return[r]];
+  r=qqReduceAnchoredCore[next,seconds,depth+1];If[FailureQ[r],Throw[r,rgzFunctionReturnTag]];
   AppendTo[results,part[[1]] r],{part,parts}];
- Total[results]];
+ Total[results]],rgzFunctionReturnTag]];
 
 qqReduceTensorGroups[input_,job_,name_,seconds_] := Module[{pieces,dir,results={},key,file,packet,r,saved,answer,stop=Unique["qqTensorStop"]},
  qqProgressOperation["Linearize open Dirac chains"];

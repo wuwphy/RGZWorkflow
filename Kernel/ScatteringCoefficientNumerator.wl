@@ -20,7 +20,8 @@ qqNumeratorSparseRules[input_,vars_] := Module[{parse,multiply,add,result,degree
  If[LeafCount[e]<500,AssociateTo[cache,key->result]];result];
  result=parse[input];If[result===$Failed,Throw[$Failed,stop]];
  KeyValueMap[#1[[1]]->#2&,result],stop],Clear[parse,multiply];cache=<||>]];
-qqNumeratorBlocked[polys_,u_,v_,mu_,mg_,mode_:Automatic] := Module[
+qqNumeratorBlocked[polys_,u_,v_,mu_,mg_,mode_:Automatic] := Module[{rgzFunctionReturnTag=Unique["RGZWorkflow`Private`functionReturn"]},Catch[
+Module[
  {sum=Total[polys],vars,alpha,pattern,mask,memo=<||>,values={},slots=0,slot,
   masked,rules,back,relation=mg^4-(u^2-mu^2)(v^2-mu^2),root=None,checkpoint,
   canonical,toCanonical,fromCanonical,key,file,p,c,out={},plan,planKey,probe,reduceMass,reused=0,saved=0},Internal`WithLocalSettings[Null,
@@ -60,8 +61,8 @@ qqNumeratorBlocked[polys_,u_,v_,mu_,mg_,mode_:Automatic] := Module[
   If[AssociationQ[p]&&Lookup[p,"Key",None]===key&&!qqFFInvalidQ[Lookup[p,"Value",$Failed]],
    c=p["Value"]/.fromCanonical;reused++,
    c=Expand[c];If[!FreeQ[c,mg],c=PolynomialRemainder[c,relation,mg]];
-   If[qqFFInvalidQ[c],Return[c]];
-   If[StringQ[file],p=atomicWXF[file,<|"Key"->key,"Value"->(c/.toCanonical)|>];If[FailureQ[p],Return[p]];saved++]];
+   If[qqFFInvalidQ[c],Throw[c,rgzFunctionReturnTag]];
+   If[StringQ[file],p=atomicWXF[file,<|"Key"->key,"Value"->(c/.toCanonical)|>];If[FailureQ[p],Throw[p,rgzFunctionReturnTag]];saved++]];
   qqProgressUpdate[<|"NumeratorCacheReused"->reused,"NumeratorCacheSaved"->saved|>];
   If[c=!=0,AppendTo[out,c Times@@MapThread[Power,{vars,First[rules[[i]]]}]]],{i,Length[rules]}];
- Total[out],Clear[mask,reduceMass];memo=<||>;values={}]];
+ Total[out],Clear[mask,reduceMass];memo=<||>;values={}]],rgzFunctionReturnTag]];

@@ -1,14 +1,11 @@
-# Test tiers
+# Essential checks
 
-Run the curated suites with `python3 Tools/run_tests.py --kernel /path/to/WolframKernel --suite all`.
+The retained checks cover package loading/session guards, the scalar audit adapter, notebook dependency handling, exact generic-D scalar identities, interrupted weighted assembly, certificate payload validation, paper-table integrity and Python filesystem safety.
 
-- **core:** loading, exact independent tree inverse, session/result guards, model metadata and optional mass guards. No external packages required.
-- **algebra:** coefficient reduction, spectral/numerator checkpoints and exact reconstruction helpers.
-- **integration:** real serial FeynRules export followed by FeynCalc checks of 69 original propagator/connection entries, all 48 vertices and all 702 labelled permutations.
-- **physics:** selected FeynCalc fixture regressions for scattering assembly, form factors, loop-order separation, early gauge algebra and MSbar guards/local identities. These are not a full updated-model amplitude recomputation.
+```sh
+python3 Tools/run_tests.py --kernel /path/to/WolframKernel --suite core
+python3 Tools/run_tests.py --kernel /path/to/WolframKernel --suite algebra
+python3 Tests/ReleaseTools.py
+```
 
-The runner uses one fresh kernel per script and an isolated integration directory. `--suite physics` requires `--work` pointing to an isolated successful integration export. `--suite all` creates it automatically. Other scripts are preserved as manual audits; inspect their inputs/time limits before running. FeynHelpers-dependent tests are optional and not a default release gate.
-
-Any `*Body.wl` is a helper, not an independent test entry. Some manual audits write `output/review`; that directory is intentionally not included in the source archive.
-
-Independent optional horizon-model checks are included under `Experimental/FermionicHorizon`; run each in a fresh appropriate kernel. They are not part of the default-model suite or a full horizon S-matrix calculation.
+Core checks require no external physics packages. Algebra checks require FeynCalc/FeynArts. The complete native model/graph calculation is exercised by Start Here and Diagnostics. Historical development tests are preserved in the local cleanup backup.

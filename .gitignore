@@ -7,3 +7,4 @@ artifacts/
 *.pending*
 .DS_Store
 __pycache__/
+FeynRules/

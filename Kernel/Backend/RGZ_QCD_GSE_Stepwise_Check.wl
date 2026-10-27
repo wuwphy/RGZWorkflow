@@ -22,58 +22,58 @@ RGZQCDGSEMap[fun_,amps_] := Module[{out,bad},
 
 Options[RGZQCDGSEStart]={"FeynArtsToPaperFactor"->1};
 RGZQCDGSEStart[loops_:Automatic,OptionsPattern[]] := Module[
-  {input=loops,sector="\:73bb\:8272\:573a\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe",graphs,probe},
+  {input=loops,sector="BosonicThreePointLoop",graphs,probe},
   If[Length[DownValues[RGZQCDRationalMassless]] === 0 ||
       Length[DownValues[RGZQCDRow]] === 0,
     Return[Failure["LoadHelpers",<|
-      "Message"->"\:5148\:52a0\:8f7d\:4e00\:5708\:68c0\:67e5\:3001QCD \:6bd4\:8f83\:548c pinch \:9010\:6b65\:68c0\:67e5\:4e09\:4e2a\:6587\:4ef6\:3002"|>]]];
+      "Message"->"Load the one-loop check, QCD comparison and stepwise pinch modules first."|>]]];
   If[Total[Length /@ {OwnValues[m],OwnValues[mG],OwnValues[M],
       OwnValues[\[Mu]],OwnValues[\[Alpha]]}] > 0,
     Return[Failure["SymbolicParametersRequired",<|
-      "Message"->"m\:3001mG\:3001M\:3001\:03bc\:3001\:03b1 \:5e94\:4e3a\:672a\:8d4b\:503c\:7684\:7b26\:53f7\:3002"|>]]];
+      "Message"->"m, mG, M, mu and alpha must be unassigned symbols."|>]]];
   probe=FCI[FVD[q,\[Rho]]];
   If[RGZLoopNormalize[probe] =!= probe,
     Return[Failure["IndexNormalizationBug",<|
-      "Message"->"\:5f53\:524d\:6807\:51c6\:5316\:51fd\:6570\:6539\:53d8\:4e86\:6d1b\:4f26\:5179\:6307\:6807\:ff0c\:8bf7\:5148\:52a0\:8f7d\:4fee\:6b63\:7248\:4e3b\:6587\:4ef6\:3002"|>]]];
+      "Message"->"The normalization function changed Lorentz indices; load the corrected main module first."|>]]];
   If[input === Automatic && AssociationQ[rgzOneLoop],input=rgzOneLoop];
   If[input === Automatic,
     If[!StringQ[modelRGZ],Return[Failure["SetModel",<|
-      "Message"->"\:6ca1\:6709\:53ef\:590d\:7528\:7684 rgzOneLoop\:ff1b\:8bf7\:8bbe\:7f6e modelRGZ \:4e3a gen/mod \:7684\:5171\:540c\:8def\:5f84\:3002"|>]]];
+      "Message"->"No reusable rgzOneLoop; set modelRGZ to the common gen/mod path."|>]]];
     graphs=Missing["GenerateAtStage1"],
-    If[!AssociationQ[input] || !KeyExistsQ[input,"\:63d2\:5165\:56fe"] ||
-        !AssociationQ[input["\:63d2\:5165\:56fe"]] ||
-        !KeyExistsQ[input["\:63d2\:5165\:56fe"],sector],
+    If[!AssociationQ[input] || !KeyExistsQ[input,"InsertionDiagram"] ||
+        !AssociationQ[input["InsertionDiagram"]] ||
+        !KeyExistsQ[input["InsertionDiagram"],sector],
       Return[Failure["MissingGraphs",<|"Sector"->sector|>]]];
-    graphs=input["\:63d2\:5165\:56fe"][sector]];
-  rgzQCDGSESession=<|"\:5df2\:5b8c\:6210\:6b65\:9aa4"->0,"\:5f85\:9009\:56fe"->graphs,
-    "\:7edf\:4e00\:56e0\:5b50"->OptionValue["FeynArtsToPaperFactor"]|>;
-  Print["gse \:5df2\:51c6\:5907\:ff1a",If[Head[graphs] === Missing,
-    "\:6b65\:9aa4 1 \:76f4\:63a5\:751f\:6210\:6240\:9700\:62d3\:6251\:3002","\:590d\:7528\:5df2\:6709\:63d2\:5165\:56fe\:3002"]];
-  Print["\:9010\:4e2a\:8fd0\:884c RGZQCDGSERun[1] \:81f3 [9]\:ff1b\:672c\:9879\:4e0d\:4e58 (p^2)^2\:3002"];
-  <|"\:72b6\:6001"->"\:51c6\:5907\:5b8c\:6210","\:7edf\:4e00\:56e0\:5b50"->rgzQCDGSESession["\:7edf\:4e00\:56e0\:5b50"]|>
+    graphs=input["InsertionDiagram"][sector]];
+  rgzQCDGSESession=<|"CompletedStep"->0,"candidate Diagram"->graphs,
+    "OverallFactor"->OptionValue["FeynArtsToPaperFactor"]|>;
+  Print["gse Prepare: ",If[Head[graphs] === Missing,
+    "Step 1 direct Generaterequired topologies. ","Reuse existing inserted diagrams."]];
+  Print["Run RGZQCDGSERun[1] through [9] individually; do not multiply this term by (p^2)^2."];
+  <|"Status"->"PrepareComplete","OverallFactor"->rgzQCDGSESession["OverallFactor"]|>
 ];
 
 RGZQCDGSERun[n_Integer,seconds_:60] := Module[
   {labels,keys,t,result,graphs,pure,fc,bad,r,parts,paper,a,ref,ratio},
-  labels={"\:9009\:62e9\:7eaf\:80f6\:5b50\:4e24\:4e09\:70b9\:9876\:70b9\:5708\:56fe","CreateFeynAmp \:751f\:6210\:632f\:5e45",
-    "FCFAConvert \:8f6c\:6362\:5230 FeynCalc","\:663e\:5f0f\:6709\:7406\:5206\:6bcd\:5e76\:53d6 QCD \:6781\:9650",
-    "\:51cf\:53bb Landau \:89c4\:8303\:7684\:632f\:5e45","\:9010\:56fe\:6a2a\:5411\:6295\:5f71",
-    "\:9010\:56fe\:7edf\:4e00\:5708\:52a8\:91cf\:5e76\:6c42\:548c","\:6784\:9020\:6587\:732e gse \:89c4\:8303\:5dee",
-    "\:79ef\:5206\:524d\:540e\:6bd4\:8f83\:5e76\:663e\:793a\:7ed3\:679c"};
-  keys={"\:63d2\:5165\:56fe","FeynArts\:632f\:5e45","FeynCalc\:632f\:5e45","QCD\:632f\:5e45",
-    "\:89c4\:8303\:5dee\:632f\:5e45","\:6295\:5f71\:5217\:8868","\:8ba1\:7b97\:503c","\:6587\:732e\:53c2\:8003","\:6bd4\:8f83\:7ed3\:679c"};
+  labels={"Select pure-gluon loops with two three-point vertices","Generate amplitudes with CreateFeynAmp",
+    "Convert to FeynCalc with FCFAConvert","explicitrationalDenominatorand take  QCD limit",
+    "Subtract the Landau-gauge amplitude","Transverse projection by diagram",
+    "Normalize loop momenta and sum diagrams","construct Literature gse GaugeDifference",
+    "IntegrateBeforeAfterCompareand display Result"};
+  keys={"InsertionDiagram","FeynArtsAmplitude","FeynCalcAmplitude","QCDAmplitude",
+    "GaugeDifferenceAmplitude","ProjectList","ComputedValue","LiteratureReference","CompareResult"};
   If[!AssociationQ[rgzQCDGSESession],
-    Return[Failure["StartFirst",<|"Message"->"\:5148\:8fd0\:884c RGZQCDGSEStart[]\:3002"|>]]];
+    Return[Failure["StartFirst",<|"Message"->"Run RGZQCDGSEStart[] first."|>]]];
   If[n<1 || n>9,Return[Failure["InvalidStage",<|"Stage"->n|>]]];
   If[!NumericQ[seconds] || !TrueQ[seconds>0],
     Return[Failure["InvalidTimeout",<|"Seconds"->seconds|>]]];
-  If[n =!= rgzQCDGSESession["\:5df2\:5b8c\:6210\:6b65\:9aa4"]+1,
+  If[n =!= rgzQCDGSESession["CompletedStep"]+1,
     Return[Failure["StageOrder",<|
-      "\:4e0b\:4e00\:6b65"->(rgzQCDGSESession["\:5df2\:5b8c\:6210\:6b65\:9aa4"]+1)|>]]];
-  Print["gse\:ff0c\:6b65\:9aa4 ",n,"\:ff1a",labels[[n]]];
+      "NextStep"->(rgzQCDGSESession["CompletedStep"]+1)|>]]];
+  Print["gse, Step ",n,"：",labels[[n]]];
   {t,result}=AbsoluteTiming[TimeConstrained[Switch[n,
     1,
-      graphs=rgzQCDGSESession["\:5f85\:9009\:56fe"];
+      graphs=rgzQCDGSESession["candidate Diagram"];
       If[Head[graphs] === Missing,
         graphs=InsertFields[rgzLoopTopBosonBubble,{V[1]}->{V[1]},
           InsertionLevel->{Particles},Model->modelRGZ,
@@ -82,10 +82,10 @@ RGZQCDGSERun[n_Integer,seconds_:60] := Module[
         And@@(MatchQ[#,V[1,___]|-V[1,___]]& /@ fields)]&;
       DiagramSelect[graphs,pure],
     2,
-      CreateFeynAmp[rgzQCDGSESession["\:63d2\:5165\:56fe"],Truncated->True,
+      CreateFeynAmp[rgzQCDGSESession["InsertionDiagram"],Truncated->True,
         GaugeRules->{},PreFactor->1],
     3,
-      fc=FCFAConvert[RGZLoopPrepareFA[rgzQCDGSESession["FeynArts\:632f\:5e45"]],
+      fc=FCFAConvert[RGZLoopPrepareFA[rgzQCDGSESession["FeynArtsAmplitude"]],
         IncomingMomenta->{p},OutgoingMomenta->{p},LoopMomenta->{q},
         LorentzIndexNames->{\[Mu],\[Nu]},ChangeDimension->D,
         UndoChiralSplittings->True,List->True,DropSumOver->True,SMP->True];
@@ -101,86 +101,86 @@ RGZQCDGSERun[n_Integer,seconds_:60] := Module[
            "rgzLoopM3","rgzLoopM4"},RGZLoopName[x]],Infinity];
         If[bad =!= {},Failure["RationalModelRequired",<|
           "Objects"->DeleteDuplicates[bad],
-          "Message"->"\:9700\:4f7f\:7528\:5df2\:6838\:5bf9\:7684\:6709\:7406\:4f20\:64ad\:5b50\:6a21\:578b\:ff1b\:6b64\:5904\:4e0d\:5957\:7528\:65e7\:5360\:4f4d\:5206\:6bcd\:89c4\:5219\:3002"|>],
+          "Message"->"Use the checked rational-propagator model; legacy placeholder-denominator rules are not applied."|>],
           RGZQCDRationalMassless[FeynAmpDenominatorExplicit[r]]]],
-        rgzQCDGSESession["FeynCalc\:632f\:5e45"]],
+        rgzQCDGSESession["FeynCalcAmplitude"]],
     5,
       RGZQCDGSEMap[Function[amp,
         RGZLoopReduce[Expand[amp-(amp /. \[Alpha]->0)]]],
-        rgzQCDGSESession["QCD\:632f\:5e45"]],
+        rgzQCDGSESession["QCDAmplitude"]],
     6,
-      RGZQCDGSEMap[RGZQCDProject,rgzQCDGSESession["\:89c4\:8303\:5dee\:632f\:5e45"]],
+      RGZQCDGSEMap[RGZQCDProject,rgzQCDGSESession["GaugeDifferenceAmplitude"]],
     7,
-      parts=RGZQCDGSEMap[RGZQCDXY,rgzQCDGSESession["\:6295\:5f71\:5217\:8868"]];
+      parts=RGZQCDGSEMap[RGZQCDXY,rgzQCDGSESession["ProjectList"]];
       If[FailureQ[parts],parts,
-        Cancel[Together[rgzQCDGSESession["\:7edf\:4e00\:56e0\:5b50"] Total[parts]]]],
+        Cancel[Together[rgzQCDGSESession["OverallFactor"] Total[parts]]]],
     8,
       paper=RGZQCDPaperParts[]["gse"];
       a=RGZQCDRational[Expand[paper-(paper /. \[Alpha]->0)]];
       If[FailureQ[a],a,a=RGZQCDProject[a];
         If[FailureQ[a],a,RGZQCDXY[a]]],
     9,
-      RGZQCDRow["gse","(2.56)",rgzQCDGSESession["\:8ba1\:7b97\:503c"],
-        rgzQCDGSESession["\:6587\:732e\:53c2\:8003"]]],seconds,$Aborted]];
-  Print["\:8017\:65f6\:ff1a",NumberForm[t,{10,3}]," \:79d2"];
+      RGZQCDRow["gse","(2.56)",rgzQCDGSESession["ComputedValue"],
+        rgzQCDGSESession["LiteratureReference"]]],seconds,$Aborted]];
+  Print["ElapsedSeconds: ",NumberForm[t,{10,3}]," Seconds"];
   If[result === $Aborted,Return[Failure["Timeout",<|
-    "\:6b65\:9aa4"->n,"\:8bf4\:660e"->"\:672a\:63a8\:8fdb\:72b6\:6001\:ff1b\:53ef\:589e\:5927\:79d2\:6570\:540e\:91cd\:8bd5\:5f53\:524d\:6b65\:9aa4\:3002"|>]]];
+    "Step"->n,"Description"->"No progress; increase the time limit and retry this step."|>]]];
   If[result === $Failed || FailureQ[result],
-    Return[Failure["StageFailed",<|"\:6b65\:9aa4"->n,"\:539f\:56e0"->result|>]]];
-  AssociateTo[rgzQCDGSESession,{keys[[n]]->result,"\:5df2\:5b8c\:6210\:6b65\:9aa4"->n}];
-  If[rgzQCDGSESession["\:5df2\:5b8c\:6210\:6b65\:9aa4"] =!= n ||
+    Return[Failure["StageFailed",<|"Step"->n,"Cause"->result|>]]];
+  AssociateTo[rgzQCDGSESession,{keys[[n]]->result,"CompletedStep"->n}];
+  If[rgzQCDGSESession["CompletedStep"] =!= n ||
       !KeyExistsQ[rgzQCDGSESession,keys[[n]]],
-    Return[Failure["StateWriteFailed",<|"\:6b65\:9aa4"->n|>]]];
-  If[MemberQ[{3,4,5,6},n],Print["\:632f\:5e45\:9879\:6570\:ff1a",Length[result]]];
+    Return[Failure["StateWriteFailed",<|"Step"->n|>]]];
+  If[MemberQ[{3,4,5,6},n],Print["AmplitudeTermCount: ",Length[result]]];
   If[n === 9,
-    a=result["\:8ba1\:7b97\:7684I11\:7cfb\:6570"];ref=result["\:6587\:732e\:7684I11\:7cfb\:6570"];
+    a=result["ComputedI11Coefficient"];ref=result["LiteratureI11Coefficient"];
     ratio=If[FailureQ[a] || FailureQ[ref] || TrueQ[ref === 0],
       Missing["RatioUnavailable"],Cancel[Together[a/ref]]];
-    AssociateTo[rgzQCDGSESession,"\:7cfb\:6570\:6bd4\:503c\:ff08\:672a\:7528\:4e8e\:8c03\:6574\:ff09"->ratio];
+    AssociateTo[rgzQCDGSESession,"CoefficientRatioNotUsedForAdjustment"->ratio];
     If[!AssociationQ[rgzQCDStepResults],rgzQCDStepResults=Association[]];
     AssociateTo[rgzQCDStepResults,"gse"->result];
     RGZQCDGSEShow[]];
-  <|"\:6b65\:9aa4"->n,"\:72b6\:6001"->"\:5b8c\:6210","\:8017\:65f6\:ff08\:79d2\:ff09"->t,
-    "\:8868\:8fbe\:5f0f\:5927\:5c0f"->LeafCount[result]|>
+  <|"Step"->n,"Status"->"Complete","ElapsedSeconds (Seconds)"->t,
+    "ExpressionSize"->LeafCount[result]|>
 ];
 
 RGZQCDGSEPaint[] := If[AssociationQ[rgzQCDGSESession] &&
-    KeyExistsQ[rgzQCDGSESession,"\:63d2\:5165\:56fe"],
-  Paint[rgzQCDGSESession["\:63d2\:5165\:56fe"],Numbering->Simple,SheetHeader->None],
-  Failure["SelectGraphsFirst",<|"Message"->"\:5148\:5b8c\:6210\:6b65\:9aa4 1\:3002"|>]];
+    KeyExistsQ[rgzQCDGSESession,"InsertionDiagram"],
+  Paint[rgzQCDGSESession["InsertionDiagram"],Numbering->Simple,SheetHeader->None],
+  Failure["SelectGraphsFirst",<|"Message"->"Complete step 1 first."|>]];
 
 RGZQCDGSEShow[] := Module[{row,fields},
   If[!AssociationQ[rgzQCDGSESession] ||
-      !KeyExistsQ[rgzQCDGSESession,"\:6bd4\:8f83\:7ed3\:679c"],
+      !KeyExistsQ[rgzQCDGSESession,"CompareResult"],
     Return[Failure["ComparisonNotReady",<||>]]];
-  row=rgzQCDGSESession["\:6bd4\:8f83\:7ed3\:679c"];
-  fields={"\:8ba1\:7b97\:503c","\:6587\:732e\:53c2\:8003","\:6362\:5143\:540e\:5dee\:503c","\:8ba1\:7b97\:7684I11\:7cfb\:6570",
-    "\:6587\:732e\:7684I11\:7cfb\:6570","\:79ef\:5206\:540e\:5dee\:503c\:7cfb\:6570","\:72b6\:6001"};
+  row=rgzQCDGSESession["CompareResult"];
+  fields={"ComputedValue","LiteratureReference","AfterSubstitutionDifference","ComputedI11Coefficient",
+    "LiteratureI11Coefficient","IntegrateAfterDifferenceCoefficient","Status"};
   Print[Grid[Prepend[Map[{#,TraditionalForm[Lookup[row,#,
-    Missing["NotComputed"]]]}&,fields],{"gse \:68c0\:67e5\:9879\:76ee","\:7ed3\:679c"}],
+    Missing["NotComputed"]]]}&,fields],{"gse CheckParts","Result"}],
     Frame->All,Alignment->Left,Spacings->{2,1}]];
-  Print["\:7edf\:4e00\:56e0\:5b50\:ff1a",rgzQCDGSESession["\:7edf\:4e00\:56e0\:5b50"]];
-  Print["\:8ba1\:7b97 / \:6587\:732e \:7684\:79ef\:5206\:7cfb\:6570\:6bd4\:ff08\:672a\:7528\:4e8e\:8c03\:6574\:ff09\:ff1a",
-    rgzQCDGSESession["\:7cfb\:6570\:6bd4\:503c\:ff08\:672a\:7528\:4e8e\:8c03\:6574\:ff09"]]
+  Print["CommonFactor: ",rgzQCDGSESession["OverallFactor"]];
+  Print["Compute / Literature OfIntegrateCoefficientratio (Notused for adjustment): ",
+    rgzQCDGSESession["CoefficientRatioNotUsedForAdjustment"]]
 ];
 
 RGZQCDGSETotal[] := Module[{names,missing,rows,bad,coefficient},
-  names={"box","nav\:5168\:90e8","av\:5168\:90e8","qse\:5168\:90e8","gse"};
+  names={"box","navAll","avAll","qseAll","gse"};
   If[!AssociationQ[rgzQCDStepResults],
     Return[Failure["NoResults",<||>]]];
   missing=Select[names,!KeyExistsQ[rgzQCDStepResults,#]&];
-  If[missing =!= {},Return[Failure["IncompleteParts",<|"\:7f3a\:5c11\:9879\:76ee"->missing|>]]];
+  If[missing =!= {},Return[Failure["IncompleteParts",<|"MissingParts"->missing|>]]];
   rows=Lookup[rgzQCDStepResults,names];
-  bad=Select[rows,!MemberQ[{"\:79ef\:5206\:524d\:540e\:5747\:901a\:8fc7","\:79ef\:5206\:540e\:901a\:8fc7\:ff1b\:79ef\:5206\:524d\:5f62\:5f0f\:4e0d\:540c"},
-    Lookup[#,"\:72b6\:6001",Missing["NotComputed"]]]&];
-  If[bad =!= {},Return[Failure["ComparisonNotPassed",<|"\:672a\:901a\:8fc7\:9879\:76ee"->
-    Lookup[bad,"\:9879\:76ee"]|>]]];
-  coefficient=RGZQCDMasterCoefficient[Total[Lookup[rows,"\:8ba1\:7b97\:503c"]]];
+  bad=Select[rows,!MemberQ[{"PassedBeforeAndAfterIntegration","Passed after integration; integrand forms differ"},
+    Lookup[#,"Status",Missing["NotComputed"]]]&];
+  If[bad =!= {},Return[Failure["ComparisonNotPassed",<|"NotPassedParts"->
+    Lookup[bad,"Parts"]|>]]];
+  coefficient=RGZQCDMasterCoefficient[Total[Lookup[rows,"ComputedValue"]]];
   If[FailureQ[coefficient],Return[coefficient]];
-  Print[Grid[Prepend[Map[{#["\:9879\:76ee"],#["\:72b6\:6001"],#["\:79ef\:5206\:540e\:5dee\:503c\:7cfb\:6570"]}&,
-    rows],{"\:9879\:76ee","\:72b6\:6001","\:5dee\:503c / I11"}],Frame->All,Alignment->Left]];
-  <|"\:8ba1\:7b97\:7684\:4e94\:7c7b\:89c4\:8303\:5dee\:603b\:548c / I11"->coefficient,
-    "\:62b5\:6d88\:68c0\:67e5"->If[TrueQ[coefficient === 0],"\:901a\:8fc7","\:603b\:548c\:5c1a\:672a\:5f52\:96f6"]|>
+  Print[Grid[Prepend[Map[{#["Parts"],#["Status"],#["IntegrateAfterDifferenceCoefficient"]}&,
+    rows],{"Parts","Status","Difference / I11"}],Frame->All,Alignment->Left]];
+  <|"ComputedFiveSectorGaugeDifference / I11"->coefficient,
+    "CancellationCheck"->If[TrueQ[coefficient === 0],"Passed","Sumstill Nonzero"]|>
 ];
 
-Print["\:5b9e\:9645 gse \:9010\:6b65\:68c0\:67e5\:5df2\:52a0\:8f7d\:3002\:5148\:8fd0\:884c RGZQCDGSEStart[]\:ff0c\:518d\:9010\:4e2a\:8fd0\:884c RGZQCDGSERun[1] \:81f3 [9]\:3002"];
+Print["Actual gse checks loaded. Run RGZQCDGSEStart[], then RGZQCDGSERun[1] through [9] individually."];

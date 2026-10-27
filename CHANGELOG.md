@@ -1,5 +1,8 @@
-# Changelog
+# Changes
 
-## 0.3.0-dev.1 — 2026-10-23
+## 1.0.0
 
-Independent development distribution from the working project; original source remains unchanged. Adds GPL licensing, citation/provenance metadata, external-only dependencies, clean notebooks, scoped validation and deterministic packaging. Uses API/data version 0.3.0. Default model is eta plus two dynamical quark flavours; optional nonzero masses remain limited to the model/closed bubbles. Experimental fermionic horizon companions are isolated from the default pipeline. No new full-amplitude, all-order ST or finite-S-matrix claim is made.
+- Complete paper workflow: tree/model checks, mixed matrix, quark amplitudes, symbolic gauge comparison, UV/IR and ordered mass limits, linked certification and scalar presentation.
+- Exact generic-D scalar audit acceleration and resumable weighted assembly.
+- Verified author run: 256 records, 2890 graphs and all 24 certificate checks passed; all eight prefactors and 144 paper coefficients match exactly.
+- Distribution cleanup retains the calculation source snapshot, model companions, two notebooks, required runtime adapters, concise documentation and essential checks. Historical material is archived locally; existing Work data are retained separately.

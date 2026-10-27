@@ -50,12 +50,12 @@ RGZBuildPinches[OptionsPattern[]] := Module[
   qse=-g2 CF ap pr dk[q]/2;
   gp=If[mode==="FourPinch",-2g2 CA ap pr a[q]a[p-q],0];
   parts=Map[ChangeDimension[FCI[#],D]&,
-    <|"box"->box,"nav全部"->2nav+gp,"av全部"->2av,"qse全部"->4qse|>];
+    <|"box"->box,"navAll"->2nav+gp,"avAll"->2av,"qseAll"->4qse|>];
   total=Total[Values[parts]];
   Join[parts,<|"NAVMomentum"->ChangeDimension[FCI[2nav],D],
     "GammaP"->ChangeDimension[FCI[gp],D],"Total"->total,
-    "候选总和"->total,"A外部标量"->ap,"Mode"->mode,
+    "CandidateSum"->total,"AexternalScalar"->ap,"Mode"->mode,
     "ReferenceGauge"->If[mode==="GaugeDifference",ref,None],
     "KernelVersion"->"RGZFourPinch/2",
-    "归一化说明"->"守恒外电流之间的四图传播子替换核；共同约定为 -(D0.Pi.D0)AA。FourPinch 包含两侧 AA GammaP；GaugeDifference 为固定参数的参考规范差。"|>]
+    "NormalizationNote"->"Four-diagram propagator replacement kernel between conserved external currents, with common convention -(D0.Pi.D0)AA. FourPinch includes both AA GammaP terms; GaugeDifference subtracts the reference gauge at fixed parameters."|>]
 ];

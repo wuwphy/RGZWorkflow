@@ -24,8 +24,7 @@ RGZQQAmplitude[] := Module[{job=RGZResult["QQ"],measure,scaled,r,packet,metadata
    r=qqMeasureAssembleOriginal[];
    If[!FailureQ[r],packet=Join[RGZResult["QQAmplitude"],metadata]];r]];
  If[FailureQ[r],Return[r]];
- storeResult["QQAmplitude",packet];
- $results=KeyDrop[$results,{"QQGaugeAmplitude","QQGaugeDirect","QQWardCoverage","QQFormFactors"}];
+ invalidateQQDerived[];storeResult["QQAmplitude",packet];
  Join[r,KeyTake[metadata,{"AssemblyConvention"}]]];
 
 (* Old assembled packets must not bypass the corrected normalization merely

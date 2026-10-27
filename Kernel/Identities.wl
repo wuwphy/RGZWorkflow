@@ -28,10 +28,10 @@ RGZCheckIdentities[seconds_:300] := Module[{r,algebra,ward,rows,props,nav,connec
  (* Propagator verification must have been run in this session, against current model data. *)
  props=RGZResult["Propagators"];connections=RGZResult["PropagatorConnections"];
  AppendTo[rows,identityEvidence["PropagatorConstraint",If[ListQ[props]&&Length[props]===69&&AssociationQ[connections]&&Length[connections]===8,
- If[AllTrue[Values[connections],TrueQ[#===0]&]&&AllTrue[Join[Lookup[props,"\:6a21\:578b\:51cf\:95f5\:6c0f"],Lookup[props,"\:6a21\:578b\:51cf\:4e8c\:6b21\:6838"]],TrueQ[#===0]&],"Passed","Failed"],"NotRun"],"Run RGZCheckPropagators[] first; includes all 69 comparisons and eight contacts."]];
+ If[AllTrue[Values[connections],TrueQ[#===0]&]&&AllTrue[Join[Lookup[props,"ModelMinusMinkowski"],Lookup[props,"ModelMinusQuadraticKernel"]],TrueQ[#===0]&],"Passed","Failed"],"NotRun"],"Run RGZCheckPropagators[] first; includes all 69 comparisons and eight contacts."]];
  nav=RGZResult["NAVPinch"];
  AppendTo[rows,identityEvidence["NAVReconstruction",If[AssociationQ[nav]&&ListQ[Lookup[nav,"Connections",None]],
- If[Length[nav["Connections"]]>0&&Length[nav["Connections"]]===Lookup[nav,"ConnectionCount",-1]&&AllTrue[nav["Connections"],TrueQ[Lookup[#,"ExactPolynomialReconstruction",False]]&],"Passed","Failed"],"NotRun"],"Run RGZPTStart[] with FullMatrix NAV; reconstruction is not a mixed-vertex STI proof."]];
+ If[navPacketQ[nav,"RGZNAVPinch/1",{"Kernel"}]&&FileExistsQ[FileNameJoin[{dataDirectory[],"RGZ_all_raw.wxf"}]]&&Lookup[nav,"Fingerprint",None]===navFormulaFingerprint[],"Passed","Failed"],"NotRun"],"Run RGZPTStart[] with FullMatrix NAV; reconstruction is not a mixed-vertex STI proof."]];
  Scan[AppendTo[rows,identityEvidence[#,"NotImplemented","Required ghost/antifield or composite source kernels are not implemented; no zero result inferred."]]&, {"MixedVertexST","QuarkVertexST","OneLoopST","Nielsen","CompositeAh"}];
  r=<|"Status"->If[AnyTrue[rows,MemberQ[{"Failed","Stopped"},#["Status"]]&],"IdentityCheckFailed","PartialVerification"],"Name"->"STWardIdentities","Rows"->Length[rows],"Statistics"->Counts[Lookup[rows,"Status"]],"Checks"->rows,"Requirements"->RGZIdentityRequirements[]|>;
  storeResult["Identities",r];r
