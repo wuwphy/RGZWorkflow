@@ -3,10 +3,11 @@ message: "Please cite this software release and the external physics/software re
 type: software
 title: RGZWorkflow
 version: 1.0.0
-date-released: "2026-10-23"
+date-released: "2026-10-28"
 license: GPL-3.0-or-later
 authors:
   - family-names: Wu
     given-names: Wan
 repository-code: https://github.com/wuwphy/RGZWorkflow
-abstract: "Software for auditable local RGZ tree and one-loop quark-scattering calculations; full updated-model results remain to be reproduced."
+abstract: "Article companion for auditable RGZ tree and one-loop quark-scattering calculations. The author run matches eight reference prefactors and 144 coefficients within the declared domain; an independent empty-cache full rerun remains outstanding."
+url: https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.0.0

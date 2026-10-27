@@ -45,3 +45,9 @@ python3 Tools/build_release.py
 Checks use isolated work directories. `--suite core` needs no external physics packages; `--suite algebra` additionally needs FeynCalc/FeynArts. Build output is `artifacts/RGZWorkflow-1.0.0.zip`.
 
 [GPL-3.0-or-later](LICENSE); full text in [COPYING](COPYING). External software is installed separately; see [attribution](THIRD_PARTY.md) and [citation](CITATION.cff).
+
+## Article companion release
+
+Cite version 1.0.0 using [CITATION.cff](CITATION.cff) and the [versioned release](https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.0.0). The companion manuscript is titled *Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework*. No arXiv identifier or DOI has been assigned as of 2026-10-28. Manuscript identifiers will be added when available.
+
+The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software.

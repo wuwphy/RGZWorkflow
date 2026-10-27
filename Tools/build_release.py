@@ -15,7 +15,7 @@ def main():
  archive=out/'RGZWorkflow-1.0.0.zip'
  with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as z:
   for f in files():
-   info=zipfile.ZipInfo('RGZWorkflow-1.0.0/'+str(f.relative_to(ROOT)),date_time=(2026,10,23,0,0,0))
+   info=zipfile.ZipInfo('RGZWorkflow-1.0.0/'+str(f.relative_to(ROOT)),date_time=(2026,10,28,0,0,0))
    info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=(0o100644<<16)
    z.writestr(info,f.read_bytes(),compress_type=zipfile.ZIP_DEFLATED,compresslevel=9)
  digest=hashlib.sha256(archive.read_bytes()).hexdigest();(out/'SHA256SUMS').write_text(f'{digest}  {archive.name}\n')

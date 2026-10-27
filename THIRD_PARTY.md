@@ -11,3 +11,7 @@ No external software source or binaries are bundled. The GPL-3.0-or-later grant 
 | FeynHelpers / Package-X | Optional supported analytic pole evaluation | https://feyncalc.github.io/helpers/ ; arXiv:1611.06793, arXiv:1503.01469 |
 
 The model/algorithm provenance is retained in the original project source headers, citation metadata and paper provenance. Generated FeynRules tensor structures remain traceable to the supplied Lagrangians. This snapshot does not claim to redistribute upstream programs or license a manuscript under the code license.
+
+## Author distribution confirmation
+
+On 2026-10-28 the author explicitly confirmed permission to distribute the included project code, model files and author-supplied electronic reference table under GPL-3.0-or-later, including necessary permissions from other rights holders. This records the author's confirmation; it is not an independent ownership audit. The manuscript and separately installed dependencies retain their own licensing terms.

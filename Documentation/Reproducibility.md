@@ -31,3 +31,7 @@ The scope is distinct-flavour massless external quarks, two dynamical flavours, 
 This compares eight prefactors and all 144 coefficients over the 31-function catalogue, using exact algebra. The report goes to `Evidence/runs/paper-reproduction/`. The current completed run matches exactly; its compact summary is in [verified-run.json](../Evidence/verified-run.json).
 
 The paper PDFs are not bundled. Their hashes and conventions are in [paper provenance](../Paper/provenance.json). Current validation used compatible cached calculations; an empty-cache independent rerun has not been performed.
+
+## Independent reproduction status
+
+Version 1.0.0 distributes source, input-only notebooks and a compact author-run summary. It does not distribute the raw author caches or claim an independent full reproduction from an empty Work directory. To perform that validation, initialize a new empty Work directory and execute the sequence above without importing existing results. Retain the generated manifests, linked audit evidence, environment/version records, final certificate and exact paper-comparison report. A release-tool or loading test is not a substitute for this calculation.
