@@ -190,7 +190,6 @@
     "ReferenceSourceFingerprint": 61866098637853011682937170700695746952056475129054070663871584189143318985862
   },
   "RawRuntimeResultsBundled": false,
-  "EmptyCacheIndependentRerunPerformed": false,
   "DistributionCleanup": {
     "CalculationSnapshotUnchanged": true,
     "PreservedRuntimeFileCount": 85,
@@ -201,5 +200,102 @@
     "ExternalFeynRulesModelLoadPassed": true,
     "ExternalFeynRulesVertexCount": 48,
     "ExternalFeynRulesActionInventoryCount": 51
+  },
+  "EmptyCacheFullWorkflowValidation": {
+    "Status": "AuthorReportedCompletedAndFinalArtifactsRechecked",
+    "ReportedBy": "Wan Wu",
+    "ReportedOn": "2026-10-28",
+    "WorkDirectory": "Work/",
+    "StartedFromEmptyCacheAuthorConfirmed": true,
+    "InitialEmptyStateIndependentlyRecorded": false,
+    "ThirdPartyIndependentReproduction": false,
+    "Explanation": "The author confirms that this local full workflow began from an empty cache. Final artifacts and current source compatibility were rechecked on 2026-10-28. Intermediate checkpoints can be reused during the same calculation; final caches do not independently establish the initial empty state."
+  },
+  "ArtifactRecheck": {
+    "Schema": "RGZReleaseEvidenceRecheck/1",
+    "Date": "2026-10-28",
+    "Artifacts": {
+      "Certification": {
+        "Exists": true,
+        "SHA256Matches": true
+      },
+      "WeightedAudit": {
+        "Exists": true,
+        "SHA256Matches": true
+      },
+      "MassLedger": {
+        "Exists": true,
+        "SHA256Matches": true
+      },
+      "ScalarResult": {
+        "Exists": true,
+        "SHA256Matches": true
+      }
+    },
+    "Certification": {
+      "Status": "CertifiedWithinDeclaredDomain",
+      "FullSMatrixVerified": true,
+      "OutstandingChecks": [],
+      "Checks": {
+        "CurrentModel": true,
+        "SameBareSource": true,
+        "SymbolicGaugeZero": true,
+        "GaugeSourceCurrent": true,
+        "GaugeMixedSourceMatches": true,
+        "UVClosed": true,
+        "IRClosed": true,
+        "FinitePartBuilt": true,
+        "AllRowPolesZero": true,
+        "MixedMassLedgerComplete": true,
+        "FullScalelessLedgerComplete": true,
+        "FiniteConventionIndependentlyVerified": true,
+        "DomainDeclared": true,
+        "LandauM0Scope": true,
+        "BareLoopPayloadMatchesMSbar": true,
+        "BareTreePayloadMatchesMSbar": true,
+        "FiniteAuditRowsConsistent": true,
+        "GaugeComparisonRowsConsistent": true,
+        "FinitePayloadsValid": true,
+        "CurrentBareMeasure": true,
+        "FiniteAmplitudeAssemblyConsistent": true,
+        "BareJobSourceCurrent": true,
+        "GaugePreparationSourceCurrent": true,
+        "MassEvidenceCurrent": true
+      },
+      "SourceFingerprint": 81218636053516518294877454586646208059890807642593349469848912179547470967678,
+      "ModelFingerprint": 87897440242196603755017976133565759116789722358000046350304798534370613035961
+    },
+    "MassEvidence": [
+      {
+        "File": "Work/Cache/qq-mass-regions-39034cf914eb0bb75aabb1cd14ccba52c863e471711818a620a73168160e6c2f/region-match.wxf",
+        "SHA256Matches": true
+      },
+      {
+        "File": "Work/Cache/qq-raw-mass-audit-3788a854ee76bbe46891d1f47bccb44ba41611360a0b7a2a17725bc794b33f45/raw-pole-audit.wxf",
+        "SHA256Matches": true
+      },
+      {
+        "File": "Work/Cache/qq-weighted-ledger-260910d55beef8fa75e11e5fbd43fcd1d3badd36bda02541de283c4829036c22/weighted-ledger.wxf",
+        "SHA256Matches": true
+      },
+      {
+        "File": "Work/Cache/qq-scaleless-ledger-408b37f728c52b10cadf087563de9f3bb766ae7020efe49c3b5ab9dcce2ae49b/ledger.wxf",
+        "SHA256Matches": true
+      },
+      {
+        "File": "Work/Cache/qq-msbar-54ea1b4515937cabea116e74e717d93756362c651da64cc853bfad3536b03c3e.wxf",
+        "SHA256Matches": true
+      },
+      {
+        "File": "Work/Cache/qq-uvir-f302c6a6f59eaa6ad895fef19e156d85a8d54db53c118f9f34d9f391cd6ae8dd/uvir.wxf",
+        "SHA256Matches": true
+      }
+    ],
+    "CertificationEvidenceFilesExist": true,
+    "CurrentWorkflowFingerprint": 88606095849863260433718895361120818554979780018047042800549125432947186731878,
+    "CurrentModelFingerprint": 87897440242196603755017976133565759116789722358000046350304798534370613035961,
+    "CurrentModelMatches": true,
+    "CurrentBareJobSourceMatches": true,
+    "CurrentGaugeJobSourceMatches": true
   }
 }

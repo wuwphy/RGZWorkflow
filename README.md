@@ -4,7 +4,7 @@ Wolfram Language source package for the tree and one-loop RGZ quark-scattering w
 
 Open [Start Here](<Examples/RGZWorkflow — Start Here.nb>), then [Diagnostics](<Examples/RGZWorkflow — Diagnostics.nb>). Use separate FeynRules and FeynCalc kernels. In an existing FeynCalc session, follow Diagnostics section 1 and continue from section 3.
 
-The current saved run passed all 24 certification checks within its declared domain. Its eight finite rows, 31 functions and 144 coefficients match the paper's electronic table exactly. See [verification](Evidence/README.md). An empty-cache independent rerun has not been performed.
+The current saved run passed all 24 certification checks within its declared domain. Its eight finite rows, 31 functions and 144 coefficients match the paper's electronic table exactly. See [verification](Evidence/README.md). The author confirms that the local full workflow started from an empty cache. Its final artifacts and compatibility with the current calculation source were rechecked on 2026-10-28. No third-party independent reproduction is claimed.
 
 ## Required files
 
