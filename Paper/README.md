@@ -1,5 +1,7 @@
 # Paper companion
 
+Wan Wu, *Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework*, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463), submitted 2026-10-28. The archived software release has its own DOI: [10.5281/zenodo.23724368](https://doi.org/10.5281/zenodo.23724368).
+
 The supplied nine-page main paper and seven-page supplement specify the workflow described in [Reproducibility](../Documentation/Reproducibility.md). Their hashes and analytic conventions are recorded in [provenance.json](provenance.json).
 
 The author's exact electronic table is preserved, with a distribution license comment, in [data/form-factors.wl](data/form-factors.wl). Load it with `RGZPaperResult[]` after loading the package. It contains eight colour-spin rows and 144 coefficients over 31 functions. Indices are zero based; the common loop normalization is already included in each row prefactor.

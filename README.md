@@ -50,7 +50,7 @@ Checks use isolated work directories. `--suite core` needs no external physics p
 
 ## Article companion release
 
-Cite version 1.0.0 using [CITATION.cff](CITATION.cff) and the [versioned release](https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.0.0). The companion manuscript is titled *Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework*. No arXiv identifier or DOI has been assigned as of 2026-10-28. Manuscript identifiers will be added when available.
+Cite version 1.0.0 using [CITATION.cff](CITATION.cff) and the [versioned release](https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.0.0). The companion manuscript is titled *Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework*. The manuscript is available as [arXiv:2610.38463](https://arxiv.org/abs/2610.38463) (submitted 2026-10-28).
 
 The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software.
 
@@ -58,4 +58,4 @@ The author confirmed on 2026-10-28 that the included code, models and electronic
 
 Wu, Wan. *RGZWorkflow* (Version 1.0.0). Zenodo. https://doi.org/10.5281/zenodo.23724368
 
-This DOI identifies the archived v1.0.0 software release. Use it when citing the calculation software; it is separate from any future manuscript DOI. Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
+This DOI identifies the archived v1.0.0 software release. Use it when citing the calculation software; it is separate from the companion manuscript, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463). Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
