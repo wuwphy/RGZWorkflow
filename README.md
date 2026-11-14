@@ -1,6 +1,6 @@
 # RGZWorkflow 1.1.0
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724368.svg)](https://doi.org/10.5281/zenodo.23724368)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2412586.svg)](https://doi.org/10.5281/zenodo.2412586)
 
 Wolfram Language source package for the zero-temperature tree and one-loop RGZ quark-scattering workflow.
 
@@ -69,6 +69,6 @@ The author confirmed on 2026-10-28 that the included code, models and electronic
 
 ## Cite this release
 
-Wu, Wan. *RGZWorkflow* (Version 1.1.0). https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.0
+Wu, Wan. *RGZWorkflow* (Version 1.1.0). Zenodo. https://doi.org/10.5281/zenodo.2412586
 
-The DOI shown above identifies the archived v1.0.0 release. No new version DOI is assigned in this package. The software archive is separate from the companion manuscript, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463). Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
+The DOI shown above identifies version 1.1.0. The previous 1.0.0 archive retains DOI [10.5281/zenodo.23724368](https://doi.org/10.5281/zenodo.23724368). The software archive is separate from the companion manuscript, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463). Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
