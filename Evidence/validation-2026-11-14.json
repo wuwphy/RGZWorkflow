@@ -1,0 +1,151 @@
+{
+	"Schema":"RGZReleaseValidation\/1",
+	"Release":"1.1.0",
+	"Date":"2026-11-14",
+	"RunSourceVersion":"1.0.0 with documented development corrections",
+	"ReleaseRecalculationPerformed":false,
+	"Explanation":"The completed local run validates the calculation source packaged here before the version-only metadata change. Existing certificates retain their original identities. This summary does not certify another Work directory.",
+	"Status":"CertifiedWithinDeclaredDomain",
+	"FullSMatrixVerified":true,
+	"Checks":{
+		"CurrentModel":true,
+		"SameBareSource":true,
+		"SymbolicGaugeZero":true,
+		"GaugeSourceCurrent":true,
+		"GaugeMixedSourceMatches":true,
+		"UVClosed":true,
+		"IRClosed":true,
+		"FinitePartBuilt":true,
+		"AllRowPolesZero":true,
+		"MixedMassLedgerComplete":true,
+		"FullScalelessLedgerComplete":true,
+		"FiniteConventionIndependentlyVerified":true,
+		"DomainDeclared":true,
+		"LandauM0Scope":true,
+		"BareLoopPayloadMatchesMSbar":true,
+		"BareTreePayloadMatchesMSbar":true,
+		"FiniteAuditRowsConsistent":true,
+		"GaugeComparisonRowsConsistent":true,
+		"FinitePayloadsValid":true,
+		"CurrentBareMeasure":true,
+		"FiniteAmplitudeAssemblyConsistent":true,
+		"BareJobSourceCurrent":true,
+		"GaugePreparationSourceCurrent":true,
+		"MassEvidenceCurrent":true
+	},
+	"OutstandingChecks":[],
+	"IRValidityConditions":[
+		"Re[RGZWorkflow`Engine`μ^2] > 0",
+		"Re[-RGZWorkflow`Engine`qqT + RGZWorkflow`Engine`μ^2] > 0",
+		"Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2]\/2 > 0",
+		"Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2] > 0",
+		"-Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2]\/2 > 0",
+		"-Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2] > 0",
+		"RGZWorkflow`Engine`qqT != 0",
+		"RGZWorkflow`Engine`qqS != 0",
+		"-RGZWorkflow`Engine`qqS - RGZWorkflow`Engine`qqT != 0",
+		"-RGZWorkflow`Engine`qqT != 0",
+		"RGZWorkflow`Parameters`muR2 > 0",
+		"(RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2 - I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4] != 0",
+		"(RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2 + I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4] != 0"
+	],
+	"BranchPrescription":"Continue the RGZ square root and logarithms from the declared Euclidean domain on a common sheet with +i0; crossing a Landau singularity requires a separate boundary analysis.",
+	"Scope":"Two-flavor massless external qqprime; one loop; M -> 0+; conditional complex-mass domain. No all-parameter or inclusive-cross-section claim.",
+	"WeightedAudit":{
+		"Status":"WeightedGraphCoverageVerified",
+		"RecordsAudited":256,
+		"GraphsAudited":2890,
+		"SourceGraphCoverageVerified":true,
+		"AllWeightedTransfersZero":true
+	},
+	"ExactFiniteComparison":{
+		"CurrentVsHistoricalFiniteCoefficientsEqual":true,
+		"CurrentVsPaperCoefficientsEqual":true,
+		"FiniteFunctionCatalogueEqual":true,
+		"RowsCompared":8,
+		"CoefficientsCompared":144,
+		"HistoricalCertificateConditionsUnchanged":true,
+		"HistoricalRows":[
+			{
+				"ColorID":1,
+				"SpinID":1,
+				"Coefficients":15,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":2,
+				"SpinID":1,
+				"Coefficients":31,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":1,
+				"SpinID":2,
+				"Coefficients":19,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":2,
+				"SpinID":2,
+				"Coefficients":19,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":1,
+				"SpinID":3,
+				"Coefficients":13,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":2,
+				"SpinID":3,
+				"Coefficients":13,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":1,
+				"SpinID":4,
+				"Coefficients":15,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			},
+			{
+				"ColorID":2,
+				"SpinID":4,
+				"Coefficients":19,
+				"PrefactorEqual":true,
+				"CoefficientsEqual":true,
+				"UnresolvedOrNonzero":0
+			}
+		]
+	},
+	"Artifacts":[
+		{
+			"File":"Work\/Cache\/qq-certification-1f04273cc38404fff3205e2ce7b08ab02cd2d4539846388ed9d00bc8eeb9aeb4.wxf",
+			"SHA256":"5eb0b9ab5c5bff36a4af69eb133fdd4d29352240e2799e47bd92ea804ddd85d9"
+		},
+		{
+			"File":"Work\/Cache\/qq-weighted-ledger-bde627a8e5e1da38a256f4bfac018b04d77e848c6390817b79130320d00b5d92\/weighted-ledger.wxf",
+			"SHA256":"80d706d08899bd0d550d0a824627e573abf209caa492d898a9f287b86c821c5e"
+		},
+		{
+			"File":"Work\/Cache\/qq-scalar-factored-7c574bb38d079304eaa95c2fb43053d975d5bd1f8f2e907c8701eff538aee3d3\/factored.wxf",
+			"SHA256":"2da984f5d847a96966848ae300fc41e9ac62af66e3de7fc6904462d682710a7d"
+		}
+	],
+	"RawWorkIncluded":false,
+	"ThirdPartyIndependentReproductionClaimed":false
+}

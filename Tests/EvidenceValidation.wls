@@ -34,13 +34,13 @@ rgzEvidenceRecord["MissingGaugePreparationRejected",!TrueQ[RGZWorkflow`Private`q
 rgzEvidenceRecord["FiniteAssemblyExact",TrueQ[RGZWorkflow`Private`qqCertificationFiniteAssemblyQ[rgzEvidenceM]]];
 rgzEvidenceRecord["ChangedFiniteAssemblyRejected",!TrueQ[RGZWorkflow`Private`qqCertificationFiniteAssemblyQ[Join[rgzEvidenceM,<|"Amplitude"->tree+finite+1|>]]]];
 (* Exercise the public aggregate against a native-aggregator fixture. *)
-Internal`InheritedBlock[{RGZWorkflow`Private`qqCertificateWithoutPayloadGuard,RGZWorkflow`Private`qqJobFingerprint,RGZWorkflow`Private`qqCertificationGaugeSourceQ,RGZWorkflow`Private`qqCertificationMassEvidenceQ},
+Internal`InheritedBlock[{RGZWorkflow`Private`qqCertificationEvidence,RGZWorkflow`Private`qqJobFingerprint,RGZWorkflow`Private`qqCertificationGaugeSourceQ,RGZWorkflow`Private`qqCertificationMassEvidenceQ},
  Clear[RGZWorkflow`Private`qqJobFingerprint,RGZWorkflow`Private`qqCertificationGaugeSourceQ,RGZWorkflow`Private`qqCertificationMassEvidenceQ];
  RGZWorkflow`Private`qqCertificationMassEvidenceQ[_]:=True;
  RGZWorkflow`Private`qqJobFingerprint[___]:=91;RGZWorkflow`Private`qqCertificationGaugeSourceQ[_]:=True;
- Clear[RGZWorkflow`Private`qqCertificateWithoutPayloadGuard];
- Options[RGZWorkflow`Private`qqCertificateWithoutPayloadGuard]=Options[RGZQQCertification];
- RGZWorkflow`Private`qqCertificateWithoutPayloadGuard[OptionsPattern[]]:=(RGZWorkflow`Private`storeResult["QQCertification",<|"Checks"-><|"Native"->True|>,"FullSMatrixVerified"->True,"Amplitude"->tree+finite|>];<|"Status"->"CertifiedWithinDeclaredDomain"|>);
+ Clear[RGZWorkflow`Private`qqCertificationEvidence];
+ Options[RGZWorkflow`Private`qqCertificationEvidence]=Options[RGZQQCertification];
+ RGZWorkflow`Private`qqCertificationEvidence[OptionsPattern[]]:=(RGZWorkflow`Private`storeResult["QQCertification",<|"Checks"-><|"Native"->True|>,"FullSMatrixVerified"->True,"Amplitude"->tree+finite|>];<|"Status"->"CertifiedWithinDeclaredDomain"|>);
  RGZWorkflow`Private`$results=<|"QQAmplitude"->rgzEvidenceA,"QQMSbar"->rgzEvidenceM,"QQGaugeEarly"->rgzEvidenceG,"QQFiniteAudit"->rgzEvidenceF|>;
  rgzEvidenceR=RGZQQCertification[];rgzEvidenceRecord["PublicMatchingCertificate",AssociationQ[rgzEvidenceR]&&TrueQ[rgzEvidenceR["FullSMatrixVerified"]]];
  rgzEvidenceBefore=RGZResult["QQCertification"];rgzEvidenceRecord["PayloadHashesRecorded",Length[rgzEvidenceBefore["EvidencePayloadSHA256"]]===5];

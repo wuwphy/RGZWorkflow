@@ -1,5 +1,5 @@
-Notebook[{Cell["RGZWorkflow 1.0.0 \[LongDash] Start Here", "Title"],
-  Cell["Version 1.0.0. The default model includes eta ghosts and two \
+Notebook[{Cell["RGZWorkflow 1.1.0 \[LongDash] Start Here", "Title"],
+  Cell["Version 1.1.0. The default model includes eta ghosts and two \
 dynamical quark flavours, with distinct-flavour massless external quarks. \
 This notebook includes no computed results. Earlier probe-model checks do not \
 validate the current model. Use a fresh Work directory.", "Text"],
@@ -86,7 +86,7 @@ a finite, verified S matrix.", "Text"],
       ";"}]], "Input"],
   Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
         RowBox[{"RGZQQPrepareSelf", "[", RowBox[{"1800", ",",
-            RowBox[{"\"TotalSeconds\"", "\[Rule]", "3600"}]}], "]"}], "]"}],
+            RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], "]"}], "]"}],
       ";"}]], "Input"],
   Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
         RowBox[{"RGZQQRunPart", "[", RowBox[{"\"AV1\"", ",", "1800"}], "]"}],
@@ -137,17 +137,19 @@ minimality.", "Text"],
                 "\"ReconstructionVerified\"", ",",
                 "\"SpinBasisIndependent\"", ",", "\"File\""}], "}"}]}],
           "]"}]}], "]"}]], "Input"],
-  Cell["6 - General gauge difference for the current model", "Section"],
-  Cell["Recompute this check without assuming a zero result. Compare symbolic \
-alpha with reference gauge 1. See the documentation for parameter domains and \
-IR prescriptions. Nonzero redundant coefficients, unreduced integrals and \
-timeouts need further diagnosis.", "Text"],
+  Cell["6 - Independent check: general gauge difference", "Section"],
+  Cell["The bare amplitude and form factors are available after section 5. \
+Continue here for the independent general-gauge check; UV/IR and MSbar are in \
+Diagnostics. Recompute this check without assuming a zero result. Compare \
+symbolic alpha with reference gauge 1. See the documentation for parameter \
+domains and IR prescriptions. Nonzero redundant coefficients, unreduced \
+integrals and timeouts need further diagnosis.", "Text"],
   Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
         RowBox[{"RGZQQGaugeStart", "[", "600", "]"}], "]"}], ";"}]],
    "Input"],
   Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
         RowBox[{"RGZQQGaugePrepareSelf", "[", RowBox[{"1800", ",",
-            RowBox[{"\"TotalSeconds\"", "\[Rule]", "3600"}]}], "]"}], "]"}],
+            RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], "]"}], "]"}],
       ";"}]], "Input"],
   Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
         RowBox[{"RGZQQGaugeEarlyPrepare", "[", RowBox[{"600", ",",

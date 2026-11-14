@@ -1,29 +1,77 @@
 (* SPDX-License-Identifier: GPL-3.0-or-later
    Copyright (C) 2026 Wan Wu and RGZWorkflow contributors. *)
-(* RGZWorkflow 1.0.0: public API. Loading never starts a calculation. *)
+(* Role:
+   Declare the four public API groups and the definitions-only package load order.
+
+   Inputs:
+   The package source directory.
+
+   Dependencies:
+   The explicit ordinary-module list below defines commands. Lazy engine prerequisites are listed in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl.
+*)
+
+(* RGZWorkflow 1.1.0: public API. Loading never starts a calculation. *)
 BeginPackage["RGZWorkflow`"];
+(* 1. Main calculation: model to bare amplitude *)
 RGZInitialize::usage = "RGZInitialize[workDirectory] creates isolated Data, Cache and Results directories and selects the bundled model. Option QuarkMasses -> {0,0} specifies the two base-model quark masses; full QQ external states currently remain massless.";
-RGZConfiguration::usage = "RGZConfiguration[] returns the current small configuration association.";
-RGZSymbols::usage = "RGZSymbols[] returns the canonical private physical parameters and momenta for substitutions.";
-RGZSymbolAudit::usage = "RGZSymbolAudit[] checks canonical model symbol identity, definitions and name resolution in the FR master and workers.";
-RGZDependencies::usage = "RGZDependencies[] reports installed computational dependencies without loading them.";
 RGZLoadFeynRules::usage = "RGZLoadFeynRules[\"Directory\"->path] loads FeynRules and the selected FR model in a fresh kernel.";
 RGZLoadFeynCalc::usage = "RGZLoadFeynCalc[] loads FeynCalc with FeynArts in a fresh kernel.";
-RGZTreeBenchmark::usage = "RGZTreeBenchmark[seconds] independently checks the explicit 5x5 and 8x8 Minkowski tree kernels.";
 RGZExtractTree::usage = "RGZExtractTree[seconds] extracts and saves the actual FR quadratic kernels.";
 RGZExportVertices::usage = "RGZExportVertices[seconds] exports the current FR two-, three- and four-leg vertices.";
+RGZMixedStart::usage = "RGZMixedStart[] prepares the one-loop mixed-matrix manifest without generating every graph.";
+RGZMixedComputeAll::usage = "RGZMixedComputeAll[seconds] computes the 64 ordered pairs; never called automatically.";
+RGZMixedResult::usage = "RGZMixedResult[seconds] collects and validates the projected mixed matrices.";
+RGZQQStart::usage = "RGZQQStart[seconds] builds complete conventional massless distinct-flavour quark amplitudes with two dynamical quark flavors, defaulting to alpha=0 and M=0.";
+RGZQQPrepareSelf::usage = "RGZQQPrepareSelf[seconds,\"TotalSeconds\"->3600] prepares the mixed self-energy limits with per-coefficient checkpoints; progress is RGZResult[\"QQProgress\"].";
+RGZQQAmplitude::usage = "RGZQQAmplitude[] assembles all completed conventional graphs and four on-shell external residues; reports bare, unverified status explicitly.";
+RGZQQRunPart::usage = "RGZQQRunPart[name,seconds] reduces a full vertex, box or quark self-energy integrand to PV functions.";
+
+(* 2. Validation and renormalization *)
+RGZTreeBenchmark::usage = "RGZTreeBenchmark[seconds] independently checks the explicit 5x5 and 8x8 Minkowski tree kernels.";
 RGZCheckIdentities::usage = "RGZCheckIdentities[seconds] checks BRST algebra and quark Ward identities and audits available propagator/NAV evidence; unimplemented loop ST/Nielsen identities remain explicit.";
 RGZIdentityRequirements::usage = "RGZIdentityRequirements[] lists the ST, Ward, constraint and Nielsen identities required for a complete verification.";
 RGZCheckPropagators::usage = "RGZCheckPropagators[seconds] compares the model propagators with the freshly extracted tree kernels.";
 RGZCheckVertices::usage = "RGZCheckVertices[seconds,\"IDs\"->All] checks selected three- and four-leg vertices against FR.";
 RGZCheckOrders::usage = "RGZCheckOrders[seconds,\"Mode\"->\"Compare\"] checks labeled permutations; Generate checks distinct field orders only.";
-RGZMixedStart::usage = "RGZMixedStart[] prepares the one-loop mixed-matrix manifest without generating every graph.";
+RGZQCDBenchmark::usage = "RGZQCDBenchmark[] checks the four candidate contributions and actual pure-gluon QCD self-energy.";
+RGZQQSMatrix::usage = "RGZQQSMatrix[] validates linked current-source gauge, mass-limit, UV/IR and finite evidence before returning a conditional partonic amplitude. Flags alone cannot certify it.";
+RGZQQMSbarCounterterms::usage = "RGZQQMSbarCounterterms[] gives independently specified Landau MSbar parameter shifts (default: two dynamical massless quarks) and their renormalization-factor relations.";
+RGZQQMSbar::usage = "RGZQQMSbar[seconds] checks MSbar pole closure with the raw-core ledger and two-flavor local counterterms; eta is already in the base model, never inserted again; optionally builds a finite PV representation. Does not promote the full S matrix.";
+RGZQQUVIR::usage = "RGZQQUVIR[seconds] computes UV and supported IR poles of LoopOrder -> 1 form factors, with per-master checkpoints. Lost scaleless terms and unsupported complex-mass integrals are reported, not guessed.";
+RGZQQRenormalize::usage = "RGZQQRenormalize[seconds] checks caller-supplied local ParameterCounterterms against represented UV poles. Explicit Mode -> PoleSubtraction performs a formal pole subtraction only; neither certifies full MSbar renormalization.";
+RGZQQGaugeStart::usage = "Start a symbolic-alpha M=0 QQ task with an explicit common dimensional scaleless-zero prescription; preserves the previous task.";
+RGZQQGaugePrepareSelf::usage = "Prepare the symbolic-gauge mixed self energy.";
+RGZQQGaugeRunPart::usage = "Reduce one full diagram in the symbolic-gauge task.";
+RGZQQGaugeAssemble::usage = "Assemble the symbolic-gauge one-loop packet; no extra pinch term is added.";
+RGZQQGaugeCheck::usage = "Check every full one-loop color-spin-PV gauge difference at symbolic alpha.";
+RGZQQGaugeRestore::usage = "Restore the QQ task saved before the symbolic-gauge calculation.";
+RGZExtraTreeAudit::usage = "RGZExtraTreeAudit[seconds] independently reads eta, omega, zeta and both quark quadratic terms in a FeynRules session and checks Gaussian/Clifford inverses.";
+RGZCheckExtraPropagators::usage = "RGZCheckExtraPropagators[] validates the saved current-model independent FR extra-field audit; it does not claim a separate FA propagator comparison.";
+RGZOneLoopCoverage::usage = "RGZOneLoopCoverage[seconds] inventories action vertices through four legs, checks export signatures and records one-loop truncation/topology requirements in the FR session.";
+RGZCheckOneLoopCoverage::usage = "RGZCheckOneLoopCoverage[] validates the current action-side vertex/truncation inventory; independent graph bijection remains explicit.";
+RGZQQFiniteAudit::usage = "RGZQQFiniteAudit[seconds] independently reconstructs common-epsilon finite form factors and tree-derived local counterterms, preserving all source packets.";
+RGZQQCertification::usage = "RGZQQCertification[] links compatible bare, MSbar, symbolic gauge and mass-limit reports and saves an explicit list of outstanding checks; never upgrades missing evidence.";
+RGZQQScalarPoleAudit::usage = "RGZQQScalarPoleAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file] records representation-dependent opposite UV/IR pole transfers; never certifies the new finite amplitude.";
+RGZQQScalarBasisAudit::usage = "RGZQQScalarBasisAudit[seconds, ScalarFile -> file] proves generic one-loop sector irreducibility using proper critical points; does not claim complete cross-family independence.";
+RGZQQScalarFiniteAudit::usage = "RGZQQScalarFiniteAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file, ReferenceMSbarFile -> file, ReferenceFiniteAuditFile -> file, PoleAuditFile -> file] verifies the epsilon-dependent finite basis transformation without changing certification.";
+
+(* 3. Result expression *)
+RGZPVFinite::usage = "RGZPVFinite[master, scaleSquared] denotes the finite common-bar-epsilon Laurent coefficient of the specified PV integral, with UV and IR poles subtracted at the same scale. No numerical or arbitrary-branch evaluation is implied.";
+RGZQQFormFactors::usage = "RGZQQFormFactors[seconds] organizes the bare amplitude into two SU(N) color flows and D-dimensional spin structures, with scalar master coefficients. LoopOrder -> All (default), 0 or 1 selects full, tree or pure one-loop M. File may select a saved bare-amplitude.wxf.";
+RGZQQScalarFormFactors::usage = "RGZQQScalarFormFactors[seconds, File -> pureLoopFF] applies D-dimensional tensor identities and collects scalar PV coefficients in a separate source-bound packet.";
+RGZQQScalarFactorRows::usage = "RGZQQScalarFactorRows[seconds, File -> scalarColorFile, RowSeconds -> 120] extracts common scalar factors from singlet/octet finite rows and checks every reduced coefficient. Original coefficient pairs remain available.";
+RGZQQScalarColorSimplify::usage = "RGZQQScalarColorSimplify[seconds, File -> scalarCompactFile, CoefficientSeconds -> 30] recombines direct/crossed color coefficients into exact t-channel singlet/octet form and selects shorter polynomial representations. Source reports remain unchanged.";
+RGZQQScalarFiniteSimplify::usage = "RGZQQScalarFiniteSimplify[seconds, File -> finiteAuditFile, CoefficientSeconds -> 30] separately simplifies finite coefficients in exact squared-pole coordinates; CompactFunctionArguments and HornerCoefficients default to True. Integral parameter values and source certification are preserved.";
+RGZPaperResult::usage = "RGZPaperResult[] reads the author-supplied inert eight-row finite one-loop table and its domain/normalization metadata. It does not certify the current task.";
+
+(* 4. Development, detailed audits, continuation and optional PT research *)
+RGZConfiguration::usage = "RGZConfiguration[] returns the current small configuration association.";
+RGZSymbols::usage = "RGZSymbols[] returns the canonical private physical parameters and momenta for substitutions.";
+RGZSymbolAudit::usage = "RGZSymbolAudit[] checks canonical model symbol identity, definitions and name resolution in the FR master and workers.";
+RGZDependencies::usage = "RGZDependencies[] reports installed computational dependencies without loading them.";
 RGZMixedStartPair::usage = "RGZMixedStartPair[a,b,seconds,\"Sectors\"->All] prepares one ordered pair.";
 RGZRunGraph::usage = "RGZRunGraph[n,stage,seconds] runs one graph stage in the current mixed pair.";
 RGZMixedComputePair::usage = "RGZMixedComputePair[a,b,seconds] computes one ordered pair with resumable caches.";
-RGZMixedComputeAll::usage = "RGZMixedComputeAll[seconds] computes the 64 ordered pairs; never called automatically.";
-RGZMixedResult::usage = "RGZMixedResult[seconds] collects and validates the projected mixed matrices.";
-RGZQCDBenchmark::usage = "RGZQCDBenchmark[] checks the four candidate contributions and actual pure-gluon QCD self-energy.";
 RGZPinchKernels::usage = "RGZPinchKernels[\"Mode\"->\"FourPinch\"|\"GaugeDifference\",\"ReferenceGauge\"->0,\"Representation\"->\"Rational\"|\"FAD\"] returns the four reviewed kernels, GammaP and their total.";
 RGZNAVSum::usage = "RGZNAVSum[seconds,\"QuarkMass\"->0] sums all field-matrix NAV connections and saves a raw connected vertex tensor; no pinch decomposition or integration.";
 RGZPTStart::usage = "RGZPTStart[\"Mode\"->\"FourPinch\",\"ReferenceGauge\"->0] prepares pinch kernels; NAVMode defaults to FullMatrix and replaces AA NAV with all matrix connections.";
@@ -31,27 +79,12 @@ RGZPinchResult::usage = "RGZPinchResult[] returns completed four-part scalar ker
 RGZRunPart::usage = "RGZRunPart[name,stage,seconds] runs one box/nav/av/qse stage.";
 RGZGaugeCheck::usage = "RGZGaugeCheck[seconds,\"Coefficients\"->{1}] compares the current candidate combination with a reference gauge, stopping on timeout.";
 RGZExportResidual::usage = "RGZExportResidual[] writes a complete 39-row residual packet when available.";
-RGZQQStart::usage = "RGZQQStart[seconds] builds complete conventional massless distinct-flavour quark amplitudes with two dynamical quark flavors, defaulting to alpha=0 and M=0.";
-RGZQQPrepareSelf::usage = "RGZQQPrepareSelf[seconds,\"TotalSeconds\"->3600] prepares the mixed self-energy limits with per-coefficient checkpoints; progress is RGZResult[\"QQProgress\"].";
-RGZQQAmplitude::usage = "RGZQQAmplitude[] assembles all completed conventional graphs and four on-shell external residues; reports bare, unverified status explicitly.";
-RGZQQSMatrix::usage = "RGZQQSMatrix[] validates linked current-source gauge, mass-limit, UV/IR and finite evidence before returning a conditional partonic amplitude. Flags alone cannot certify it.";
 RGZLoadFeynHelpers::usage = "RGZLoadFeynHelpers[] loads the installed Package-X interface in a FeynCalc session; no calculation is started.";
 RGZQQUVIRIntegral::usage = "RGZQQUVIRIntegral[expr, loop, seconds] separates UV/IR and finite parts of a supplied unreduced real-mass integral, retaining logarithmic scaleless integrals. ImplicitPrefactor defaults to 1/(2 Pi)^(4-2 Epsilon). This does not certify the full amplitude.";
 RGZQQScalelessLedger::usage = "RGZQQScalelessLedger[seconds] restores UV/IR transfers of explicit scaleless tensor cores in all six Landau M=0 probe graphs without rewriting graph caches.";
-RGZQQMSbarCounterterms::usage = "RGZQQMSbarCounterterms[] gives independently specified Landau MSbar parameter shifts (default: two dynamical massless quarks) and their renormalization-factor relations.";
-RGZQQMSbar::usage = "RGZQQMSbar[seconds] checks MSbar pole closure with the raw-core ledger and two-flavor local counterterms; eta is already in the base model, never inserted again; optionally builds a finite PV representation. Does not promote the full S matrix.";
-RGZPVFinite::usage = "RGZPVFinite[master, scaleSquared] denotes the finite common-bar-epsilon Laurent coefficient of the specified PV integral, with UV and IR poles subtracted at the same scale. No numerical or arbitrary-branch evaluation is implied.";
 RGZQQPVUVIRLedger::usage = "RGZQQPVUVIRLedger[seconds] audits saved pre/post PV identities for lost scaleless UV/IR pole shifts. Rebuild pure-loop form factors first. Earlier TID and mass limits remain outside its scope.";
-RGZQQUVIR::usage = "RGZQQUVIR[seconds] computes UV and supported IR poles of LoopOrder -> 1 form factors, with per-master checkpoints. Lost scaleless terms and unsupported complex-mass integrals are reported, not guessed.";
-RGZQQRenormalize::usage = "RGZQQRenormalize[seconds] checks caller-supplied local ParameterCounterterms against represented UV poles. Explicit Mode -> PoleSubtraction performs a formal pole subtraction only; neither certifies full MSbar renormalization.";
-RGZQQFormFactors::usage = "RGZQQFormFactors[seconds] organizes the bare amplitude into two SU(N) color flows and D-dimensional spin structures, with scalar master coefficients. LoopOrder -> All (default), 0 or 1 selects full, tree or pure one-loop M. File may select a saved bare-amplitude.wxf.";
-RGZQQRepairProbeConvention::usage = "RGZQQRepairProbeConvention[] migrates a known old QQ job to the model-consistent +I g quark vertex; preserves complete self energy and even-vertex graphs, reverses only NAV graphs, and invalidates assembled comparisons. Option File selects an old job.wxf.";
 RGZQQRepairIncomplete::usage = "RGZQQRepairIncomplete[seconds] quarantines failed QQ checkpoints and recomputes affected parts; a valid finite M0 checkpoint avoids reloading the large mixed matrix.";
-RGZQQRunPart::usage = "RGZQQRunPart[name,seconds] reduces a full vertex, box or quark self-energy integrand to PV functions.";
 RGZMassLimit::usage = "RGZMassLimit[\"M0\"|\"QCD\",seconds] checks the existing specialized 39-row mass-limit diagnostics; M0 accepts \"ParameterPoint\" -> an exact parameter association.";
-RGZThermalReduce::usage = "RGZThermalReduce[expr,q,p,mu,nu,seconds] explicitly runs the optional route-restricted V6 thermal reducer.";
-RGZThermalEvaluate::usage = "RGZThermalEvaluate[coefficients,massSquaredAssociation,seconds,options] runs the optional T=0-subtracted numerical backend.";
-RGZVacuumSubtract::usage = "RGZVacuumSubtract[expr,seconds] runs the original explicit MSbar pole subtraction; FeynHelpers must already be loaded.";
 RGZSplit::usage = "RGZSplit[expr,q,p,seconds] explicitly factorizes loop propagators using the checked loop backend.";
 RGZPoleMasses::usage = "RGZPoleMasses[expr] replaces the rgzLoopM1..4 labels with the physical pole masses.";
 RGZSave::usage = "RGZSave[] saves an explicit versioned WXF session packet, without notebook output.";
@@ -61,46 +94,63 @@ RGZStatus::usage = "RGZStatus[] returns a small stage-status association; RGZSta
 RGZReport::usage = "RGZReport[result] prints a bounded status/diagnostic report, never a huge expression.";
 RGZShow::usage = "RGZShow[expression,maxLeaves] displays only a bounded expression.";
 RGZMonitor::usage = "RGZMonitor[command] displays one compact engine progress panel when available.";
-RGZRegisterStage::usage = "RGZRegisterStage[name,function] registers an explicit developer extension.";
-RGZRunExtension::usage = "RGZRunExtension[name,arguments...] explicitly runs a registered stage.";
 $RGZWorkflowVersion::usage = "The RGZWorkflow API/data-schema version.";
-RGZQQGaugeStart::usage = "Start a symbolic-alpha M=0 QQ task with an explicit common dimensional scaleless-zero prescription; preserves the previous task.";
-RGZQQGaugePrepareSelf::usage = "Prepare the symbolic-gauge mixed self energy.";
-RGZQQGaugeRunPart::usage = "Reduce one full diagram in the symbolic-gauge task.";
-RGZQQGaugeAssemble::usage = "Assemble the symbolic-gauge one-loop packet; no extra pinch term is added.";
 RGZQQGaugeEarlyPrepare::usage = "Prepare protected raw integrand gauge differences before pole splitting and TID; experimental, not a gauge proof.";
 RGZQQGaugeEarlyCheck::usage = "Reduce the combined prepared six-diagram gauge difference and add mixed self-energy and external-residue differences; experimental independent check.";
-RGZQQGaugeCheck::usage = "Check every full one-loop color-spin-PV gauge difference at symbolic alpha.";
 RGZQQWardCoverage::usage = "Compare the full gauge difference with the complete existing pinch combination, then test its gauge difference; not a functional ST proof.";
-RGZQQGaugeRestore::usage = "Restore the QQ task saved before the symbolic-gauge calculation.";
-RGZExtraTreeAudit::usage = "RGZExtraTreeAudit[seconds] independently reads eta, omega, zeta and both quark quadratic terms in a FeynRules session and checks Gaussian/Clifford inverses.";
-RGZCheckExtraPropagators::usage = "RGZCheckExtraPropagators[] validates the saved current-model independent FR extra-field audit; it does not claim a separate FA propagator comparison.";
-RGZOneLoopCoverage::usage = "RGZOneLoopCoverage[seconds] inventories action vertices through four legs, checks export signatures and records one-loop truncation/topology requirements in the FR session.";
-RGZCheckOneLoopCoverage::usage = "RGZCheckOneLoopCoverage[] validates the current action-side vertex/truncation inventory; independent graph bijection remains explicit.";
 RGZQQMixedUVIRLedger::usage = "RGZQQMixedUVIRLedger[seconds, MatrixManifest -> file] replays saved pre-TID mixed kernels to record scaleless UV/IR transfers without rewriting source caches; graph/PV coverage is reported separately.";
 RGZQQCompleteMassLedger::usage = "RGZQQCompleteMassLedger[] links matching raw bounds, general mass-region cancellation, weighted matrix transfers and the probe/MSbar ledger into a new evidence packet; never edits source amplitudes.";
 RGZQQRawMassPoleAudit::usage = "RGZQQRawMassPoleAudit[seconds] independently bounds the original pre-limit coefficients in e=M^2 without reading saved M0-series slots.";
 RGZQQWeightedUVIRLedger::usage = "RGZQQWeightedUVIRLedger[seconds, MatrixManifest -> file] replays graph-weighted pre-TID and pre-PV units and verifies graph, sector and matrix reconstruction.";
 RGZQQMassRegionMatch::usage = "RGZQQMassRegionMatch[seconds] matches regulator tadpoles with bubble soft regions and quadratic hard corrections, with source-bound checkpoints; it does not certify full scaleless coverage.";
 RGZQQMassLimitLedger::usage = "RGZQQMassLimitLedger[seconds] audits saved pre-limit mixed-self pairs and discarded regulator tadpoles with explicit limit-order diagnostics; does not infer complete IR certification.";
-RGZQQFiniteAudit::usage = "RGZQQFiniteAudit[seconds] independently reconstructs common-epsilon finite form factors and tree-derived local counterterms, preserving all source packets.";
-RGZQQCertification::usage = "RGZQQCertification[] links compatible bare, MSbar, symbolic gauge and mass-limit reports and saves an explicit list of outstanding checks; never upgrades missing evidence.";
-RGZQQScalarPoleAudit::usage = "RGZQQScalarPoleAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file] records representation-dependent opposite UV/IR pole transfers; never certifies the new finite amplitude.";
-RGZQQScalarFormFactors::usage = "RGZQQScalarFormFactors[seconds, File -> pureLoopFF] applies D-dimensional tensor identities and collects scalar PV coefficients in a separate source-bound packet.";
-RGZQQScalarBasisAudit::usage = "RGZQQScalarBasisAudit[seconds, ScalarFile -> file] proves generic one-loop sector irreducibility using proper critical points; does not claim complete cross-family independence.";
-RGZQQScalarFactorRows::usage = "RGZQQScalarFactorRows[seconds, File -> scalarColorFile, RowSeconds -> 120] extracts common scalar factors from singlet/octet finite rows and checks every reduced coefficient. Original coefficient pairs remain available.";
-RGZQQScalarColorSimplify::usage = "RGZQQScalarColorSimplify[seconds, File -> scalarCompactFile, CoefficientSeconds -> 30] recombines direct/crossed color coefficients into exact t-channel singlet/octet form and selects shorter polynomial representations. Source reports remain unchanged.";
-RGZQQScalarFiniteSimplify::usage = "RGZQQScalarFiniteSimplify[seconds, File -> finiteAuditFile, CoefficientSeconds -> 30] separately simplifies finite coefficients in exact squared-pole coordinates; CompactFunctionArguments and HornerCoefficients default to True. Integral parameter values and source certification are preserved.";
-RGZQQScalarFiniteAudit::usage = "RGZQQScalarFiniteAudit[seconds, ScalarFile -> file, ReferenceUVIRFile -> file, ReferenceMSbarFile -> file, ReferenceFiniteAuditFile -> file, PoleAuditFile -> file] verifies the epsilon-dependent finite basis transformation without changing certification.";
-RGZPaperResult::usage = "RGZPaperResult[] reads the author-supplied inert eight-row finite one-loop table and its domain/normalization metadata. It does not certify the current task.";
+
 Begin["`Private`"];
 $packageRoot = DirectoryName[DirectoryName[$InputFileName]];
 If[!AssociationQ[$config], $config = <||>];
 If[!AssociationQ[$results], $results = <||>];
 If[!AssociationQ[$stageStatus], $stageStatus = <||>];
-If[!AssociationQ[$extensions], $extensions = <||>];
 If[!ListQ[$loaded], $loaded = {}];
-$RGZWorkflowVersion = "1.0.0";
-Scan[Get, FileNameJoin[{$packageRoot,"Kernel",#}]& /@ {"Core.wl","Tree.wl","TreeCoverage.wl","Checks.wl","Identities.wl","Loops.wl","Scattering.wl","ScatteringProgress.wl","ScatteringFormFactors.wl","ScatteringRecovery.wl","ScatteringGauge.wl","ScatteringMeasure.wl","ScatteringCoefficient.wl","ScatteringPVChecks.wl","ScatteringGaugePreparation.wl","ScatteringGaugeEarly.wl","ScatteringProbeConvention.wl","ScatteringSpectralBranches.wl","ScatteringRenormalization.wl","ScatteringCertification.wl","ScatteringMassRegions.wl","ScatteringRawMassAudit.wl","ScatteringWeightedLedger.wl","ScatteringMassCompletion.wl","ScatteringScalarFormFactors.wl","ScatteringScalarAudits.wl","ScatteringScalarCompact.wl","ScatteringScalarPrefactors.wl","EvidenceValidation.wl","PaperResult.wl","Optional.wl"}];
+$RGZWorkflowVersion = "1.1.0";
+(* Ordinary definitions only. Lazy calculation-engine loads and their prerequisites
+   are explicit in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl. *)
+Scan[Get, FileNameJoin[{$packageRoot,"Kernel",#}]& /@ {
+ "Internal/Session.wl",
+ "Tree/Propagators.wl",
+ "Tree/FeynmanRules.wl",
+ "Identities/BRST.wl",
+ "OneLoop/MixedMatrices.wl",
+ "OneLoop/QuarkScattering.wl",
+ "OneLoop/VertexSum.wl",
+ "OneLoop/QQMixedSelf.wl",
+ "Algebra/SpectralCoordinates.wl",
+ "Renormalization/MassRestoration.wl",
+ "Renormalization/ResidualDiagnostics.wl",
+ "Pinch/Workflow.wl",
+ "Identities/QCDComparison.wl",
+ "Identities/BoxWard.wl",
+ "Internal/IntegralCache.wl",
+ "Algebra/TensorIntegrals.wl",
+ "OneLoop/EvaluateGraphs.wl",
+ "Internal/Progress.wl",
+ "Algebra/DiracChains.wl",
+ "Algebra/PassarinoVeltman.wl",
+ "Algebra/ColorSpinBasis.wl",
+ "Internal/Resume.wl",
+ "Identities/GaugeDependence.wl",
+ "Pinch/Comparison.wl",
+ "OneLoop/Amplitude.wl",
+ "Algebra/Coefficients.wl",
+ "Algebra/FourPointMomenta.wl",
+ "Renormalization/UVIR.wl",
+ "Renormalization/MSbar.wl",
+ "Identities/Consistency.wl",
+ "Renormalization/MassLimit.wl",
+ "Renormalization/MixedUVIR.wl",
+ "Algebra/ScalarBasis.wl",
+ "Identities/ScalarBasis.wl",
+ "Algebra/FiniteCoefficients.wl",
+ "Internal/PaperReference.wl"
+}];
 End[];
 EndPackage[];

@@ -1,7 +1,7 @@
 [
   [
     "Title",
-    "RGZWorkflow 1.0.0 \u2014 Diagnostics"
+    "RGZWorkflow 1.1.0 \u2014 Diagnostics"
   ],
   [
     "Text",
@@ -26,6 +26,14 @@
   [
     "Input",
     "Get[FileNameJoin[{project,\"Tools\",\"DiagnosticsCompatibility.wl\"}]];\nRGZReport[RGZInitialize[FileNameJoin[{project,\"Work\"}],\"Display\"->\"Compact\"]];\nRGZReport[RGZLoadFeynCalc[]];\nRGZReport[RGZRestore[]];\nGet[FileNameJoin[{project,\"Tools\",\"WeightedAuditResume.wl\"}]];"
+  ],
+  [
+    "Text",
+    "Restore the fixed-gauge QQ task and reassemble its saved contributions before automatic form factors. Matching completed task caches are reused; stop if either command fails."
+  ],
+  [
+    "Input",
+    "RGZReport[RGZQQStart[600,\"Gauge\"->0,\"RegulatorMass\"->0]];\nRGZReport[RGZQQAmplitude[]];"
   ],
   [
     "Section",

@@ -4,8 +4,6 @@
 Get[FileNameJoin[{If[ValueQ[Global`$RGZTestProject],Global`$RGZTestProject,DirectoryName[DirectoryName[$InputFileName]]],"RGZWorkflow.wl"}]];
 VerificationTest[RGZWorkflow`Private`$loaded==={} && RGZStatus[]===<||>,True,TestID->"LoadingDoesNotCompute"]
 VerificationTest[FailureQ[RGZMixedStart[]],True,TestID->"InitializationGuard"]
-VerificationTest[RGZRegisterStage["Double",Function[{x},2 x]];RGZRunExtension["Double",3],6,TestID->"ExplicitExtension"]
-VerificationTest[FailureQ[RGZRunExtension["Missing",3]],True,TestID->"UnknownExtensionGuard"]
 VerificationTest[RGZTreeBenchmark[60]["Status"],"Passed",TestID->"IndependentTreeKernelInversion"]
 VerificationTest[Block[{Global`m=1,Global`s=2},RGZTreeBenchmark[60]["Status"]],"Passed",TestID->"BenchmarkIndependentOfGlobalAssignments"]
 VerificationTest[FreeQ[RGZWorkflow`Private`engineContextPath[],"Global`"|"RGZWorkflow`"],True,TestID->"EngineDoesNotSearchUserContext"]

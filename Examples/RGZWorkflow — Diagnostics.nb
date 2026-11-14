@@ -1,4 +1,4 @@
-Notebook[{Cell["RGZWorkflow 1.0.0 \[LongDash] Diagnostics", "Title"],
+Notebook[{Cell["RGZWorkflow 1.1.0 \[LongDash] Diagnostics", "Title"],
   Cell["Continue in the FeynCalc kernel used by Start Here after its \
 fixed-gauge restore. Run section 1, then section 3 onward. Section 2 is only \
 for a fresh kernel. Valid completed checkpoints are reused; failures and \
@@ -35,7 +35,16 @@ execution helper automatically.", "Text"],
       RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[",
           RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", ",",
               "\"WeightedAuditResume.wl\""}], "}"}], "]"}], "]"}], ";"}]],
-   "Input"], Cell["3 - Source form factors, UV/IR and MSbar", "Section"],
+   "Input"], Cell["Restore the fixed-gauge QQ task and reassemble its saved \
+contributions before automatic form factors. Matching completed task caches \
+are reused; stop if either command fails.", "Text"],
+  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
+        RowBox[{"RGZQQStart", "[", RowBox[{"600", ",",
+            RowBox[{"\"Gauge\"", "\[Rule]", "0"}], ",",
+            RowBox[{"\"RegulatorMass\"", "\[Rule]", "0"}]}], "]"}], "]"}],
+      ";", RowBox[{"RGZReport", "[", RowBox[{"RGZQQAmplitude", "[", "]"}],
+        "]"}], ";"}]], "Input"],
+  Cell["3 - Source form factors, UV/IR and MSbar", "Section"],
   Cell["Run these cells in order. Valid source-bound caches are reused. The \
 MSbar and finite results are representations; complete mass and \
 graph-weighted evidence remains necessary for certification.", "Text"],

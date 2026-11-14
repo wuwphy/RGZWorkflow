@@ -1,16 +1,24 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: GPL-3.0-or-later
 """Run curated tests in separate Wolfram processes; never use production Work."""
-import argparse, datetime, json, os, pathlib, re, subprocess, sys, tempfile, time
+import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, sys, tempfile, time
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 SUITES={
  'core':['RunTests.wls','DiagnosticsCompatibility.wls','DiagnosticsNotebook.wls','PaperResult.wls','EvidenceValidation.wls'],
- 'algebra':['WeightedAuditResume.wls','WeightedScalarIdentity.wls'],
+ 'algebra':['QQShiftedPoles.wls','PreparationBoundaries.wls','AssemblyIdentitySafety.wls','GhostBubbleExample.wls','MixedTadpoleExample.wls','QuarkBubbleExample.wls','EvaluateGraphsSafety.wls','MassRestorationSafety.wls','MainRoute.wls','WeightedAuditResume.wls','WeightedScalarIdentity.wls','MixedBackendSafety.wls','PTContinuationSafety.wls','GaugeCheckSafety.wls','PTProvenanceSafety.wls','FixedDenominatorSafety.wls','NAVPinchSafety.wls','AALoopSafety.wls','NAVMatrixSafety.wls','QQScatteringSafety.wls','ScatteringCheckpointSafety.wls'],
 }
 
 def work_is_isolated(work):
  work=work.resolve();root=ROOT.resolve();production=(root/'Work').resolve()
  return all(work!=p and p not in work.parents and work not in p.parents for p in (root,production))
+
+def source_snapshot():
+ # Bind every run to the exact distributed files, including tests and models.
+ import check_release
+ hashes={str(f.relative_to(ROOT)):hashlib.sha256(f.read_bytes()).hexdigest()
+         for f in check_release.files() if f.is_file()}
+ digest=hashlib.sha256(json.dumps(hashes,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+ return {'sha256':digest,'files':hashes}
 
 def main():
  p=argparse.ArgumentParser(description=__doc__)
@@ -30,8 +38,10 @@ def main():
  def sanitize(text):
   for value,alias in [(str(ROOT),'${PROJECT}'),(str(work),'${TEST_WORK}'),(tempfile.gettempdir(),'${TEMP}'),(str(pathlib.Path.home()),'${HOME}')]:text=text.replace(value,alias)
   return re.sub(r'/private/var/' + r'folders/[^\s,\]\}"<>]+','${TEMP}',text)
- report={'release':'1.0.0','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
- tests=[]
+ snapshot=source_snapshot()
+ (out/'source.json').write_text(json.dumps(snapshot,indent=2)+'\n')
+ report={'source_sha256':snapshot['sha256'],'release':'1.1.0','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
+ tests=[("environment","Tools/record_environment.wls")]
  for suite in suites:
   tests.extend((suite,'Tests/'+f) for f in SUITES[suite])
  tests.append(('syntax','Tools/check_sources.wls'))
@@ -53,7 +63,9 @@ def main():
   print(f'{"PASS" if code==0 else "FAIL"} {rel} ({elapsed}s)',flush=True)
   if code!=0:
    print(clean[-5000:]);break
- report['passed']=len(report['tests'])==len(tests) and all(c['passed'] for c in report['tests'])
+ report['not_run']=[rel for _,rel in tests[len(report['tests']):]]
+ report['source_unchanged']=source_snapshot()==snapshot
+ report['passed']=report['source_unchanged'] and len(report['tests'])==len(tests) and all(c['passed'] for c in report['tests'])
  (out/'report.json').write_text(json.dumps(report,indent=2)+'\n')
  print('REPORT '+str((out/'report.json').relative_to(ROOT)),flush=True)
  return 0 if report['passed'] else 1

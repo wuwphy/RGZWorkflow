@@ -33,23 +33,30 @@ def main():
  if version_match is None:
   print(json.dumps({'errors':['Invalid paclet version metadata']}));return True
  version=version_match.group(1)
- if version != '1.0.0':errors.append('Unexpected package version '+version)
+ if version != '1.1.0':errors.append('Unexpected package version '+version)
  for name in ['Kernel/RGZWorkflow.wl','CITATION.cff','README.md','Tools/build_release.py','Tools/update_manifest.py','Tools/run_tests.py']:
   if version not in (ROOT/name).read_text():errors.append('Version mismatch '+name)
  source=(ROOT/'Kernel/RGZWorkflow.wl').read_text()
  m=re.search(r'Scan\[Get,.*?/@\s*\{(.*?)\}\];',source,re.S)
  modules=re.findall(r'"([^"]+\.wl)"',m.group(1)) if m else []
  if not modules or len(modules)!=len(set(modules)):errors.append('Invalid ordered loader')
- edges={p.name:re.findall(r'Get\[FileNameJoin\[\{\$packageRoot,"Kernel","([^"]+)"\}\]\]',p.read_text()) for p in (ROOT/'Kernel').glob('*.wl')}
+ # The ordinary loader and on-demand physics files share physical directories.
+ kernel=ROOT/'Kernel'
+ sources={str(p.relative_to(kernel)):p for p in kernel.rglob('*.wl')}
  seen=set()
  def visit(name):
   if name in seen:return
   seen.add(name)
-  if not (ROOT/'Kernel'/name).is_file():errors.append('Missing module '+name)
-  for child in edges.get(name,[]):visit(child)
+  if name not in sources:
+   errors.append('Missing module '+name);return
+  # Source/hash references also identify the FeynCalc/FeynRules files loaded
+  # only when their calculation is requested. Generated output names are ignored.
+  for child in re.findall(r'"([^"\n]+\.wl)"',sources[name].read_text()):
+   if child in sources:visit(child)
  for name in modules:visit(name)
- for p in (ROOT/'Kernel').glob('*.wl'):
-  if p.name!='RGZWorkflow.wl' and p.name not in seen:errors.append('Unindexed kernel module '+p.name)
+ for name in sources:
+  if name!='RGZWorkflow.wl' and name not in seen:
+   errors.append('Unindexed calculation file '+name)
  for p in files():
   relpath=p.relative_to(ROOT)
   allowed_roots={'Kernel','Models','Tests','Tools','Examples','Documentation','Paper','Evidence','.github'}
