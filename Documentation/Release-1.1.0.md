@@ -22,4 +22,6 @@ The self-preparation commands allow 14400 seconds in total. A frontend-only prog
 
 ## Citation
 
-Zenodo subsequently assigned version 1.1.0 DOI [10.5281/zenodo.2412586](https://doi.org/10.5281/zenodo.2412586). The original release ZIP predates this citation update and remains unchanged. The DOI 10.5281/zenodo.23724368 belongs to 1.0.0. The companion paper is arXiv:2610.38463.
+Zenodo subsequently assigned version 1.1.0 DOI [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586). The original release ZIP predates this citation update and remains unchanged. The DOI 10.5281/zenodo.23724368 belongs to 1.0.0. The companion paper is arXiv:2610.38463.
+
+The all-versions concept DOI is [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291). Zenodo records 10.5281/zenodo.23724292 and 10.5281/zenodo.23724368 are version 1.0.0 records, not the concept DOI.

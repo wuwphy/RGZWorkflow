@@ -1,10 +1,19 @@
 # RGZWorkflow 1.1.0
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2412586.svg)](https://doi.org/10.5281/zenodo.2412586)
+[![Version 1.1.0 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24212586.svg)](https://doi.org/10.5281/zenodo.24212586)
+
+[![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
 
 ## Citation
 
 *If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.*
+
+| Citation scope | DOI |
+| --- | --- |
+| RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
+| Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
+
+Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below cites version 1.1.0.
 
 ```bibtex
 @article{Wu2026RGZ,
@@ -23,8 +32,8 @@
   version   = {1.1.0},
   year      = {2026},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.2412586},
-  url       = {https://doi.org/10.5281/zenodo.2412586}
+  doi       = {10.5281/zenodo.24212586},
+  url       = {https://doi.org/10.5281/zenodo.24212586}
 }
 ```
 
@@ -95,6 +104,6 @@ The author confirmed on 2026-10-28 that the included code, models and electronic
 
 ## Cite this release
 
-Wu, Wan. *RGZWorkflow* (Version 1.1.0). Zenodo. https://doi.org/10.5281/zenodo.2412586
+Wu, Wan. *RGZWorkflow* (Version 1.1.0). Zenodo. https://doi.org/10.5281/zenodo.24212586
 
 The DOI shown above identifies version 1.1.0. The previous 1.0.0 archive retains DOI [10.5281/zenodo.23724368](https://doi.org/10.5281/zenodo.23724368). The software archive is separate from the companion manuscript, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463). Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).

@@ -11,7 +11,11 @@ authors:
 repository-code: https://github.com/wuwphy/RGZWorkflow
 abstract: "Article companion for auditable RGZ tree and one-loop quark-scattering calculations. The author run matches eight reference prefactors and 144 coefficients within the declared domain; the author reports a completed full workflow from an empty cache, with final artifacts rechecked. No third-party independent reproduction is claimed."
 url: https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.0
-doi: 10.5281/zenodo.2412586
+doi: 10.5281/zenodo.24212586
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.23724291
+    description: "All versions (Zenodo concept DOI)"
 references:
   - type: article
     title: "Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework"
