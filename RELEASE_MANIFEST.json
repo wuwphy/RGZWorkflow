@@ -22,7 +22,7 @@
     "Documentation/QuarkRenormalization.md": "ae30ebe145f3d5e93f176be49d7f51f1535d6279d16724185d5d56b2ceb72bce",
     "Documentation/Release-1.1.0.md": "43b9ffe31fa28b89b3ee71f1c875bc4688335f1eca53a99c06d7a698a2154e82",
     "Documentation/Reproducibility.md": "b7bff0409180ce0b08684da7dae03baefb3888184ce9e1340c589dcfb2df288f",
-    "Documentation/Traffic.md": "b20182d9492b0abab5ee415250af007ca16f8d737932812f5d06f74e286575a9",
+    "Documentation/Traffic.md": "ee1549792e9512567d7ef5ee2279d698d822a201822a1ad20fa1bad864822221",
     "Evidence/README.md": "0520dffb5d86b2b36d4112dfaba38b99cb9804d52039b9bb4fb45c17ad0fae2d",
     "Evidence/release-source-delta.json": "718bddf7ca8b605c18d70358d341dab87ad101ff535f901f2dbb9e17a1c10e5c",
     "Evidence/validation-2026-11-14.json": "92343c5028458c423b4d1d00f7ab3ececa5e91d98ab797b925e9ab78787eb113",
@@ -160,8 +160,8 @@
     "Tools/update_manifest.py": "788b43ab959d669fe2844fac83128139ad822245b58b0d5269a86b6706d55b8f",
     "docs/.nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
     "docs/index.html": "77d383248370c4bda9ab49f9311be854080ba8ba1f1e193640a174f9da745883",
-    "docs/stats/NOTICE.md": "d27c01cb093893c6596b7b2286b223d49b375fa989c06b10854b868b7009b2de",
+    "docs/stats/NOTICE.md": "34b7cf112ec77ea0ed8095209a0792bd0185f50025f4e1a2993afb8cf1e38b1f",
     "docs/stats/favicon.svg": "72966ad83228959bdbcdb9b65a0766607ac1d0e814a7ce154e579d4c910f9272",
-    "docs/stats/index.html": "de5c9353407b9b518a6b89ba21ddccf153fea81fe354c6c67369bf77afde11c2"
+    "docs/stats/index.html": "9c135152a128034a5710e8ac92bab49045129c2dbafd465f7561e947d4f1dc8f"
   }
 }

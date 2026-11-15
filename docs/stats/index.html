@@ -918,7 +918,7 @@
         <footer>
             <div class="footer-main">
                 <div class="footer-text">
-                    <p>Data updates daily at 3:00 AM UTC &middot; Last data point: <span id="last-updated">--</span></p>
+                    <p>Data updates daily at 03:17 UTC (11:17 Asia/Shanghai) &middot; Last data point: <span id="last-updated">--</span></p>
                     <p>
                         <a href="https://github.com/wuwphy/RGZWorkflow">Repository</a> &middot;
                         <a href="https://github.com/wuwphy/RGZWorkflow/releases">Releases</a>
@@ -947,10 +947,10 @@
 
     <script>
         // Configuration
-        let GIST_RAW_BASE = '';
-        let STATE_URL = '';
-        let ARCHIVE_GIST_ID = '';
-        let ARCHIVE_API_URL = '';
+        const GIST_RAW_BASE = 'https://gist.githubusercontent.com/wuwphy/9eebf91501ab7b2717144fbee28f729b/raw';
+        const STATE_URL = GIST_RAW_BASE + '/state.json';
+        let ARCHIVE_GIST_ID = '2f3cef230ed22b9769392f1ded442386';
+        let ARCHIVE_API_URL = 'https://api.github.com/gists/' + ARCHIVE_GIST_ID;
         const REPO_OWNER = 'wuwphy';
         const REPO_NAME = 'RGZWorkflow';
         const REPO_CREATED = '2026-10-23'; // for project age calculation
@@ -1229,7 +1229,7 @@
 
             if (history.length === 0) {
                 show('sparse-data-note');
-                setText('sparse-data-note', 'No data points available yet. The tracking workflow runs daily at 3:00 AM UTC.');
+                setText('sparse-data-note', 'No data points available yet. The tracking workflow runs daily at 03:17 UTC (11:17 Asia/Shanghai).');
                 return;
             }
 
@@ -2762,25 +2762,8 @@
 
         // ==================== BOOT ====================
 
-        async function discoverTrafficStorage() {
-            const description = `[GTT] ${REPO_OWNER}/${REPO_NAME} - badges`;
-            for (let page = 1; ; page++) {
-                const response = await fetch(`https://api.github.com/users/${REPO_OWNER}/gists?per_page=100&page=${page}`);
-                if (!response.ok) throw new Error('GitHub Gist discovery: HTTP ' + response.status);
-                const gists = await response.json();
-                const gist = gists.find(g => g.description === description && g.files['state.json']);
-                if (gist) {
-                    GIST_RAW_BASE = `https://gist.githubusercontent.com/${REPO_OWNER}/${gist.id}/raw`;
-                    STATE_URL = GIST_RAW_BASE + '/state.json';
-                    return;
-                }
-                if (gists.length < 100) break;
-            }
-            throw new Error('Awaiting first collection. Configure TRAFFIC_GIST_TOKEN and run Repository traffic in GitHub Actions.');
-        }
-
         async function refreshTrafficDashboard() {
-            try { await discoverTrafficStorage(); await loadDashboard(); }
+            try { await loadDashboard(); }
             catch (error) {
                 hide('loading'); show('error-banner');
                 document.getElementById('error-banner').textContent = error.message;

@@ -9,7 +9,7 @@
 3. Enable GitHub Pages from branch `main`, folder `/docs`.
 4. Run **Actions → Repository traffic → Run workflow** once. It creates a public statistics Gist and an unlisted archive Gist, then reuses them on subsequent runs. The workflow summary links to the data. Optional variables `TRAFFIC_GIST_ID` and `TRAFFIC_ARCHIVE_GIST_ID` can select existing storage.
 
-The dashboard discovers its public data by the exact `[GTT] wuwphy/RGZWorkflow - badges` description; no browser token is needed. Do not rename or duplicate the tracker Gists. An unlisted archive is not access-controlled: its link is readable by anyone who knows it.
+The dashboard reads the configured public statistics Gist directly from `gist.githubusercontent.com`; opening it does not call the anonymous GitHub Gist-discovery API. No browser token is needed. The collector reuses its Gists by the exact `[GTT] wuwphy/RGZWorkflow - badges` / `- archive` descriptions. Do not rename or duplicate the tracker Gists. An unlisted archive is not access-controlled: its link is readable by anyone who knows it.
 
 ## Schedule and meaning
 
