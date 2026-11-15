@@ -4,6 +4,7 @@
   "algorithm": "SHA256",
   "files": {
     ".github/workflows/check.yml": "8b339f279796d0f17a6fab66d54cc290db6ed9aaa9bffdd0741120142c10523a",
+    ".github/workflows/retire-public-traffic.yml": "886f869676b8bc96c436c9d4b8618a515c0e9f3bf5f9d67781c8955bc3adff47",
     ".github/workflows/traffic-badges.yml": "de5d29a623dcde23f1f3363a9f82c36b4a76a5e74439b87784e38f132d0fd2ff",
     ".gitignore": "443b25272b80bc11d92b15feb411543dbc4442f07e6c5e4ce5d736fe4245c7a7",
     "CHANGELOG.md": "e5924c3b181280bfec457cb4a731047413beb3b81a9eea08ceca71f0d04a52ba",

@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+name: Retire public traffic storage
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  retire:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Verify preserved backups and remove public copies
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          github-token: ${{ secrets.TRAFFIC_GIST_TOKEN }}
+          script: |
+            const crypto = require('node:crypto');
+            const expected = {
+              "9eebf91501ab7b2717144fbee28f729b": {
+                "label": "statistics",
+                "updated_at": "2026-11-15T03:09:09Z",
+                "files": {
+                  "clones.json": "5e3d3b2d039818526e6a7ef6d20fd8343d6b47eeb4b8787f97c7272c72896b04",
+                  "downloads.json": "74050a0d726c598ebeef75c360888ce5f8569801c866620b0e551dcdef8cfb2a",
+                  "installs.json": "7f08565551d9a20707f722c6b7381eed9cb6edac4604a479b06efc7f3f2ef3ab",
+                  "state.json": "bb1fcced76cd9c834e363d9ec69891bc4b3728c22f900f4c20c77259c26ee9b9",
+                  "views.json": "8820ee6354a96314c81e17c9aa208296780434033e65a48675d37e127677ceed"
+                }
+              },
+              "2f3cef230ed22b9769392f1ded442386": {
+                "label": "archive",
+                "updated_at": "2026-11-15T03:09:04Z",
+                "files": {
+                  "README.md": "4b4cc7177115539deecf48b4944004a51dd11c53815ff61b533adef51f482f8d"
+                }
+              }
+            };
+            // Backups were independently imported and hash-checked in the private repository.
+            // Verify both live Gists before removing either one.
+            for (const [id, snapshot] of Object.entries(expected)) {
+              const {data} = await github.rest.gists.get({gist_id:id});
+              if (JSON.stringify(Object.keys(data.files).sort()) !== JSON.stringify(Object.keys(snapshot.files).sort())) {
+                throw new Error('Public data changed since backup; retirement stopped.');
+              }
+              for (const [name, hash] of Object.entries(snapshot.files)) {
+                const file = data.files[name];
+                if (file.truncated || crypto.createHash('sha256').update(file.content).digest('hex') !== hash) {
+                  throw new Error('Backup mismatch; no public Gist will be removed.');
+                }
+              }
+            }
+            for (const id of Object.keys(expected)) await github.rest.gists.delete({gist_id:id});
+            await core.summary.addHeading('Public traffic storage retired').addRaw('Both public/unlisted Gists matched the verified private backups and were removed. No credentials were exported.').write();
