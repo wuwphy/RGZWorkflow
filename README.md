@@ -2,6 +2,32 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.2412586.svg)](https://doi.org/10.5281/zenodo.2412586)
 
+## Citation
+
+*If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.*
+
+```bibtex
+@article{Wu2026RGZ,
+  author        = {Wu, Wan},
+  title         = {Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework},
+  journal       = {arXiv preprint arXiv:2610.38463},
+  year          = {2026},
+  eprint        = {2610.38463},
+  archivePrefix = {arXiv},
+  url           = {https://arxiv.org/abs/2610.38463}
+}
+
+@software{Wu2026RGZWorkflow,
+  author    = {Wu, Wan},
+  title     = {RGZWorkflow},
+  version   = {1.1.0},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.2412586},
+  url       = {https://doi.org/10.5281/zenodo.2412586}
+}
+```
+
 Wolfram Language source package for the zero-temperature tree and one-loop RGZ quark-scattering workflow.
 
 The calculation is organized by physical content: [tree theory, one-loop amplitudes, integral algebra, renormalization and identities](Kernel/README.md). Start with [OneLoop/Amplitude.wl](Kernel/OneLoop/Amplitude.wl) for the full sum; [the calculation guide](Documentation/Calculation.md) explains its conventions. Cache and display code are separate in `Kernel/Internal/`.
