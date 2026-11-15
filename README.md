@@ -1,14 +1,39 @@
 # RGZWorkflow 1.1.0
 
-[![Version 1.1.0 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24212586.svg)](https://doi.org/10.5281/zenodo.24212586)
+Wolfram Language source package for tree-level and one-loop quark scattering in the refined Gribov–Zwanziger (RGZ) framework at zero temperature. The implemented process is distinct-flavour scattering with massless external quarks, including the complete mixed-field self-energy insertion, vertex corrections, box diagrams and external-leg residues.
 
-[![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
+Companion paper: [*Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework* — arXiv:2610.38463](https://arxiv.org/abs/2610.38463).
 
-[Repository traffic dashboard](https://wuwphy.github.io/RGZWorkflow/stats/) · [Tracker setup](Documentation/Traffic.md)
+[![Version 1.1.0 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24212586.svg)](https://doi.org/10.5281/zenodo.24212586) [![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
+
+*If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.* [Copy BibTeX](#citation).
+
+## Physical calculation
+
+```text
+actual RGZ action -> tree kernels, propagators and vertices
+                  -> complete mixed-field one-loop self energies
+                  -> quark vertices, boxes and external-leg residues
+                  -> conventional qqprime amplitude and form factors
+                  -> gauge, UV/IR, MSbar, mass-limit and finite-part checks
+```
+
+The calculation retains general D until the dimensional expansions. The final comparison concerns two dynamical flavours, massless external quarks, Landau gauge and M -> 0+, within the declared complex-mass and IR domain. The symbolic general-gauge comparison is a separate check. Branches are continued from the declared Euclidean domain with a common +i0 prescription; no all-parameter or inclusive-cross-section claim is made.
+
+The [calculation guide](Documentation/Calculation.md) explains the physical sum and normalization; [model and scope](Documentation/ModelAndScope.md) states its assumptions. The [Kernel map](Kernel/README.md) follows the tree, one-loop, algebra, renormalization and identity chapters. The conventional scattering route is separate from the optional PT candidate workflow.
+
+## Reproduce the calculation
+
+Install the [external dependencies](Documentation/Installation.md), then use the two input-only notebooks:
+
+1. **[Start Here](<Examples/RGZWorkflow — Start Here.nb>)**: export the actual model in a fresh FeynRules kernel; restart in a separate FeynCalc kernel for tree checks, mixed matrices, the bare amplitude and form factors. Continue with the independent general-gauge check and restore/save the fixed-gauge task.
+2. **[Diagnostics](<Examples/RGZWorkflow — Diagnostics.nb>)**: recover the fixed-gauge task and assembled amplitude, then run UV/IR separation, MSbar, ordered mass-limit and weighted-coverage audits, finite reconstruction and conditional certification. Stop if a prerequisite fails.
+
+Use a fresh kernel and a separate Work directory for a new release calculation. The [reproduction instructions](Documentation/Reproducibility.md) and [renormalization conventions](Documentation/QuarkRenormalization.md) give the order of operations, limit prescriptions and interpretation of the results.
+
+For a small derivation before the full run, follow the [quark-bubble walkthrough](Documentation/QuarkBubbleWalkthrough.md) and [runnable example](Examples/QuarkBubble.wls). Independent [ghost and mixed-field examples](Documentation/GhostAndMixedExamples.md) cover further tensor, colour, projection and integral conventions.
 
 ## Citation
-
-*If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.*
 
 | Citation scope | DOI |
 | --- | --- |
@@ -39,24 +64,11 @@ Use the version DOI for reproducible citations of a specific calculation; use th
 }
 ```
 
-Wolfram Language source package for the zero-temperature tree and one-loop RGZ quark-scattering workflow.
-
-The calculation is organized by physical content: [tree theory, one-loop amplitudes, integral algebra, renormalization and identities](Kernel/README.md). Start with [OneLoop/Amplitude.wl](Kernel/OneLoop/Amplitude.wl) for the full sum; [the calculation guide](Documentation/Calculation.md) explains its conventions. Cache and display code are separate in `Kernel/Internal/`.
-
-For a short calculation first, follow the [two-quark-bubble derivation](Documentation/QuarkBubbleWalkthrough.md) and run [QuarkBubble.wls](Examples/QuarkBubble.wls). It generates two actual diagrams and follows them to a mixed-matrix entry, with both reduction routes and explicit loop normalization.
-
-For an actual run, open [Start Here](<Examples/RGZWorkflow — Start Here.nb>). Sections 1-5 obtain the bare amplitude and its form factors. The subsequent general-gauge calculation is a separate check; [Diagnostics](<Examples/RGZWorkflow — Diagnostics.nb>) covers UV/IR, MSbar and detailed mass-limit audits. FeynRules and FeynCalc use separate kernels.
-
-The main route is:
-
-```text
-actual model -> tree kernels and vertices -> mixed self energies
-             -> full QQ graphs -> reduction -> bare amplitude
-```
-
-`RGZQQStart` -> `RGZQQPrepareSelf` -> six `RGZQQRunPart` calls -> `RGZQQAmplitude` is the scattering sequence once the model and mixed matrices are ready. It does not load the PT candidate engine. Read [validation and renormalization](Documentation/API.md#2-validation-and-renormalization), [result expressions](Documentation/API.md#3-result-expression), or [detailed audits and continuation](Documentation/API.md#4-development-detailed-audits-and-continuation) when needed.
+## Completed calculation and verification
 
 The completed 2026-11-14 calculation passes the declared-domain certification and reproduces the historical result and paper table exactly: eight prefactors and 144 coefficients over 31 functions. See [the 1.1.0 release notes](Documentation/Release-1.1.0.md) and [verification evidence](Evidence/README.md). The release changes the validated development snapshot's version metadata; it does not relabel existing Work certificates as newly computed 1.1.0 certificates.
+
+A completed bare amplitude, a zero gauge difference and a certified finite representation are distinct results. Retain the linked evidence, IR conditions and analytic branch when interpreting or using the final coefficients.
 
 ## Required files
 
@@ -98,14 +110,13 @@ Checks use isolated work directories. `--suite core` needs no external physics p
 
 [GPL-3.0-or-later](LICENSE); full text in [COPYING](COPYING). External software is installed separately; see [attribution](THIRD_PARTY.md) and [citation](CITATION.cff).
 
-## Article companion release
+## License and attribution
 
-Cite version 1.1.0 using [CITATION.cff](CITATION.cff) and the [versioned release](https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.0). The companion manuscript is titled *Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework*. The manuscript is available as [arXiv:2610.38463](https://arxiv.org/abs/2610.38463) (submitted 2026-10-28).
+The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software. Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
 
-The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software.
+<details>
+<summary>Repository statistics (optional)</summary>
 
-## Cite this release
+The public [traffic dashboard](https://wuwphy.github.io/RGZWorkflow/stats/) is a maintenance aid. See [tracker setup](Documentation/Traffic.md) for collection, storage and metric definitions.
 
-Wu, Wan. *RGZWorkflow* (Version 1.1.0). Zenodo. https://doi.org/10.5281/zenodo.24212586
-
-The DOI shown above identifies version 1.1.0. The previous 1.0.0 archive retains DOI [10.5281/zenodo.23724368](https://doi.org/10.5281/zenodo.23724368). The software archive is separate from the companion manuscript, [arXiv:2610.38463](https://arxiv.org/abs/2610.38463). Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
+</details>
