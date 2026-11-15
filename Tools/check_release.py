@@ -59,7 +59,7 @@ def main():
    errors.append('Unindexed calculation file '+name)
  for p in files():
   relpath=p.relative_to(ROOT)
-  allowed_roots={'Kernel','Models','Tests','Tools','Examples','Documentation','Paper','Evidence','.github','docs'}
+  allowed_roots={'Kernel','Models','Tests','Tools','Examples','Documentation','Paper','Evidence','.github'}
   allowed_files={'README.md','COPYING','LICENSE','CITATION.cff','RELEASE_MANIFEST.json','CONTRIBUTING.md','CHANGELOG.md','THIRD_PARTY.md','PacletInfo.wl','RGZWorkflow.wl','.gitignore'}
   if (len(relpath.parts)==1 and p.name not in allowed_files) or (len(relpath.parts)>1 and relpath.parts[0] not in allowed_roots):errors.append('Unexpected distribution file '+str(relpath))
   if p.is_symlink():

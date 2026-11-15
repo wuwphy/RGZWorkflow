@@ -113,10 +113,3 @@ Checks use isolated work directories. `--suite core` needs no external physics p
 ## License and attribution
 
 The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software. Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
-
-<details>
-<summary>Repository statistics (optional)</summary>
-
-The public [traffic dashboard](https://wuwphy.github.io/RGZWorkflow/stats/) is a maintenance aid. See [tracker setup](Documentation/Traffic.md) for collection, storage and metric definitions.
-
-</details>

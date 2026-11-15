@@ -15,7 +15,3 @@ The model/algorithm provenance is retained in the original project source header
 ## Author distribution confirmation
 
 On 2026-10-28 the author explicitly confirmed permission to distribute the included project code, model files and author-supplied electronic reference table under GPL-3.0-or-later, including necessary permissions from other rights holders. This records the author's confirmation; it is not an independent ownership audit. The manuscript and separately installed dependencies retain their own licensing terms.
-
-## GitHub Traffic Tracker
-
-The traffic collector and static dashboard derive from djdarcy/github-traffic-tracker, Copyright (C) 2025 Dustin Darcy, GPL-3.0-or-later, upstream commit `045bd1dba2e6a84659dfb8273aee4690cfae3ac7`. See [dashboard attribution](docs/stats/NOTICE.md). This optional repository analytics tool is independent of the physics calculations.
