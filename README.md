@@ -4,6 +4,8 @@
 
 [![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
 
+[Repository traffic dashboard](https://wuwphy.github.io/RGZWorkflow/stats/) · [Tracker setup](Documentation/Traffic.md)
+
 ## Citation
 
 *If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.*

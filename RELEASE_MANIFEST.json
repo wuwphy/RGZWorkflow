@@ -4,6 +4,7 @@
   "algorithm": "SHA256",
   "files": {
     ".github/workflows/check.yml": "8b339f279796d0f17a6fab66d54cc290db6ed9aaa9bffdd0741120142c10523a",
+    ".github/workflows/traffic-badges.yml": "de5d29a623dcde23f1f3363a9f82c36b4a76a5e74439b87784e38f132d0fd2ff",
     ".gitignore": "443b25272b80bc11d92b15feb411543dbc4442f07e6c5e4ce5d736fe4245c7a7",
     "CHANGELOG.md": "e5924c3b181280bfec457cb4a731047413beb3b81a9eea08ceca71f0d04a52ba",
     "CITATION.cff": "1b489f9726b03068012efecbae3c1f06c285752c733bc897e8e914bd40140f49",
@@ -21,6 +22,7 @@
     "Documentation/QuarkRenormalization.md": "ae30ebe145f3d5e93f176be49d7f51f1535d6279d16724185d5d56b2ceb72bce",
     "Documentation/Release-1.1.0.md": "43b9ffe31fa28b89b3ee71f1c875bc4688335f1eca53a99c06d7a698a2154e82",
     "Documentation/Reproducibility.md": "b7bff0409180ce0b08684da7dae03baefb3888184ce9e1340c589dcfb2df288f",
+    "Documentation/Traffic.md": "b20182d9492b0abab5ee415250af007ca16f8d737932812f5d06f74e286575a9",
     "Evidence/README.md": "0520dffb5d86b2b36d4112dfaba38b99cb9804d52039b9bb4fb45c17ad0fae2d",
     "Evidence/release-source-delta.json": "718bddf7ca8b605c18d70358d341dab87ad101ff535f901f2dbb9e17a1c10e5c",
     "Evidence/validation-2026-11-14.json": "92343c5028458c423b4d1d00f7ab3ececa5e91d98ab797b925e9ab78787eb113",
@@ -111,9 +113,9 @@
     "Paper/README.md": "2fcb7dcae8227f1b581017d7c880617d5a8d77318b1c67d007e88cb2c1bf37b2",
     "Paper/data/form-factors.wl": "ff920d329181c07eefba8785b21d0cbbb84310a7836eeb7a06d6d882dd4cb21e",
     "Paper/provenance.json": "1dfd8024112e82cfa6ae0d584c106dabe928142879aae97382778e193e25618f",
-    "README.md": "f0f1082cf348ba560262273fd2c3de744cbad3428e0690df74cd11409c82b7d7",
+    "README.md": "ef49e01b24084169f6052c2be54a62a39753059eb65ba3f567682b3889802061",
     "RGZWorkflow.wl": "c0caa7d339819fad5e53ca21ebd92779a6943eaeb9482c751cd759703627a0b1",
-    "THIRD_PARTY.md": "207570da5165bb51b6e46f3081b314ff420c8af91cd38a5297358f691d93716f",
+    "THIRD_PARTY.md": "8fb8df1191929ff9eee3d56872534204511e9b2dbf67d94d3d372a9d74b40525",
     "Tests/AALoopSafety.wls": "f82b8853a6fbb4852d2a8baac7d2134a26ad96e42b1a68cfdb5a95441a254e68",
     "Tests/AssemblyIdentitySafety.wls": "4088da517b34cdff0b87f2f2936a44b7ffc3a601202e342e010246bc341bd2e2",
     "Tests/Core.wlt": "573a83d83aaed567e54269b60bea8acf96629e5a3405d75c420c883cd73a0c6c",
@@ -149,12 +151,17 @@
     "Tools/build_examples.wls": "fb46d9fa594a96e43f2495f59590a35c0f4012f8aec3305aa7b64340fac1b4cd",
     "Tools/build_release.py": "25dd10e54ac499a3e8ff55918f47b3bb0171db425db431470ed6f684451cda81",
     "Tools/check_notebooks.wls": "77c6054b76b3c3b2828d197db260a96c08b548161a8550f34f64a91467872035",
-    "Tools/check_release.py": "9a6ebd4e4bedbe0a8b534e35572b1501755d0f91025fbdafc2800ca54b49a97b",
+    "Tools/check_release.py": "29507735355ba250505866d77d7aa0107a818fc7ab41f0433e0faeaa7c4a2cc8",
     "Tools/check_sources.wls": "5fb10f6f2672404835390b4761b7153690128c34c029da1db563d13a3c05f18c",
     "Tools/compare_paper_result.wls": "05b1477b53c955ce71ec1537dc82b94e8a627788557a2987e9512eda71691ea4",
     "Tools/diagnostics_cells.json": "2646199eb213ed25b55874c16ea90bb2158926f2e2154551c186e8392315bc63",
     "Tools/record_environment.wls": "506806bf488142135950f923b7d84050b791bec3e5a6565e0bd60d7369e0e2a8",
     "Tools/run_tests.py": "3f7aafbeef103d261b5284c1dfedb8cbf86a1bdeafa807f7eaf2e28918da98a9",
-    "Tools/update_manifest.py": "788b43ab959d669fe2844fac83128139ad822245b58b0d5269a86b6706d55b8f"
+    "Tools/update_manifest.py": "788b43ab959d669fe2844fac83128139ad822245b58b0d5269a86b6706d55b8f",
+    "docs/.nojekyll": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "docs/index.html": "77d383248370c4bda9ab49f9311be854080ba8ba1f1e193640a174f9da745883",
+    "docs/stats/NOTICE.md": "d27c01cb093893c6596b7b2286b223d49b375fa989c06b10854b868b7009b2de",
+    "docs/stats/favicon.svg": "72966ad83228959bdbcdb9b65a0766607ac1d0e814a7ce154e579d4c910f9272",
+    "docs/stats/index.html": "de5c9353407b9b518a6b89ba21ddccf153fea81fe354c6c67369bf77afde11c2"
   }
 }
