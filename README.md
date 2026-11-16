@@ -8,6 +8,8 @@ Companion paper: [*Gauge-parameter cancellation and finite form factors in one-l
 
 *If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.* [Copy BibTeX](#citation).
 
+**[Project website](https://rgzworkflow.pages.dev)** — physics overview, reproduction guide, results and citation information.
+
 ## Physical calculation
 
 ```text
