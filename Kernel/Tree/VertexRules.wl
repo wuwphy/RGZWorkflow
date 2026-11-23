@@ -158,8 +158,15 @@ FullSimplify[SUNSimplify[z]]];
    in CreateFeynAmp. Remove that sign for comparison to an all-incoming
    ordered functional derivative; the class coupling itself stays +I gs,
    independently confirmed by the native FeynRules FA exporter. *)
-rgzVertexAmplitudeNormalize[amp_,names_] := If[AnyTrue[names,MemberQ[{"Q1","Q1bar","Q2","Q2bar"},#]&],
- -DiracSimplify[DotSimplify[DiracSubstitute67[amp]],DiracEquation->False,SirlinSimplify->False],amp];
+(* A single external FP antighost/ghost pair has a separate external-state
+   ordering sign when compared with the ordered FR functional derivative.
+   Keep the native-export class coupling in the model; normalize only this
+   three-point comparison. No universal sign for other ghost classes. *)
+rgzVertexAmplitudeNormalize[amp_,names_] := Which[
+ Sort[names]===Sort[{"cbar","c","A"}],-amp,
+ AnyTrue[names,MemberQ[{"Q1","Q1bar","Q2","Q2bar"},#]&],
+ -DiracSimplify[DotSimplify[DiracSubstitute67[amp]],DiracEquation->False,SirlinSimplify->False],
+ True,amp];
 rgzCheckOne[id_Integer]:=Module[{n,nIn,names,inFields,outFields,lorentzPositions,lorentzNames,inserted,fa,amp,fr,hand,rules,difference,handDifference,conservationRule,status,failure,nInserted=0,nAmplitudes=0,leftovers},n=Length[rgzRaw[[id,1]]];
 nIn=If[n==3,1,2];
 names=rgzFieldName/@rgzRaw[[id,1,All,1]];

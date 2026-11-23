@@ -33,7 +33,7 @@ def main():
  if version_match is None:
   print(json.dumps({'errors':['Invalid paclet version metadata']}));return True
  version=version_match.group(1)
- if version != '1.1.0':errors.append('Unexpected package version '+version)
+ if version != '1.1.1':errors.append('Unexpected package version '+version)
  for name in ['Kernel/RGZWorkflow.wl','CITATION.cff','README.md','Tools/build_release.py','Tools/update_manifest.py','Tools/run_tests.py']:
   if version not in (ROOT/name).read_text():errors.append('Version mismatch '+name)
  source=(ROOT/'Kernel/RGZWorkflow.wl').read_text()

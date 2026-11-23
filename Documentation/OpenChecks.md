@@ -1,4 +1,6 @@
-# Verification scope for 1.1.0
+# Historical verification scope for 1.1.0
+
+For the 1.1.1 FP correction and its scoped unchanged-amplitude conclusion, see [Release-1.1.1.md](Release-1.1.1.md). Historical verification below is not relabelled as a new-source full calculation.
 
 The completed 2026-11-14 local run passes the declared-domain gauge, UV/IR, MSbar, ordered mass-limit, weighted-coverage and finite reconstruction checks. See [the compact evidence](../Evidence/validation-2026-11-14.json). The final finite coefficients agree exactly with the historical calculation and paper table.
 

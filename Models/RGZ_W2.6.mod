@@ -346,7 +346,7 @@ M$CouplingMatrices = {
   C[V[1, {g1}], -U[1, {g2}]] ==
     {{0, 0}, {0, 0}, {0, \[Rho]*\[Alpha]*IndexDelta[g1, g2]}, {0, 0}},
 
-C[-U[1, {g1}], U[1, {g2}], V[1, {g3}]] == Global`FAGS*Global`FASUNF[g1, g2, g3] * {{1, dZgs1 + dZGG1/2}, {0, 0}, {0, 0}, {0, 0}},
+C[-U[1, {g1}], U[1, {g2}], V[1, {g3}]] == -Global`FAGS*Global`FASUNF[g1, g2, g3] * {{1, dZgs1 + dZGG1/2}, {0, 0}, {0, 0}, {0, 0}},
 
 C[V[1, {g1}], V[1, {g2}], V[1, {g3}]] == -Global`FAGS*Global`FASUNF[g1, g2, g3] * {{1, dZgs1 + 3*dZGG1/2}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
 

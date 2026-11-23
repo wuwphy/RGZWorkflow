@@ -1,0 +1,45 @@
+{
+  "date": "2026-11-23",
+  "scope": "Re-evaluation of saved principal-sector UV and single-open-FP ordering expressions; cached ordinary QQ FP-integrand sign parity. Not a new full amplitude computation.",
+  "principal_uv_checks": {
+    "ActualTreeSignReadFromSource": true,
+    "AllColorSumsPaired": true,
+    "SelfSourceExactlyUnchanged": true,
+    "GhostTriangleRawSignReverses": true,
+    "AAATriangleRawUnchanged": true,
+    "RelativeVertexGeneralD": true,
+    "GhostFieldCT": true,
+    "GhostVertexCT": true,
+    "RequiredGeneralGaugeBaseCombination": true,
+    "ScalarVertexCTClosesForSymbolicAlpha": true
+  },
+  "external_order_checks": {
+    "CurrentComparatorPassesOppositeClassSign": true,
+    "NativeAlignedRawExternalAmplitudeHasOppositeOrderSign": true,
+    "SingleOpenFPChainMinusRestoresNativeFRMatch": true,
+    "ExistingClassSignAndMissingNormalizationCompensate": true
+  },
+  "cached_fp_bubble_instances": [
+    {
+      "ExactlyTwoCubicCouplings": true,
+      "RawIntegrandInvariantUnderUUVSignReversal": true,
+      "OnlyAAExternalPair": true
+    },
+    {
+      "ExactlyTwoCubicCouplings": true,
+      "RawIntegrandInvariantUnderUUVSignReversal": true,
+      "OnlyAAExternalPair": true
+    },
+    {
+      "ExactlyTwoCubicCouplings": true,
+      "RawIntegrandInvariantUnderUUVSignReversal": true,
+      "OnlyAAExternalPair": true
+    }
+  ],
+  "historical_evidence_hashes_verified": 27,
+  "full_amplitude_recomputed": false,
+  "previous_QQ_bare_amplitude_unchanged_by_isolated_FP_cubic_sign_correction": true,
+  "full_functional_ST_or_PT_verified": false,
+  "fixture": "Tests/fixtures/FPGhostCubic.wl",
+  "fixture_sha256": "678a4192b2912e120456e0ef8cff31c4418e331808cf083751ab94fe5046cb71"
+}

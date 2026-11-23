@@ -6,8 +6,8 @@ heading[s_]:=Cell[s,"Section"];
 input[s_]:=Cell[BoxData[ToBoxes[ToExpression["("<>s<>")",InputForm,Defer],StandardForm]],"Input"];
 load={input["project=ParentDirectory[NotebookDirectory[]];\nGet[FileNameJoin[{project,\"RGZWorkflow.wl\"}]];"],
  input["RGZReport[RGZInitialize[FileNameJoin[{project,\"Work\"}],\"Display\"->\"Compact\"]];"]};
-main=Join[{Cell["RGZWorkflow 1.1.0 — Start Here","Title"],
- text["Version 1.1.0. The default model includes eta ghosts and two dynamical quark flavours, with distinct-flavour massless external quarks. This notebook includes no computed results. Earlier probe-model checks do not validate the current model. Use a fresh Work directory."],
+main=Join[{Cell["RGZWorkflow 1.1.1 — Start Here","Title"],
+ text["Version 1.1.1. The default model includes eta ghosts and two dynamical quark flavours, with distinct-flavour massless external quarks. This notebook includes no computed results. Earlier probe-model checks do not validate the current model. Use a fresh Work directory."],
  heading["1 - FeynRules: export the actual model"],
  text["Run in a fresh kernel. Install FeynRules externally and set RGZ_FEYNRULES_DIRECTORY if needed. Keep FeynCalc in a separate kernel."]},load,
  {input["Global`FR$Parallel=False;\nRGZReport[RGZLoadFeynRules[]];"],

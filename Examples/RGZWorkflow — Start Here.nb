@@ -1,5 +1,5 @@
-Notebook[{Cell["RGZWorkflow 1.1.0 \[LongDash] Start Here", "Title"],
-  Cell["Version 1.1.0. The default model includes eta ghosts and two \
+Notebook[{Cell["RGZWorkflow 1.1.1 \[LongDash] Start Here", "Title"],
+  Cell["Version 1.1.1. The default model includes eta ghosts and two \
 dynamical quark flavours, with distinct-flavour massless external quarks. \
 This notebook includes no computed results. Earlier probe-model checks do not \
 validate the current model. Use a fresh Work directory.", "Text"],

@@ -1,4 +1,4 @@
-# RGZWorkflow 1.1.0
+# RGZWorkflow 1.1.1
 
 Wolfram Language source package for tree-level and one-loop quark scattering in the refined Gribov–Zwanziger (RGZ) framework at zero temperature. The implemented process is distinct-flavour scattering with massless external quarks, including the complete mixed-field self-energy insertion, vertex corrections, box diagrams and external-leg residues.
 
@@ -42,7 +42,7 @@ For a small derivation before the full run, follow the [quark-bubble walkthrough
 | RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
 | Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
 
-Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below cites version 1.1.0.
+Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.1 and uses the all-versions DOI until Zenodo assigns its version DOI. The 1.1.0 DOI above remains historical.
 
 ```bibtex
 @article{Wu2026RGZ,
@@ -58,15 +58,19 @@ Use the version DOI for reproducible citations of a specific calculation; use th
 @software{Wu2026RGZWorkflow,
   author    = {Wu, Wan},
   title     = {RGZWorkflow},
-  version   = {1.1.0},
+  version   = {1.1.1},
   year      = {2026},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.24212586},
-  url       = {https://doi.org/10.5281/zenodo.24212586}
+  doi       = {10.5281/zenodo.23724291},
+  url       = {https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.1}
 }
 ```
 
-## Completed calculation and verification
+## Version 1.1.1 correction
+
+The FP ghost–gluon class coupling now follows the native FeynRules export; the ordered tree comparison separately removes the single external FP-chain permutation sign. **This isolated correction leaves the previously saved ordinary QQ bare amplitude unchanged:** its only FP contribution is an AA bubble with two corrected vertices, whose signs cancel. This is an integrand-level impact check, not a new full-amplitude recomputation or general ST/PT certificate. See [release notes](Documentation/Release-1.1.1.md).
+
+## Historical completed calculation and verification
 
 The completed 2026-11-14 calculation passes the declared-domain certification and reproduces the historical result and paper table exactly: eight prefactors and 144 coefficients over 31 functions. See [the 1.1.0 release notes](Documentation/Release-1.1.0.md) and [verification evidence](Evidence/README.md). The release changes the validated development snapshot's version metadata; it does not relabel existing Work certificates as newly computed 1.1.0 certificates.
 
@@ -108,7 +112,7 @@ python3 Tools/check_release.py
 python3 Tools/build_release.py
 ```
 
-Checks use isolated work directories. `--suite core` needs no external physics packages; `--suite algebra` additionally needs FeynCalc/FeynArts. The release builder targets `artifacts/RGZWorkflow-1.1.0.zip`; preserve the published archive when packaging unreleased changes.
+Checks use isolated work directories. `--suite core` needs no external physics packages; `--suite algebra` additionally needs FeynCalc/FeynArts. The release builder targets `artifacts/RGZWorkflow-1.1.1.zip`; preserve the published archive when packaging unreleased changes.
 
 [GPL-3.0-or-later](LICENSE); full text in [COPYING](COPYING). External software is installed separately; see [attribution](THIRD_PARTY.md) and [citation](CITATION.cff).
 

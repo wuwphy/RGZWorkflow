@@ -14,3 +14,5 @@ Raw WXF data remain in the local Work directory and are not distributed. This su
 Historical development logs and expanded reports were moved to the local cleanup backup under artifacts. New test/comparison runs may create ignored `Evidence/runs/` directories.
 
 The unreleased backend fixes dated 2026-11-06 change the calculation-source fingerprint. This historical summary and its source-matched certificate do not certify the patched tree; run and certify the corrected source separately. The original author evidence and raw Work data are retained.
+
+The [2026-11-23 FP sign review](fp-sign-review-2026-11-23.json) supports the scoped 1.1.1 correction. It does not replace the historical full calculation with a new-source certificate.

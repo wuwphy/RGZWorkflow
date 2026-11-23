@@ -1,5 +1,12 @@
 # Changes
 
+## 1.1.1 — 2026-11-23
+
+- Correct the FP ghost–gluon FA class sign to match the native FR export; separate the single-open-FP-chain external ordering sign in tree comparisons.
+- Add actual ordered-cubic and all-six-permutation regressions; leave other ghost comparison conventions unchanged.
+- Resolve the isolated general-gauge principal ghost/scalar UV discrepancy. The previously saved ordinary QQ bare amplitude is unchanged by this isolated correction: its only FP bubble contains two corrected vertices, whose signs cancel exactly.
+- Preserve historical certificates and their source identities; no full amplitude under the new source fingerprint is claimed. See [release scope](Documentation/Release-1.1.1.md).
+
 ## 1.1.0 — 2026-11-14
 
 - Stabilize the calculation-oriented module layout and explicit standard/accelerated integral routes.
