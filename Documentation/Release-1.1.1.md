@@ -30,4 +30,8 @@ Use a fresh kernel and a separate Work directory when computing with this releas
 
 ## Citation
 
-The all-versions DOI is [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291). A new version DOI must be obtained from Zenodo; the 1.1.0 DOI `10.5281/zenodo.24212586` must not be reassigned to 1.1.1.
+The all-versions DOI is [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291). The version-specific DOI is [10.5281/zenodo.24470745](https://doi.org/10.5281/zenodo.24470745); the 1.1.0 DOI `10.5281/zenodo.24212586` must not be reassigned to 1.1.1.
+
+## Subsequent correction
+
+The amplitude-invariance statement above applies only to the isolated FP cubic-sign correction. Version 1.1.2 separately corrects affected FeynCalc colour contractions and changes the finite QQ amplitude; see [the 1.1.2 notes](Release-1.1.2.md).

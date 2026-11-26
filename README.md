@@ -67,15 +67,31 @@ Use the version DOI for reproducible citations of a specific calculation; use th
 }
 ```
 
-## Version 1.1.2: corrected colour contractions
+## Corrections in 1.1.1 and 1.1.2
 
-FeynCalc release archives 10.1.0 and 10.2.1 have a duplicated SUNF contraction rule. The official hotfix-stable branch contains the fix; version numbers alone do not establish whether an installation contains it. This release verifies and, when needed, corrects the rule in the current kernel before calculation. The installed dependency is not edited.
+These are two separate sign corrections with different consequences for the ordinary one-loop QQ amplitude. Version 1.1.2 includes the 1.1.1 correction.
 
-**The finite amplitude changes, while the gauge difference remains zero.** The corrected author run has 18/18 symbolic gauge rows equal to zero, complete mass/scaleless coverage, UV closure, IR-pole cancellation within the declared conditions, and verified finite reconstruction. Final certification is `CertifiedWithinDeclaredDomain` with no outstanding checks. Read [the correction](Documentation/ColourCorrection.md), [completed validation and source correspondence](Documentation/ColourCorrectedValidation.md), and [release notes](Documentation/Release-1.1.2.md).
+| Version | What was corrected | Effect on the QQ amplitude |
+| --- | --- | --- |
+| [1.1.1](Documentation/Release-1.1.1.md) | The ordered FP ghost–gluon FeynArts class coefficient (`+gs f` to `-gs f`) and the compensating external-ghost ordering normalization in the tree comparison. This was a model/comparison convention error, not the FeynCalc bug below. | The inspected ordinary closed-FP one-loop QQ contribution is unchanged: the AA ghost bubble contains two cubic vertices, so reversing both signs leaves its integrand unchanged. This does not extend to open ghost chains or arbitrary source amplitudes. |
+| [1.1.2](Documentation/Release-1.1.2.md) | A duplicated pattern in FeynCalc `SUNSimplify` can give wrong signs in four-/five-structure-constant contractions. RGZWorkflow verifies and, if needed, corrects the rule in memory before calculation. | The affected mixed-self-energy contributions and the finite QQ amplitude change. The connected gauge difference is preserved; the corrected author run independently finds all 18 symbolic gauge rows zero. |
+
+The 1.1.1 general-gauge ghost-sector UV check agrees with the native FeynRules rule after the correction; it is not a proof of every off-shell mixed RGZ Slavnov–Taylor identity. See [the FP convention review](Documentation/Release-1.1.1.md) for the counterterms, permutations and scope.
+
+The tested FeynCalc **10.1.0 and 10.2.1 release archives** contain the duplicated rule. The official upstream code fix is [1c5d2d8](https://github.com/FeynCalc/feyncalc/commit/1c5d2d88e9bd08738732486e45b97240ceca808c); [1ee4800](https://github.com/FeynCalc/feyncalc/commit/1ee480093293a01a82b3e365d026808f1d4e1c17) adds regression tests. The checked `hotfix-stable` snapshot contains the fix. A version number alone is insufficient: verify the actual contractions. `RGZLoadFeynCalc[]` automatically calls [the helper](Tools/FeynCalcColourCorrection.wl); four identities must pass. Installed FeynCalc files are never edited. Keep dependencies fixed during an ongoing corrected run; update and verify in a fresh kernel for a subsequent run. Details and mathematical identities are in [ColourCorrection.md](Documentation/ColourCorrection.md).
+
+**The finite amplitude changes, while the gauge difference remains zero.** Some individual gauge-dependent diagrams do change: their correction cancels only after the physical external-leg-weighted sum. This is not an assertion that every gauge-dependent diagram is unaffected, nor a full PT/background-field proof. The corrected author run passes **24/24 certification checks** within the declared IR conditions and branch prescription, with no outstanding checks. See [completed validation and source correspondence](Documentation/ColourCorrectedValidation.md).
 
 The original certificate remains bound to the actual calculation source. Version metadata and automatic loading of the identical colour helper distinguish the release tree; those differences are explicitly recorded. The full pipeline was not separately rerun from the release-labelled tree. Historical paper-table equality predates the finite correction and is not claimed for the corrected result.
 
-Use an empty `Work/` for a new release run. Start Here no longer contains the author-electronic-reference section. Keep FeynRules and FeynCalc in separate kernels.
+### Other implementation changes in 1.1.2
+
+- **Self-preparation and resumption:** [SelfPreparationResume.wl](Tools/SelfPreparationResume.wl) selects one checkpoint input before hashing, reuses verified completed mass-limit sums, and correctly reads the `QQBeforeGauge["QQ"]` snapshot. Read/validation failures propagate, and fallback shares the remaining total time budget. These changes avoid unnecessary matrix replay without changing physical formulas or declaring unfinished results complete.
+- **Progress display:** self-preparation removes a nested `Dynamic` and reports selection, hashing, cache reads and result checks separately. The root loader loads the adapter automatically; existing stopped sessions can load the helper explicitly and resume.
+- **Examples and research:** updated input-only Start Here and Diagnostics notebooks accompany the optional [PT Ward benchmark](<Examples/RGZWorkflow — PT Ward Benchmark.nb>) and [effective-charge example](Documentation/PTEffectiveCharge.md). The PT tools are explicitly loaded research tools; they do not certify PT completeness, RG invariance or a physical infrared freezing prediction.
+- **Validation and packaging:** 32/32 process regressions and 3/3 Python release-tool tests pass. The release includes compact evidence and source correspondence; source-level regressions and full physical certification have distinct scopes. Public calculation interfaces are retained.
+
+Use an **empty `Work/`** for a new release run. Do not copy earlier caches or `Session.wxf`; rerun Start Here sections 1–7 and Diagnostics. Keep FeynRules and FeynCalc in separate kernels. Start Here no longer contains section 8, the author-electronic-reference comparison; the historical table and reader remain available explicitly. See [the complete 1.1.2 notes](Documentation/Release-1.1.2.md) and [change history](CHANGELOG.md).
 
 ## Required files
 
@@ -83,7 +99,7 @@ Use an empty `Work/` for a new release run. Start Here no longer contains the au
 | --- | --- |
 | `RGZWorkflow.wl`, `Kernel/`, `PacletInfo.wl` | Entry point and calculation source snapshot |
 | `Models/` | The matching `.fr`, `.gen` and `.mod` model companions |
-| `Examples/` | Two clean input-only notebooks |
+| `Examples/` | Main calculation and diagnostics notebooks, optional PT benchmark and small physical examples |
 | `Tools/` | Required audit adapters, notebook builder, comparison and validation tools |
 | `Documentation/` | Installation, scope, main API and reproduction sequence |
 | `Paper/` | Inert reference coefficient table and provenance |

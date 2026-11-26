@@ -1,17 +1,25 @@
 # Changes
 
-## RGZWorkflow 1.1.2 - 25 November 2026
+## RGZWorkflow 1.1.2 - 26 November 2026
 
 - Correct the duplicated FeynCalc SUNF contraction rule in the current kernel during `RGZLoadFeynCalc[]`, including command-line use. Verify four colour identities before proceeding; preserve the installed dependency files.
 - Distinguish the affected 10.1.0/10.2.1 release archives from the corrected official hotfix-stable branch. The upstream fix is commit 1c5d2d8; 1ee4800 adds regression tests. An ongoing corrected run need not update FeynCalc; keep its dependency environment fixed, then update and verify in a fresh kernel for a subsequent run. See Documentation/ColourCorrection.md.
 - Record the resulting finite mixed-self-energy/amplitude correction, its tested scope and numerical examples in Documentation/ColourCorrection.md.
 - Keep the release work directory named `Work/`; distribute no caches, sessions or computed outputs. Earlier results must be recomputed in an empty release Work directory.
 - Remove Start Here section 8 (Author electronic reference), its historical introductory warning, and the corresponding reproduction-guide comparison section. Preserve historical data and public APIs.
-- Preserve the ordinary QQ gauge difference: with symbolic alpha and regulator M, the native projection and actual external-leg-weighted mixed-matrix sum give u^T [DeltaPi(alpha) - DeltaPi(0)] u = 0. Individual gauge-dependent diagrams change, but their gauge dependence cancels in this sum; the other checked colour paths are unchanged. This is a source/integrand-level result. The complete corrected notebook validation remains outstanding.
-- Historical Zenodo DOIs do not identify version 1.1.2; a new version DOI is pending.
+- Preserve the ordinary QQ gauge difference: with symbolic alpha and regulator M, the native projection and actual external-leg-weighted mixed-matrix sum give u^T [DeltaPi(alpha) - DeltaPi(0)] u = 0. Individual gauge-dependent diagrams change, but their gauge dependence cancels in this sum; the other checked colour paths are unchanged. This is a source/integrand-level result. The corrected author run has completed: 18/18 symbolic gauge rows are zero and 24/24 declared-domain certification checks pass. The original evidence and release-source correspondence are documented in Documentation/ColourCorrectedValidation.md.
+- Version DOI: https://doi.org/10.5281/zenodo.24564596. Historical version DOIs do not identify 1.1.2.
 
 This release contains the current reorganized source tree, including the previously unreleased fixes documented below. Source-level regressions are distinct from a new full-amplitude certification.
 
+
+## RGZWorkflow 1.1.1 - 23 November 2026
+
+- Correct the ordered FP ghost–gluon FeynArts class sign to match native FeynRules; separate external ghost ordering normalization in the tree comparison. The previous two sign errors compensated in that comparison.
+- Resolve the principal general-gauge ghost UV discrepancy without claiming a complete off-shell RGZ ST identity. Check all six external permutations and preserve other ghost-class comparison conventions.
+- The inspected ordinary closed-FP one-loop QQ amplitude is unchanged because the FP bubble has two corrected cubic couplings. This statement concerns this isolated correction, not the subsequent 1.1.2 FeynCalc colour correction, open ghost chains or arbitrary source amplitudes.
+- Preserve historical certificates; no complete amplitude was regenerated under the 1.1.1 source fingerprint. See Documentation/Release-1.1.1.md and Evidence/fp-sign-review-2026-11-23.json.
+- Version DOI: https://doi.org/10.5281/zenodo.24470745.
 
 ## Unreleased PT self-energy and effective-charge research — 2026-11-20
 
