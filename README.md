@@ -4,7 +4,7 @@ Wolfram Language source package for tree-level and one-loop quark scattering in 
 
 Companion paper: [*Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework* — arXiv:2610.38463](https://arxiv.org/abs/2610.38463).
 
-[![Version 1.1.0 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24212586.svg)](https://doi.org/10.5281/zenodo.24212586) [![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
+[![Version 1.1.2 DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24564596.svg)](https://doi.org/10.5281/zenodo.24564596) [![All versions DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23724291.svg)](https://doi.org/10.5281/zenodo.23724291)
 
 *If you use RGZWorkflow in your research, please cite the accompanying paper and the Zenodo DOI.* [Copy BibTeX](#citation).
 
@@ -40,9 +40,10 @@ For a small derivation before the full run, follow the [quark-bubble walkthrough
 | Citation scope | DOI |
 | --- | --- |
 | RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
+| Version 1.1.2 | [10.5281/zenodo.24564596](https://doi.org/10.5281/zenodo.24564596) |
 | Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
 
-Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.2 and explicitly uses the all-versions DOI until Zenodo assigns its version DOI. The 1.1.0 DOI above remains historical.
+Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.2 using its version-specific DOI. The 1.1.0 DOI above remains historical.
 
 ```bibtex
 @article{Wu2026RGZ,
@@ -61,7 +62,7 @@ Use the version DOI for reproducible citations of a specific calculation; use th
   version   = {1.1.2},
   year      = {2026},
   publisher = {Zenodo},
-  doi       = {10.5281/zenodo.23724291},
+  doi       = {10.5281/zenodo.24564596},
   url       = {https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.2}
 }
 ```

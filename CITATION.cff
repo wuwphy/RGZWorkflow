@@ -3,6 +3,7 @@ message: "Please cite this software release and the external physics/software re
 type: software
 title: RGZWorkflow
 version: 1.1.2
+doi: 10.5281/zenodo.24564596
 date-released: "2026-11-26"
 license: GPL-3.0-or-later
 authors:
@@ -14,7 +15,7 @@ url: https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.2
 identifiers:
   - type: doi
     value: 10.5281/zenodo.23724291
-    description: "All versions (Zenodo concept DOI); the 1.1.2 version DOI is pending"
+    description: "All versions (Zenodo concept DOI)"
 references:
   - type: article
     title: "Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework"
