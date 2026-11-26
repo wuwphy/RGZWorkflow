@@ -42,7 +42,7 @@ For a small derivation before the full run, follow the [quark-bubble walkthrough
 | RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
 | Version 1.1.2 | [10.5281/zenodo.24564596](https://doi.org/10.5281/zenodo.24564596) |
 | Version 1.1.1 | [10.5281/zenodo.24470745](https://doi.org/10.5281/zenodo.24470745) |
-| Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
+| Version 1.1.0 | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
 
 Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.2 using its version-specific DOI. The 1.1.0 DOI above remains historical.
 
