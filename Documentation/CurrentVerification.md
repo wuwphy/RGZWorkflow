@@ -1,3 +1,7 @@
+# Current verification
+
+The latest completed colour-corrected author run and the exact correspondence to release 1.1.2 are documented in [ColourCorrectedValidation.md](ColourCorrectedValidation.md). The original task certificate is retained unchanged. Release regression and completed physical computation are recorded separately.
+
 # Current-source verification
 
 The directory structure is frozen for this verification round. No integral,

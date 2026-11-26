@@ -10,7 +10,7 @@
    The explicit ordinary-module list below defines commands. Lazy engine prerequisites are listed in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl.
 *)
 
-(* RGZWorkflow 1.1.1: public API. Loading never starts a calculation. *)
+(* RGZWorkflow 1.1.2: public API. Loading never starts a calculation. *)
 BeginPackage["RGZWorkflow`"];
 (* 1. Main calculation: model to bare amplitude *)
 RGZInitialize::usage = "RGZInitialize[workDirectory] creates isolated Data, Cache and Results directories and selects the bundled model. Option QuarkMasses -> {0,0} specifies the two base-model quark masses; full QQ external states currently remain massless.";
@@ -111,7 +111,7 @@ If[!AssociationQ[$config], $config = <||>];
 If[!AssociationQ[$results], $results = <||>];
 If[!AssociationQ[$stageStatus], $stageStatus = <||>];
 If[!ListQ[$loaded], $loaded = {}];
-$RGZWorkflowVersion = "1.1.1";
+$RGZWorkflowVersion = "1.1.2";
 (* Ordinary definitions only. Lazy calculation-engine loads and their prerequisites
    are explicit in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl. *)
 Scan[Get, FileNameJoin[{$packageRoot,"Kernel",#}]& /@ {

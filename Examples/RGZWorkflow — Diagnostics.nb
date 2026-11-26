@@ -1,311 +1,442 @@
-Notebook[{Cell["RGZWorkflow 1.1.0 \[LongDash] Diagnostics", "Title"],
-  Cell["Continue in the FeynCalc kernel used by Start Here after its \
+Notebook[
+ {Cell[CellGroupData[{Cell["RGZWorkflow 1.1.2 \[LongDash] Diagnostics", 
+      "Title", ExpressionUUID -> "8b08119d-d763-4a9b-b44f-645270488807"], 
+     Cell["Continue in the FeynCalc kernel used by Start Here after its \
 fixed-gauge restore. Run section 1, then section 3 onward. Section 2 is only \
 for a fresh kernel. Valid completed checkpoints are reused; failures and \
-timeouts remain incomplete evidence.", "Text"],
-  Cell["1 - Load the package and audit runtime", "Section"],
-  Cell[BoxData[RowBox[{RowBox[{"project", "=",
-        RowBox[{"ParentDirectory", "[", RowBox[{"NotebookDirectory", "[",
-            "]"}], "]"}]}], ";", RowBox[{"If", "[",
-        RowBox[{RowBox[{"MemberQ", "[", RowBox[{"$Packages", ",",
-              "\"RGZWorkflow`\""}], "]"}], ",",
-          RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[", RowBox[{"{",
-                RowBox[{"project", ",", "\"Tools\"", ",",
-                  "\"DiagnosticsCompatibility.wl\""}], "}"}], "]"}], "]"}],
-          ",", RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[",
-              RowBox[{"{", RowBox[{"project", ",", "\"RGZWorkflow.wl\""}],
-                "}"}], "]"}], "]"}]}], "]"}], ";",
-      RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[",
-          RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", ",",
-              "\"WeightedAuditResume.wl\""}], "}"}], "]"}], "]"}], ";"}]],
-   "Input"], Cell["2 - Fresh kernel only: initialize and restore",
-   "Section"], Cell["Skip this section when continuing in the existing Start \
-Here kernel. The root loader and runtime adapters install the guarded \
-execution helper automatically.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[",
-          RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", ",",
-              "\"DiagnosticsCompatibility.wl\""}], "}"}], "]"}], "]"}], ";",
-      RowBox[{"RGZReport", "[", RowBox[{"RGZInitialize", "[",
-          RowBox[{RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[
-                 {"project", ",", "\"Work\""}], "}"}], "]"}], ",",
-            RowBox[{"\"Display\"", "\[Rule]", "\"Compact\""}]}], "]"}],
-        "]"}], ";", RowBox[{"RGZReport", "[", RowBox[{"RGZLoadFeynCalc", "[",
-          "]"}], "]"}], ";", RowBox[{"RGZReport", "[",
-        RowBox[{"RGZRestore", "[", "]"}], "]"}], ";",
-      RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[",
-          RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", ",",
-              "\"WeightedAuditResume.wl\""}], "}"}], "]"}], "]"}], ";"}]],
-   "Input"], Cell["Restore the fixed-gauge QQ task and reassemble its saved \
-contributions before automatic form factors. Matching completed task caches \
-are reused; stop if either command fails.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQStart", "[", RowBox[{"600", ",",
-            RowBox[{"\"Gauge\"", "\[Rule]", "0"}], ",",
-            RowBox[{"\"RegulatorMass\"", "\[Rule]", "0"}]}], "]"}], "]"}],
-      ";", RowBox[{"RGZReport", "[", RowBox[{"RGZQQAmplitude", "[", "]"}],
-        "]"}], ";"}]], "Input"],
-  Cell["3 - Source form factors, UV/IR and MSbar", "Section"],
-  Cell["Run these cells in order. Valid source-bound caches are reused. The \
-MSbar and finite results are representations; complete mass and \
-graph-weighted evidence remains necessary for certification.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"LoopFF\"", ",", RowBox[{"RGZQQFormFactors", "[",
-            RowBox[{"1200", ",", RowBox[{"\"LoopOrder\"", "\[Rule]", "1"}],
-              ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "30"}]}],
-            "]"}], ",", RowBox[{"{", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"Complete\""}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"Helpers\"", ",", RowBox[{"RGZLoadFeynHelpers", "[", "]"}],
-          ",", RowBox[{"{", "}"}], ",", RowBox[
-           {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", "\"Status\"",
-                  ",", "None"}], "]"}], "===", "\"FeynHelpersLoaded\""}],
-            "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"UVIR\"", ",", RowBox[{"RGZQQUVIR", "[",
-            RowBox[{"1200", ",", RowBox[{"\"IntegralSeconds\"", "\[Rule]",
-                "30"}], ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "30"}]}], "]"}], ",", RowBox[{"{", RowBox[{"\"LoopFF\"", ",",
-              "\"Helpers\""}], "}"}], ",", RowBox[
-           {RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                    "\"Status\"", ",", "None"}], "]"}], "===",
-                "\"RepresentedPoleAnalysis\""}], "&&", RowBox[{"TrueQ", "[",
-                RowBox[{"Lookup", "[", RowBox[{RowBox[{"Lookup", "[",
-                      RowBox[{"#1", ",", "\"Statistics\"", ",", RowBox[
-                         {"Association", "[", "]"}]}], "]"}], ",",
-                    "\"CompleteRepresentedUV\"", ",", "False"}], "]"}],
-                "]"}], "&&", RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                  RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                        "\"Statistics\"", ",", RowBox[{"Association", "[",
-                          "]"}]}], "]"}], ",", "\"CompleteRepresentedIR\"",
-                    ",", "False"}], "]"}], "]"}]}], "&"}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"Scaleless\"", ",", RowBox[{"RGZQQScalelessLedger", "[",
-            "1200", "]"}], ",", RowBox[{"{", "\"LoopFF\"", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"RawScalelessCoreLedger\""}], "&"}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"PVLedger\"", ",", RowBox[{"RGZQQPVUVIRLedger", "[",
-            "1200", "]"}], ",", RowBox[{"{", "\"LoopFF\"", "}"}], ",",
-          RowBox[{RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQMSbarCounterterms", "[", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"MSbar\"", ",", RowBox[{"RGZQQMSbar", "[", "1200", "]"}],
-          ",", RowBox[{"{", RowBox[{"\"UVIR\"", ",", "\"Scaleless\""}],
-            "}"}], ",", RowBox[{RowBox[{RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"MSbarFiniteRepresentation\""}], "&"}]}], "]"}], ";"}]],
-   "Input"], Cell["4 - Ordered mass and graph-weighted audits", "Section"],
-  Cell["Use the current model manifest and fixed Landau/M0 job. The unit \
-inventory supplements the graph-weighted coverage check. The weighted limits \
-are 144000 seconds overall, 12000 per graph and 600 per integral; they are \
-ceilings, not predicted runtimes. Source-bound T/L assembly prefixes and \
-completed components allow interrupted audits to resume. Supported scalar \
-numerators are checked by exact full-D identities; unsupported cases retain \
-the original replay.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"matrixState", "=",
-        RowBox[{"RGZMixedStart", "[", "]"}]}], ";",
-      RowBox[{"matrixManifest", "=", RowBox[{"If", "[",
-          RowBox[{RowBox[{"AssociationQ", "[", "matrixState", "]"}], ",",
-            RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[
-                 {RowBox[{"matrixState", "[", "\"CacheDirectory\"", "]"}],
-                  ",", "\"matrix_job.wl\""}], "}"}], "]"}], ",",
-            RowBox[{"Missing", "[", "\"MatrixRequired\"", "]"}]}], "]"}]}],
-      ";", RowBox[{"RGZReport", "[", "matrixState", "]"}], ";",
-      RowBox[{"fixedJobForAudit", "=", RowBox[{"RGZResult", "[", "\"QQ\"",
-          "]"}]}], ";", RowBox[{"fixedJobFile", "=",
-        RowBox[{"If", "[", RowBox[{RowBox[{RowBox[{"AssociationQ", "[",
-                "fixedJobForAudit", "]"}], "&&", RowBox[{RowBox[{"Lookup",
-                  "[", RowBox[{"fixedJobForAudit", ",", "\"Gauge\"", ",",
-                    "None"}], "]"}], "===", "0"}], "&&", RowBox[{
-                RowBox[{"Lookup", "[", RowBox[{"fixedJobForAudit", ",",
-                    "\"RegulatorMass\"", ",", "None"}], "]"}], "===", "0"}],
-              "&&", RowBox[{"StringQ", "[", RowBox[{"Lookup", "[",
-                  RowBox[{"fixedJobForAudit", ",", "\"Directory\"", ",",
-                    "None"}], "]"}], "]"}]}], ",", RowBox[{"FileNameJoin",
-              "[", RowBox[{"{", RowBox[{RowBox[{"fixedJobForAudit", "[",
-                    "\"Directory\"", "]"}], ",", "\"job.wxf\""}], "}"}],
-              "]"}], ",", RowBox[{"Missing", "[",
-              "\"FixedLandauTaskRequired\"", "]"}]}], "]"}]}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"MixedUnits\"", ",", RowBox[{"RGZQQMixedUVIRLedger", "[",
-            RowBox[{"3600", ",", RowBox[{"\"MatrixManifest\"", "\[Rule]",
-                "matrixManifest"}], ",", RowBox[{"\"IntegralSeconds\"",
-                "\[Rule]", "120"}]}], "]"}], ",",
-          RowBox[{"{", "\"MSbar\"", "}"}], ",",
-          RowBox[{RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"MassTadpoles\"", ",", RowBox[{"RGZQQMassLimitLedger", "[",
-            RowBox[{"7200", ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "900"}]}], "]"}], ",", RowBox[{"{", "\"MSbar\"", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"MassLimitOrderAudit\""}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell["If retrying the region cell after running mass completion, first \
-rerun MassTadpoles to restore the original ledger as the active input. That \
-preserves the same region checkpoint key.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"MassRegions\"", ",", RowBox[{"RGZQQMassRegionMatch", "[",
-            RowBox[{"7200", ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "900"}]}], "]"}], ",", RowBox[{"{", "\"MassTadpoles\"",
-            "}"}], ",", RowBox[{RowBox[{RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"RegionCorrectionsCancel\""}], "&"}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"RawMass\"", ",", RowBox[{"RGZQQRawMassPoleAudit", "[",
-            RowBox[{"7200", ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "900"}]}], "]"}], ",", RowBox[{"{", "\"MassTadpoles\"",
-            "}"}], ",", RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"AllPairsWithinBound\"", ",", "False"}],
-                "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"Weighted\"", ",", RowBox[{"RGZQQWeightedUVIRLedger", "[",
-            RowBox[{"144000", ",", RowBox[{"\"JobFile\"", "\[Rule]",
-                "fixedJobFile"}], ",", RowBox[{"\"MatrixManifest\"",
-                "\[Rule]", "matrixManifest"}], ",", RowBox[{
-                "\"IntegralSeconds\"", "\[Rule]", "600"}], ",",
-              RowBox[{"\"GraphSeconds\"", "\[Rule]", "12000"}]}], "]"}], ",",
-          RowBox[{"{", "\"MSbar\"", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"WeightedGraphCoverageVerified\""}], "&"}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"MassCompletion\"", ",", RowBox[{"RGZQQCompleteMassLedger",
-            "[", "]"}], ",", RowBox[{"{", RowBox[{"\"MassRegions\"", ",",
-              "\"RawMass\"", ",", "\"Weighted\""}], "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                  RowBox[{"#1", ",", "\"MassLimitUVIRCertified\"", ",",
-                    "False"}], "]"}], "]"}], "&&", RowBox[{"TrueQ", "[",
-                RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                    "\"ScalelessLedgerComplete\"", ",", "False"}], "]"}],
-                "]"}]}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell["5 - Finite reconstruction and conditional certification", "Section"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"Finite\"", ",", RowBox[{"RGZQQFiniteAudit", "[",
-            RowBox[{"3600", ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "120"}]}], "]"}], ",", RowBox[{"{", "\"MSbar\"", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"FiniteAssemblyVerified\""}], "&"}]}], "]"}], ";"}]],
-   "Input"], Cell["Use the gaugeFile preserved in Start Here. The fallback \
-below uses the prior certificate pointer, when present; the certification \
-command still independently validates source jobs, hashes and payloads. It \
-never upgrades a completion flag.", "Text"],
-  Cell[BoxData[RowBox[
-     {RowBox[{"If", "[", RowBox[{RowBox[{"!", RowBox[{"StringQ", "[",
-              "gaugeFile", "]"}]}], ",", RowBox[
-           {RowBox[{"rgzPreviousCert", "=", RowBox[{"RGZResult", "[",
-                "\"QQCertification\"", "]"}]}], ";",
-            RowBox[{"rgzGaugeFiles", "=", RowBox[{"If", "[", RowBox[
-                 {RowBox[{"AssociationQ", "[", "rgzPreviousCert", "]"}], ",",
-                  RowBox[{"Lookup", "[", RowBox[{"rgzPreviousCert", ",",
-                      "\"EvidenceFiles\"", ",", RowBox[{"{", "}"}]}], "]"}],
-                  ",", RowBox[{"{", "}"}]}], "]"}]}], ";",
-            RowBox[{"If", "[", RowBox[{RowBox[{RowBox[{"ListQ", "[",
-                    "rgzGaugeFiles", "]"}], "&&", RowBox[{RowBox[{"Length",
-                      "[", "rgzGaugeFiles", "]"}], "===", "3"}], "&&",
-                  RowBox[{"StringQ", "[", RowBox[{"rgzGaugeFiles",
-                      "\[LeftDoubleBracket]", "2", "\[RightDoubleBracket]"}],
-                    "]"}]}], ",", RowBox[{"gaugeFile", "=", RowBox[
-                   {"rgzGaugeFiles", "\[LeftDoubleBracket]", "2",
-                    "\[RightDoubleBracket]"}]}]}], "]"}]}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"Certification\"", ",", RowBox[{"If", "[",
-            RowBox[{RowBox[{"StringQ", "[", "gaugeFile", "]"}], ",",
-              RowBox[{"RGZQQCertification", "[", RowBox[{"\"GaugeFile\"",
-                  "\[Rule]", "gaugeFile"}], "]"}], ",", RowBox[{
-                "RGZQQCertification", "[", "]"}]}], "]"}], ",",
-          RowBox[{"{", RowBox[{"\"MassCompletion\"", ",", "\"Finite\""}],
-            "}"}], ",", RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"FullSMatrixVerified\"", ",", "False"}],
-                "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell["6 - Scalar representation, poles, finite equivalence and \
-presentation", "Section"], Cell["This independent presentation can run while \
-mass-limit audits are pending. Pole evidence must pass before finite \
-equivalence; finite equivalence must pass before simplification. A failed \
-prerequisite blocks dependent cells rather than producing a cascade of \
-secondary errors.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarFF\"", ",", RowBox[{"RGZQQScalarFormFactors", "[",
-            RowBox[{"3600", ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "60"}]}], "]"}], ",", RowBox[{"{", "\"LoopFF\"", "}"}], ",",
-          RowBox[{RowBox[{"MemberQ", "[", RowBox[{RowBox[{"{", RowBox[
-                   {"\"ScalarPVCollected\"", ",",
-                    "\"ScalarPVCollectedExactCoefficientsRetained\""}],
-                  "}"}], ",", RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                    "\"Status\"", ",", "None"}], "]"}]}], "]"}], "&"}]}],
-        "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarPole\"", ",", RowBox[{"RGZQQScalarPoleAudit", "[",
-            RowBox[{"3600", ",", RowBox[{"\"IntegralSeconds\"", "\[Rule]",
-                "60"}], ",", RowBox[{"\"CoefficientSeconds\"", "\[Rule]",
-                "120"}]}], "]"}], ",", RowBox[
-           {"{", RowBox[{"\"ScalarFF\"", ",", "\"UVIR\""}], "}"}], ",",
-          RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"CommonRegulatorPolesVerified\"", ",",
-                  "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarBasis\"", ",", RowBox[{"RGZQQScalarBasisAudit", "[",
-            "1200", "]"}], ",", RowBox[{"{", "\"ScalarFF\"", "}"}], ",",
-          RowBox[{RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarFinite\"", ",", RowBox[{"RGZQQScalarFiniteAudit",
-            "[", RowBox[{"7200", ",", RowBox[{"\"CoefficientSeconds\"",
-                "\[Rule]", "180"}]}], "]"}], ",",
-          RowBox[{"{", RowBox[{"\"ScalarPole\"", ",", "\"MSbar\"", ",",
-              "\"Finite\""}], "}"}], ",", RowBox[
-           {RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"FiniteAmplitudeEquivalenceVerified\"", ",", "False"}],
-                "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarCompact\"", ",", RowBox[
-           {"RGZQQScalarFiniteSimplify", "[", RowBox[{"3600", ",",
-              RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "120"}]}], "]"}],
-          ",", RowBox[{"{", "\"ScalarFinite\"", "}"}], ",",
-          RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"ExactCoefficientEquivalenceVerified\"",
-                  ",", "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarColor\"", ",", RowBox[{"RGZQQScalarColorSimplify",
-            "[", RowBox[{"3600", ",", RowBox[{"\"CoefficientSeconds\"",
-                "\[Rule]", "120"}]}], "]"}], ",",
-          RowBox[{"{", "\"ScalarCompact\"", "}"}], ",",
-          RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[",
-                RowBox[{"#1", ",", "\"ColorReconstructionVerified\"", ",",
-                  "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"ScalarRows\"", ",", RowBox[{"RGZQQScalarFactorRows", "[",
-            RowBox[{"3600", ",", RowBox[{"\"RowSeconds\"", "\[Rule]",
-                "180"}]}], "]"}], ",", RowBox[{"{", "\"ScalarColor\"", "}"}],
-          ",", RowBox[{RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}],
-        "]"}], ";"}]], "Input"], Cell["7 - Final state and save", "Section"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZIdentityRequirements", "[", "]"}], "]"}], ";",
-      "rgzDiagnosticState"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[",
-        RowBox[{"\"SMatrix\"", ",", RowBox[{"RGZQQSMatrix", "[", "]"}], ",",
-          RowBox[{"{", "\"Certification\"", "}"}], ",",
-          RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",",
-                  "\"Status\"", ",", "None"}], "]"}], "===",
-              "\"CertifiedWithinDeclaredDomain\""}], "&"}]}], "]"}], ";"}]],
-   "Input"], Cell["Save also after an incomplete or timed-out audit. \
-Completed checkpoints remain reusable. An incomplete certificate remains \
-incomplete, with its outstanding checks and domain visible.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZSave", "[", "]"}], "]"}], ";"}]], "Input"]},
- StyleDefinitions -> "Default.nb", WindowTitle ->
-  "RGZWorkflow \[LongDash] Diagnostics"]
+timeouts remain incomplete evidence.", "Text", ExpressionUUID -> 
+       "3534cbce-cda6-4509-a0f3-75b0b2f774fc"], 
+     Cell[CellGroupData[{Cell["1 - Load the package and audit runtime", 
+         "Section", ExpressionUUID -> 
+          "9f5de3b6-2999-40b6-b95e-acb056267f11"], 
+        Cell[BoxData[RowBox[{RowBox[{"project", "=", RowBox[{
+                "ParentDirectory", "[", RowBox[{"NotebookDirectory", "[", 
+                  "]"}], "]"}]}], ";", RowBox[{"If", "[", 
+              RowBox[{RowBox[{"MemberQ", "[", RowBox[{"$Packages", ",", 
+                    "\"RGZWorkflow`\""}], "]"}], ",", RowBox[{"Get", "[", 
+                  RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[
+                       {"project", ",", "\"Tools\"", ",", 
+                        "\"DiagnosticsCompatibility.wl\""}], "}"}], "]"}], 
+                  "]"}], ",", RowBox[{"Get", "[", RowBox[{"FileNameJoin", 
+                    "[", RowBox[{"{", RowBox[{"project", ",", 
+                        "\"RGZWorkflow.wl\""}], "}"}], "]"}], "]"}]}], "]"}], 
+            ";", RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[", 
+                RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", ",", 
+                    "\"WeightedAuditResume.wl\""}], "}"}], "]"}], "]"}], ";", 
+            RowBox[{"If", "[", RowBox[{RowBox[{"MemberQ", "[", RowBox[
+                   {"$Packages", ",", "\"FeynCalc`\""}], "]"}], ",", 
+                RowBox[{RowBox[{"initialization", "=", RowBox[
+                     {"RGZInitialize", "[", RowBox[{RowBox[{"FileNameJoin", 
+                          "[", RowBox[{"{", RowBox[{"project", ",", 
+                          "\"Work\""}], "}"}], "]"}], ",", RowBox[
+                         {"\"Display\"", "\[Rule]", "\"Compact\""}]}], 
+                      "]"}]}], ";", RowBox[{"RGZReport", "[", 
+                    "initialization", "]"}], ";", RowBox[{"If", "[", 
+                    RowBox[{RowBox[{"FailureQ", "[", "initialization", "]"}], 
+                      ",", RowBox[{"Abort", "[", "]"}]}], "]"}], ";", 
+                  RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[", RowBox[
+                       {"{", RowBox[{"project", ",", "\"Tools\"", ",", 
+                          "\"FeynCalcColourCorrection.wl\""}], "}"}], "]"}], 
+                    "]"}], ";", RowBox[{"colourCheck", "=", RowBox[
+                     {"rgzFeynCalcColourCorrection", "[", "]"}]}], ";", 
+                  RowBox[{"If", "[", RowBox[{RowBox[{"FailureQ", "[", 
+                        "colourCheck", "]"}], ",", RowBox[{RowBox[{"Print", 
+                          "[", "colourCheck", "]"}], ";", RowBox[{"Abort", 
+                          "[", "]"}]}]}], "]"}], ";", RowBox[{"Print", "[", 
+                    "colourCheck", "]"}], ";"}]}], "]"}], ";"}]], "Input"]}, 
+       Open]], Cell[CellGroupData[
+       {Cell["2 - Fresh kernel only: initialize and restore", "Section", 
+         ExpressionUUID -> "201c025c-8fbd-4a48-9d3d-6b9033a5a66f"], 
+        Cell["Skip this section when continuing in the existing Start Here \
+kernel. The root loader and runtime adapters install the guarded execution \
+helper automatically.", "Text", ExpressionUUID -> 
+          "d183e5a7-e0bf-485a-945b-6cbae026f9b0"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"Get", "[", 
+                 RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", 
+                       ",", "\"Tools\"", ",", 
+                       "\"DiagnosticsCompatibility.wl\""}], "}"}], "]"}], 
+                 "]"}], ";", RowBox[{"initialization", "=", RowBox[
+                  {"RGZInitialize", "[", RowBox[{RowBox[{"FileNameJoin", "[", 
+                       RowBox[{"{", RowBox[{"project", ",", "\"Work\""}], 
+                         "}"}], "]"}], ",", RowBox[{"\"Display\"", "\[Rule]", 
+                       "\"Compact\""}]}], "]"}]}], ";", RowBox[{"RGZReport", 
+                 "[", "initialization", "]"}], ";", RowBox[
+                {RowBox[{"If", "[", RowBox[{RowBox[{"FailureQ", "[", 
+                       "initialization", "]"}], ",", RowBox[{"Abort", "[", 
+                       "]"}]}], "]"}], ";;", RowBox[{"RGZReport", "[", 
+                   RowBox[{"RGZLoadFeynCalc", "[", "]"}], "]"}]}], ";", 
+               RowBox[{"Get", "[", RowBox[{"FileNameJoin", "[", RowBox[
+                    {"{", RowBox[{"project", ",", "\"Tools\"", ",", 
+                       "\"FeynCalcColourCorrection.wl\""}], "}"}], "]"}], 
+                 "]"}], ";", RowBox[{"colourCheck", "=", RowBox[
+                  {"rgzFeynCalcColourCorrection", "[", "]"}]}], ";", RowBox[
+                {"If", "[", RowBox[{RowBox[{"FailureQ", "[", "colourCheck", 
+                     "]"}], ",", RowBox[{RowBox[{"Print", "[", "colourCheck", 
+                       "]"}], ";", RowBox[{"Abort", "[", "]"}]}]}], "]"}], 
+               ";", RowBox[{RowBox[{"Print", "[", "colourCheck", "]"}], ";;", 
+                 RowBox[{"RGZReport", "[", RowBox[{"RGZRestore", "[", "]"}], 
+                   "]"}]}], ";", RowBox[{"Get", "[", RowBox[{"FileNameJoin", 
+                   "[", RowBox[{"{", RowBox[{"project", ",", "\"Tools\"", 
+                       ",", "\"WeightedAuditResume.wl\""}], "}"}], "]"}], 
+                 "]"}], ";"}]], "Input"], Cell[CellGroupData[{}, Open]]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[{RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                   {"RGZQQStart", "[", RowBox[{"600", ",", RowBox[
+                       {"\"Gauge\"", "->", "0"}], ",", RowBox[
+                       {"\"RegulatorMass\"", "->", "0"}]}], "]"}], "]"}], 
+                ";"}], "\n", RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                   {"RGZQQAmplitude", "[", "]"}], "]"}], ";"}]}], "Input", 
+            ExpressionUUID -> "f8ffa5e3-9682-48d7-8309-6d9b80efe891"], 
+           Cell[CellGroupData[{}, Open]]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["3 - Source form factors, UV/IR and MSbar", 
+         "Section", ExpressionUUID -> 
+          "ba73c9f9-3324-4ec1-8c16-c054cc99d436"], Cell["Run these cells in \
+order. Valid source-bound caches are reused. The MSbar and finite results are \
+representations; complete mass and graph-weighted evidence remains necessary \
+for certification.", "Text", ExpressionUUID -> 
+          "67f50fd3-4dd7-4f3a-a645-d309f27a0da7"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"LoopFF\"", ",", RowBox[{"RGZQQFormFactors", 
+                     "[", RowBox[{"1200", ",", RowBox[{"\"LoopOrder\"", 
+                         "\[Rule]", "1"}], ",", RowBox[
+                        {"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], 
+                     "]"}], ",", RowBox[{"{", "}"}], ",", RowBox[
+                    {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"Complete\""}], "&"}]}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "b5d97a98-49b2-4db2-9258-a4dd835a977b"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[", 
+                 RowBox[{"\"Helpers\"", ",", RowBox[{"RGZLoadFeynHelpers", 
+                     "[", "]"}], ",", RowBox[{"{", "}"}], ",", RowBox[
+                    {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"FeynHelpersLoaded\""}], "&"}]}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "6616960f-867c-4c8f-91ce-f6812a093829"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"UVIR\"", ",", RowBox[{"RGZQQUVIR", "[", 
+                     RowBox[{"1200", ",", RowBox[{"\"IntegralSeconds\"", 
+                         "\[Rule]", "30"}], ",", RowBox[
+                        {"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], 
+                     "]"}], ",", RowBox[{"{", RowBox[{"\"LoopFF\"", ",", 
+                       "\"Helpers\""}], "}"}], ",", RowBox[{RowBox[
+                      {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                         "\"RepresentedPoleAnalysis\""}], "&&", RowBox[
+                        {"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[
+                          {RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Statistics\"", ",", RowBox[{"Association", "[", 
+                          "]"}]}], "]"}], ",", "\"CompleteRepresentedUV\"", 
+                          ",", "False"}], "]"}], "]"}], "&&", RowBox[
+                        {"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[
+                          {RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Statistics\"", ",", RowBox[{"Association", "[", 
+                          "]"}]}], "]"}], ",", "\"CompleteRepresentedIR\"", 
+                          ",", "False"}], "]"}], "]"}]}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "f7cedf76-5e2c-41e2-ba72-dc2d7eb471fe"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"Scaleless\"", ",", RowBox[
+                    {"RGZQQScalelessLedger", "[", "1200", "]"}], ",", 
+                   RowBox[{"{", "\"LoopFF\"", "}"}], ",", RowBox[
+                    {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"RawScalelessCoreLedger\""}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "22b2968a-5445-4fdf-8909-034396c8a2f9"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"PVLedger\"", ",", RowBox[
+                    {"RGZQQPVUVIRLedger", "[", "1200", "]"}], ",", 
+                   RowBox[{"{", "\"LoopFF\"", "}"}], ",", RowBox[
+                    {RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "50da1c24-bd11-4f55-842f-4c463ec7101f"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQMSbarCounterterms", "[", "]"}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "95cbc829-f63d-43a5-946a-39e120fa3c0a"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"MSbar\"", ",", RowBox[{"RGZQQMSbar", "[", 
+                     "1200", "]"}], ",", RowBox[{"{", RowBox[{"\"UVIR\"", 
+                       ",", "\"Scaleless\""}], "}"}], ",", RowBox[
+                    {RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"MSbarFiniteRepresentation\""}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "5e0683bf-15bf-4be2-a099-4fa511dfa7c6"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["4 - Ordered mass and graph-weighted audits", 
+         "Section", ExpressionUUID -> 
+          "b45c4542-f0d7-4b02-8f8e-cbae73b213ef"], Cell["Use the current \
+model manifest and fixed Landau/M0 job. The unit inventory supplements the \
+graph-weighted coverage check. The weighted limits are 144000 seconds \
+overall, 12000 per graph and 600 per integral; they are ceilings, not \
+predicted runtimes. Source-bound T/L assembly prefixes and completed \
+components allow interrupted audits to resume. Supported scalar numerators \
+are checked by exact full-D identities; unsupported cases retain the original \
+replay.", "Text", ExpressionUUID -> "81252003-c2de-4db8-b7e3-64f360584ad7"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"matrixState", "=", 
+                 RowBox[{"RGZMixedStart", "[", "]"}]}], ";", RowBox[
+                {"matrixManifest", "=", RowBox[{"If", "[", RowBox[
+                    {RowBox[{"AssociationQ", "[", "matrixState", "]"}], ",", 
+                     RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[
+                          {RowBox[{"matrixState", "[", "\"CacheDirectory\"", 
+                          "]"}], ",", "\"matrix_job.wl\""}], "}"}], "]"}], 
+                     ",", RowBox[{"Missing", "[", "\"MatrixRequired\"", 
+                       "]"}]}], "]"}]}], ";", RowBox[{"RGZReport", "[", 
+                 "matrixState", "]"}], ";", RowBox[{"fixedJobForAudit", "=", 
+                 RowBox[{"RGZResult", "[", "\"QQ\"", "]"}]}], ";", RowBox[
+                {"fixedJobFile", "=", RowBox[{"If", "[", RowBox[
+                    {RowBox[{RowBox[{"AssociationQ", "[", "fixedJobForAudit", 
+                         "]"}], "&&", RowBox[{RowBox[{"Lookup", "[", RowBox[
+                          {"fixedJobForAudit", ",", "\"Gauge\"", ",", 
+                          "None"}], "]"}], "===", "0"}], "&&", RowBox[
+                        {RowBox[{"Lookup", "[", RowBox[{"fixedJobForAudit", 
+                          ",", "\"RegulatorMass\"", ",", "None"}], "]"}], 
+                         "===", "0"}], "&&", RowBox[{"StringQ", "[", RowBox[
+                          {"Lookup", "[", RowBox[{"fixedJobForAudit", ",", 
+                          "\"Directory\"", ",", "None"}], "]"}], "]"}]}], 
+                     ",", RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[
+                          {RowBox[{"fixedJobForAudit", "[", "\"Directory\"", 
+                          "]"}], ",", "\"job.wxf\""}], "}"}], "]"}], ",", 
+                     RowBox[{"Missing", "[", "\"FixedLandauTaskRequired\"", 
+                       "]"}]}], "]"}]}], ";"}]], "Input", ExpressionUUID -> 
+             "906a2042-e6d0-4bcf-9b70-9a89b7ccac82"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"MixedUnits\"", ",", RowBox[
+                    {"RGZQQMixedUVIRLedger", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"MatrixManifest\"", "\[Rule]", 
+                         "matrixManifest"}], ",", RowBox[
+                        {"\"IntegralSeconds\"", "\[Rule]", "120"}]}], "]"}], 
+                   ",", RowBox[{"{", "\"MSbar\"", "}"}], ",", RowBox[
+                    {RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "fb7c09d1-2a3d-4812-900c-c0ec01d0c545"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"MassTadpoles\"", ",", RowBox[
+                    {"RGZQQMassLimitLedger", "[", RowBox[{"7200", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "900"}]}], "]"}], ",", RowBox[{"{", "\"MSbar\"", 
+                     "}"}], ",", RowBox[{RowBox[{RowBox[{"Lookup", "[", 
+                         RowBox[{"#1", ",", "\"Status\"", ",", "None"}], 
+                         "]"}], "===", "\"MassLimitOrderAudit\""}], "&"}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "4b9fc044-f241-4874-89f3-a9c739dad16a"]}, Open]], 
+        Cell["If retrying the region cell after running mass completion, \
+first rerun MassTadpoles to restore the original ledger as the active input. \
+That preserves the same region checkpoint key.", "Text", 
+         ExpressionUUID -> "d12b352c-ad18-4169-ab6a-2bfdd5ca5a90"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"MassRegions\"", ",", RowBox[
+                    {"RGZQQMassRegionMatch", "[", RowBox[{"7200", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "900"}]}], "]"}], ",", RowBox[{"{", 
+                     "\"MassTadpoles\"", "}"}], ",", RowBox[{RowBox[
+                      {RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"RegionCorrectionsCancel\""}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "8bdfe1f8-d6dc-4b33-aaeb-71caf7d3782e"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"RawMass\"", ",", RowBox[
+                    {"RGZQQRawMassPoleAudit", "[", RowBox[{"7200", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "900"}]}], "]"}], ",", RowBox[{"{", 
+                     "\"MassTadpoles\"", "}"}], ",", RowBox[{RowBox[{"TrueQ", 
+                       "[", RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"AllPairsWithinBound\"", ",", "False"}], "]"}], 
+                       "]"}], "&"}]}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "65614b8a-ddf8-4f5f-85d1-929029a72f00"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[", 
+                 RowBox[{"\"Weighted\"", ",", RowBox[
+                    {"RGZQQWeightedUVIRLedger", "[", RowBox[{"144000", ",", 
+                       RowBox[{"\"JobFile\"", "\[Rule]", "fixedJobFile"}], 
+                       ",", RowBox[{"\"MatrixManifest\"", "\[Rule]", 
+                         "matrixManifest"}], ",", RowBox[
+                        {"\"IntegralSeconds\"", "\[Rule]", "600"}], ",", 
+                       RowBox[{"\"GraphSeconds\"", "\[Rule]", "12000"}]}], 
+                     "]"}], ",", RowBox[{"{", "\"MSbar\"", "}"}], ",", 
+                   RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"WeightedGraphCoverageVerified\""}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "3f6a3576-ca63-430c-b401-3a03a8a6bcbc"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"MassCompletion\"", ",", RowBox[
+                    {"RGZQQCompleteMassLedger", "[", "]"}], ",", RowBox[
+                    {"{", RowBox[{"\"MassRegions\"", ",", "\"RawMass\"", ",", 
+                       "\"Weighted\""}], "}"}], ",", RowBox[{RowBox[
+                      {RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[
+                          {"#1", ",", "\"MassLimitUVIRCertified\"", ",", 
+                          "False"}], "]"}], "]"}], "&&", RowBox[{"TrueQ", 
+                         "[", RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"ScalelessLedgerComplete\"", ",", "False"}], 
+                          "]"}], "]"}]}], "&"}]}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "e2c1b182-ab2c-4f33-ba13-4e3c9af16875"]}, 
+          Open]]}, Open]], Cell[CellGroupData[
+       {Cell["5 - Finite reconstruction and conditional certification", 
+         "Section", ExpressionUUID -> 
+          "a2765a84-2711-4267-b147-8000972a8a02"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"Finite\"", ",", RowBox[{"RGZQQFiniteAudit", 
+                     "[", RowBox[{"3600", ",", RowBox[
+                        {"\"CoefficientSeconds\"", "\[Rule]", "120"}]}], 
+                     "]"}], ",", RowBox[{"{", "\"MSbar\"", "}"}], ",", 
+                   RowBox[{RowBox[{RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"Status\"", ",", "None"}], "]"}], "===", 
+                       "\"FiniteAssemblyVerified\""}], "&"}]}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "788691e5-6865-4937-841f-6d7335163c2a"]}, Open]], 
+        Cell["Use the gaugeFile preserved in Start Here. The fallback below \
+uses the prior certificate pointer, when present; the certification command \
+still independently validates source jobs, hashes and payloads. It never \
+upgrades a completion flag.", "Text", ExpressionUUID -> 
+          "0bb3179d-ed92-4758-9ae2-1472da541e8e"], 
+        Cell[BoxData[RowBox[{RowBox[{"If", "[", RowBox[{RowBox[
+                 {"!", RowBox[{"StringQ", "[", "gaugeFile", "]"}]}], ",", 
+                RowBox[{RowBox[{"rgzPreviousCert", "=", RowBox[{"RGZResult", 
+                      "[", "\"QQCertification\"", "]"}]}], ";", RowBox[
+                   {"rgzGaugeFiles", "=", RowBox[{"If", "[", RowBox[
+                       {RowBox[{"AssociationQ", "[", "rgzPreviousCert", 
+                          "]"}], ",", RowBox[{"Lookup", "[", RowBox[
+                          {"rgzPreviousCert", ",", "\"EvidenceFiles\"", ",", 
+                          RowBox[{"{", "}"}]}], "]"}], ",", RowBox[{"{", 
+                          "}"}]}], "]"}]}], ";", RowBox[{"If", "[", 
+                    RowBox[{RowBox[{RowBox[{"ListQ", "[", "rgzGaugeFiles", 
+                          "]"}], "&&", RowBox[{RowBox[{"Length", "[", 
+                          "rgzGaugeFiles", "]"}], "===", "3"}], "&&", 
+                        RowBox[{"StringQ", "[", RowBox[{"rgzGaugeFiles", 
+                          "\[LeftDoubleBracket]", "2", 
+                          "\[RightDoubleBracket]"}], "]"}]}], ",", RowBox[
+                       {"gaugeFile", "=", RowBox[{"rgzGaugeFiles", 
+                          "\[LeftDoubleBracket]", "2", 
+                          "\[RightDoubleBracket]"}]}]}], "]"}]}]}], "]"}], 
+            ";"}]], "Input", ExpressionUUID -> 
+          "0ccc435b-4f41-4193-aa84-f6761143fc82"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"Certification\"", ",", RowBox[{"If", "[", 
+                     RowBox[{RowBox[{"StringQ", "[", "gaugeFile", "]"}], ",", 
+                       RowBox[{"RGZQQCertification", "[", RowBox[
+                          {"\"GaugeFile\"", "\[Rule]", "gaugeFile"}], "]"}], 
+                       ",", RowBox[{"RGZQQCertification", "[", "]"}]}], 
+                     "]"}], ",", RowBox[{"{", RowBox[{"\"MassCompletion\"", 
+                       ",", "\"Finite\""}], "}"}], ",", RowBox[
+                    {RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[
+                          {"#1", ",", "\"FullSMatrixVerified\"", ",", 
+                          "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "5f99ee55-e857-46da-9e68-2c021a40818e"]}, Open]]}, Open]], 
+     Cell[CellGroupData[
+       {Cell["6 - Scalar representation, poles, finite equivalence and \
+presentation", "Section", ExpressionUUID -> 
+          "f439e254-8d41-4605-9e81-20643e1c0177"], Cell["This independent \
+presentation can run while mass-limit audits are pending. Pole evidence must \
+pass before finite equivalence; finite equivalence must pass before \
+simplification. A failed prerequisite blocks dependent cells rather than \
+producing a cascade of secondary errors.", "Text", ExpressionUUID -> 
+          "fa87c159-5351-42ed-8d46-cbc04230c124"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarFF\"", ",", RowBox[
+                    {"RGZQQScalarFormFactors", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "60"}]}], 
+                     "]"}], ",", RowBox[{"{", "\"LoopFF\"", "}"}], ",", 
+                   RowBox[{RowBox[{"MemberQ", "[", RowBox[{RowBox[{"{", 
+                          RowBox[{"\"ScalarPVCollected\"", ",", 
+                          "\"ScalarPVCollectedExactCoefficientsRetained\""}], 
+                          "}"}], ",", RowBox[{"Lookup", "[", RowBox[{"#1", 
+                          ",", "\"Status\"", ",", "None"}], "]"}]}], "]"}], 
+                     "&"}]}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "1122ad12-7870-43a5-82e0-7633074cd1c3"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarPole\"", ",", RowBox[
+                    {"RGZQQScalarPoleAudit", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"IntegralSeconds\"", "\[Rule]", "60"}], ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "120"}]}], "]"}], ",", RowBox[{"{", RowBox[
+                      {"\"ScalarFF\"", ",", "\"UVIR\""}], "}"}], ",", 
+                   RowBox[{RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[", 
+                         RowBox[{"#1", ",", 
+                          "\"CommonRegulatorPolesVerified\"", ",", "False"}], 
+                         "]"}], "]"}], "&"}]}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "83c2a08f-84ec-4e8a-a277-dd3d8e5edc2c"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", "[", 
+                 RowBox[{"\"ScalarBasis\"", ",", RowBox[
+                    {"RGZQQScalarBasisAudit", "[", "1200", "]"}], ",", 
+                   RowBox[{"{", "\"ScalarFF\"", "}"}], ",", RowBox[
+                    {RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "f623e109-9f23-4966-b382-cbfc0844e83f"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarFinite\"", ",", RowBox[
+                    {"RGZQQScalarFiniteAudit", "[", RowBox[{"7200", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "180"}]}], "]"}], ",", RowBox[{"{", RowBox[
+                      {"\"ScalarPole\"", ",", "\"MSbar\"", ",", 
+                       "\"Finite\""}], "}"}], ",", RowBox[{RowBox[{"TrueQ", 
+                       "[", RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"FiniteAmplitudeEquivalenceVerified\"", ",", 
+                          "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "5a4df187-8fd8-4013-921c-e1cd946e0390"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarCompact\"", ",", RowBox[
+                    {"RGZQQScalarFiniteSimplify", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "120"}]}], "]"}], ",", RowBox[{"{", 
+                     "\"ScalarFinite\"", "}"}], ",", RowBox[{RowBox[{"TrueQ", 
+                       "[", RowBox[{"Lookup", "[", RowBox[{"#1", ",", 
+                          "\"ExactCoefficientEquivalenceVerified\"", ",", 
+                          "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "15ffde96-cd91-4db3-be0b-6cae6f028992"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarColor\"", ",", RowBox[
+                    {"RGZQQScalarColorSimplify", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"CoefficientSeconds\"", "\[Rule]", 
+                         "120"}]}], "]"}], ",", RowBox[{"{", 
+                     "\"ScalarCompact\"", "}"}], ",", RowBox[
+                    {RowBox[{"TrueQ", "[", RowBox[{"Lookup", "[", RowBox[
+                          {"#1", ",", "\"ColorReconstructionVerified\"", ",", 
+                          "False"}], "]"}], "]"}], "&"}]}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "0a091167-fe75-48bb-be2e-a1fada4d5210"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"ScalarRows\"", ",", RowBox[
+                    {"RGZQQScalarFactorRows", "[", RowBox[{"3600", ",", 
+                       RowBox[{"\"RowSeconds\"", "\[Rule]", "180"}]}], "]"}], 
+                   ",", RowBox[{"{", "\"ScalarColor\"", "}"}], ",", 
+                   RowBox[{RowBox[{"AssociationQ", "[", "#1", "]"}], "&"}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "4e122edf-61f2-4b1d-a730-4f63ad75cc3d"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["7 - Final state and save", "Section", 
+         ExpressionUUID -> "f3e4be13-8d6a-48d1-b61d-cfd8ca1f9eed"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZIdentityRequirements", "[", "]"}], "]"}], ";", 
+               "rgzDiagnosticState"}]], "Input", ExpressionUUID -> 
+             "6bf0f082-792b-43a7-99e5-f554c4a1b6cf"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"rgzDiagnosticRun", 
+                 "[", RowBox[{"\"SMatrix\"", ",", RowBox[{"RGZQQSMatrix", 
+                     "[", "]"}], ",", RowBox[{"{", "\"Certification\"", 
+                     "}"}], ",", RowBox[{RowBox[{RowBox[{"Lookup", "[", 
+                         RowBox[{"#1", ",", "\"Status\"", ",", "None"}], 
+                         "]"}], "===", "\"CertifiedWithinDeclaredDomain\""}], 
+                     "&"}]}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "2f52a458-b82f-4c7b-8174-43fbe94b299b"]}, Open]], 
+        Cell["Save also after an incomplete or timed-out audit. Completed \
+checkpoints remain reusable. An incomplete certificate remains incomplete, \
+with its outstanding checks and domain visible.", "Text", 
+         ExpressionUUID -> "e3dc3629-86ea-4f63-a091-02c76ed54fb3"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZSave", "[", "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "a1923709-4ad9-4567-90ae-b34c6ddce73c"]}, 
+          Open]]}, Open]]}, Open]], Cell["Continue after Start Here has \
+completed in Work. Use the same FeynCalc kernel or restore the compatible \
+session in section 2. Verify the colour checks before diagnostics.", 
+   "Text"]}, WindowSize -> {808, 882}, WindowMargins -> 
+  {{460, Automatic}, {Automatic, 50}}, 
+ WindowTitle -> "RGZWorkflow \[LongDash] Diagnostics", 
+ FrontEndVersion -> "13.3 for Mac OS X ARM (64-bit) (July 24, 2023)", 
+ StyleDefinitions -> "Default.nb", ExpressionUUID -> 
+  "9092f632-e8eb-4723-b0b3-d495f952e51f"]

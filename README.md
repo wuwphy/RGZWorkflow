@@ -1,4 +1,4 @@
-# RGZWorkflow 1.1.1
+# RGZWorkflow 1.1.2
 
 Wolfram Language source package for tree-level and one-loop quark scattering in the refined Gribov–Zwanziger (RGZ) framework at zero temperature. The implemented process is distinct-flavour scattering with massless external quarks, including the complete mixed-field self-energy insertion, vertex corrections, box diagrams and external-leg residues.
 
@@ -42,7 +42,7 @@ For a small derivation before the full run, follow the [quark-bubble walkthrough
 | RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
 | Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
 
-Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.1 and uses the all-versions DOI until Zenodo assigns its version DOI. The 1.1.0 DOI above remains historical.
+Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.2 and explicitly uses the all-versions DOI until Zenodo assigns its version DOI. The 1.1.0 DOI above remains historical.
 
 ```bibtex
 @article{Wu2026RGZ,
@@ -58,23 +58,23 @@ Use the version DOI for reproducible citations of a specific calculation; use th
 @software{Wu2026RGZWorkflow,
   author    = {Wu, Wan},
   title     = {RGZWorkflow},
-  version   = {1.1.1},
+  version   = {1.1.2},
   year      = {2026},
   publisher = {Zenodo},
   doi       = {10.5281/zenodo.23724291},
-  url       = {https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.1}
+  url       = {https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.2}
 }
 ```
 
-## Version 1.1.1 correction
+## Version 1.1.2: corrected colour contractions
 
-The FP ghost–gluon class coupling now follows the native FeynRules export; the ordered tree comparison separately removes the single external FP-chain permutation sign. **This isolated correction leaves the previously saved ordinary QQ bare amplitude unchanged:** its only FP contribution is an AA bubble with two corrected vertices, whose signs cancel. This is an integrand-level impact check, not a new full-amplitude recomputation or general ST/PT certificate. See [release notes](Documentation/Release-1.1.1.md).
+FeynCalc release archives 10.1.0 and 10.2.1 have a duplicated SUNF contraction rule. The official hotfix-stable branch contains the fix; version numbers alone do not establish whether an installation contains it. This release verifies and, when needed, corrects the rule in the current kernel before calculation. The installed dependency is not edited.
 
-## Historical completed calculation and verification
+**The finite amplitude changes, while the gauge difference remains zero.** The corrected author run has 18/18 symbolic gauge rows equal to zero, complete mass/scaleless coverage, UV closure, IR-pole cancellation within the declared conditions, and verified finite reconstruction. Final certification is `CertifiedWithinDeclaredDomain` with no outstanding checks. Read [the correction](Documentation/ColourCorrection.md), [completed validation and source correspondence](Documentation/ColourCorrectedValidation.md), and [release notes](Documentation/Release-1.1.2.md).
 
-The completed 2026-11-14 calculation passes the declared-domain certification and reproduces the historical result and paper table exactly: eight prefactors and 144 coefficients over 31 functions. See [the 1.1.0 release notes](Documentation/Release-1.1.0.md) and [verification evidence](Evidence/README.md). The release changes the validated development snapshot's version metadata; it does not relabel existing Work certificates as newly computed 1.1.0 certificates.
+The original certificate remains bound to the actual calculation source. Version metadata and automatic loading of the identical colour helper distinguish the release tree; those differences are explicitly recorded. The full pipeline was not separately rerun from the release-labelled tree. Historical paper-table equality predates the finite correction and is not claimed for the corrected result.
 
-A completed bare amplitude, a zero gauge difference and a certified finite representation are distinct results. Retain the linked evidence, IR conditions and analytic branch when interpreting or using the final coefficients.
+Use an empty `Work/` for a new release run. Start Here no longer contains the author-electronic-reference section. Keep FeynRules and FeynCalc in separate kernels.
 
 ## Required files
 
@@ -112,7 +112,7 @@ python3 Tools/check_release.py
 python3 Tools/build_release.py
 ```
 
-Checks use isolated work directories. `--suite core` needs no external physics packages; `--suite algebra` additionally needs FeynCalc/FeynArts. The release builder targets `artifacts/RGZWorkflow-1.1.1.zip`; preserve the published archive when packaging unreleased changes.
+Checks use isolated work directories. `--suite core` needs no external physics packages; `--suite algebra` additionally needs FeynCalc/FeynArts. The release builder targets `artifacts/RGZWorkflow-1.1.2.zip`; preserve the published archive when packaging unreleased changes.
 
 [GPL-3.0-or-later](LICENSE); full text in [COPYING](COPYING). External software is installed separately; see [attribution](THIRD_PARTY.md) and [citation](CITATION.cff).
 

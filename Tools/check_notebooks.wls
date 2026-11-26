@@ -2,7 +2,8 @@
 root=DirectoryName[DirectoryName[$InputFileName]];
 Get[FileNameJoin[{root,"RGZWorkflow.wl"}]];
 files=FileNames["*.nb",FileNameJoin[{root,"Examples"}]];
-failed=Length[files]=!=2;
+required={"RGZWorkflow — Start Here.nb","RGZWorkflow — Diagnostics.nb"};
+failed=Complement[required,FileNameTake /@ files]=!={};
 Do[nb=Quiet[Check[Get[file],$Failed]];
  If[Head[nb]=!=Notebook,failed=True;Continue[]];
  inputs=Cases[nb,Cell[BoxData[b_],"Input",___]:>b,Infinity];

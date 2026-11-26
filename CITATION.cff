@@ -2,20 +2,19 @@ cff-version: 1.2.0
 message: "Please cite this software release and the external physics/software references used."
 type: software
 title: RGZWorkflow
-version: 1.1.1
-date-released: "2026-11-23"
+version: 1.1.2
+date-released: "2026-11-26"
 license: GPL-3.0-or-later
 authors:
   - family-names: Wu
     given-names: Wan
 repository-code: https://github.com/wuwphy/RGZWorkflow
-abstract: "Article companion for auditable RGZ tree and one-loop quark-scattering calculations. The author run matches eight reference prefactors and 144 coefficients within the declared domain; the author reports a completed full workflow from an empty cache, with final artifacts rechecked. No third-party independent reproduction is claimed."
-url: https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.1
-doi: 10.5281/zenodo.23724291
+abstract: "RGZ tree and one-loop quark-scattering workflow. Version 1.1.2 corrects affected SUNF colour contractions; the corrected author workflow passed declared-domain certification; its original source fingerprints and correspondence to this release are documented."
+url: https://github.com/wuwphy/RGZWorkflow/releases/tag/v1.1.2
 identifiers:
   - type: doi
     value: 10.5281/zenodo.23724291
-    description: "All versions (Zenodo concept DOI)"
+    description: "All versions (Zenodo concept DOI); the 1.1.2 version DOI is pending"
 references:
   - type: article
     title: "Gauge-parameter cancellation and finite form factors in one-loop quark scattering in the refined Gribov-Zwanziger framework"

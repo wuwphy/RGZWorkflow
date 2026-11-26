@@ -1,11 +1,6 @@
 # Reproducing the calculation
 
-## Version 1.1.0 validation
-
-The corrected development source completed the local calculation on 2026-11-14, with declared-domain certification and exact agreement of eight prefactors and 144 finite coefficients with the historical run and paper table. See [release notes](Release-1.1.0.md) and [evidence](../Evidence/validation-2026-11-14.json). The final archive changes the version metadata; existing certificates retain their original source identities. Use a fresh Work directory for a new 1.1.0 calculation.
-
-The sections below retain the provenance and migration notes for the historical release and development corrections.
-
+Version 1.1.2 uses an empty `Work/` in this release directory. Do not reuse earlier Work caches or session files. `RGZLoadFeynCalc[]` verifies the corrected colour contractions automatically. See [the colour correction](ColourCorrection.md).
 
 The unreleased backend fixes dated 2026-11-06 change calculation-source fingerprints. Historical v1.0.0 certificates and caches remain evidence for that archived source, not for the patched tree. Use a fresh kernel and preferably a separate new Work directory to recompute and certify the corrected source. Explicit graph resumes reject missing or changed environment provenance. Changing the scaleless-preservation switch also selects a different integral/matrix environment; do not combine graph stages from the two conventions.
 
@@ -35,18 +30,6 @@ The weighted notebook limits match the reference workflow: 144000 seconds overal
 
 The scope is distinct-flavour massless external quarks, two dynamical flavours, alpha=0 and M->0+, with nonzero nondegenerate internal masses and nonexceptional s,t,u=-s-t. Preserve the declared IR conditions, positive renormalization scale squared and common analytic continuation from the Euclidean domain with +i0. See [scope](ModelAndScope.md) and [renormalization](QuarkRenormalization.md).
 
-## Compare with the paper
-
-`RGZPaperResult[]` reads the inert author table and checks its hash. It does not seed caches or certify current results. After computing the final scalar rows, run:
-
-```sh
-/path/to/WolframKernel -script Tools/compare_paper_result.wls
-```
-
-This compares eight prefactors and all 144 coefficients over the 31-function catalogue, using exact algebra. The report goes to `Evidence/runs/paper-reproduction/`. The archived author run matches exactly; its compact summary is in [verified-run.json](../Evidence/verified-run.json).
-
-The paper PDFs are not bundled. Their hashes and conventions are in [paper provenance](../Paper/provenance.json). On 2026-10-28 the author confirmed completion of the local full workflow starting from an empty cache. Final evidence and exact paper agreement were rechecked against the archived release calculation source; this does not certify the subsequently patched tree. Reuse of checkpoints within that calculation does not imply that the run started with pre-existing results.
-
 ## Independent reproduction status
 
 Version 1.0.0 distributes source, input-only notebooks and a compact author-run summary. The author confirms that the local full workflow began with an empty cache; final artifacts were rechecked on 2026-10-28. The initial empty state has no separately recorded machine-verifiable log. Raw author caches are not distributed, and no third-party independent reproduction is claimed. To perform that validation, initialize a new empty Work directory and execute the sequence above without importing existing results. Retain the generated manifests, linked audit evidence, environment/version records, final certificate and exact paper-comparison report. A release-tool or loading test is not a substitute for this calculation.
@@ -70,3 +53,12 @@ The scattering self-energy checkpoint update uses `QQSelfCheckpoint/2` records w
 A task `Fingerprint` fixes the model/workflow task, but the reduced contributions can change while that task remains active. New bare-amplitude packets therefore record `AssemblyInputHash`, binding the tree graph, mixed self energy, six reduced parts, on-shell residue, gauge/regulator and loop conversion in a fixed order. The form-factor packet carries this identity onward.
 
 Automatic amplitude input, including the default audit reader, checks both identities against the active completed task, for in-memory and disk packets. Recomputing any contribution requires `RGZQQAmplitude[]` again before automatic form factors; an old or unbound packet gives `QQAmplitudeInputsChanged`. This does not require regenerating the diagrams. An explicit File remains an independent historical import and is not thereby certified for the active task. Old files are retained, not silently rewritten or assigned a new identity.
+
+## Self-preparation performance update - 26 November 2026
+
+- Snapshot only the selected matrix entry. Original cache input identities and cached value hashes remain verified; the verified selected-input identity is retained for later reuse.
+- Resume from completed mass-limit sums once their task/source provenance and values verify, including the original fixed-gauge packets behind copied sums. Otherwise continue the original preparation path.
+- Distinguish selection, input validation, input hashing, cache reading and result checking in progress. Reset the cache status for each new checkpoint.
+- Remove the nested Dynamic from self-preparation monitoring. The adapter is outside Kernel to preserve interrupted-task source fingerprints. Physics formulas and certification flags are unchanged.
+
+In an existing stopped kernel, load `Tools/SelfPreparationResume.wl`, then repeat the same preparation command. No kernel restart or cache deletion is required. The new release loads the adapter automatically through `RGZWorkflow.wl`.

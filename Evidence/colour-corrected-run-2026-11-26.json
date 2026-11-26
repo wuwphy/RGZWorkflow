@@ -1,0 +1,78 @@
+{
+	"Schema":"RGZAuthorRunSummary\/1",
+	"Date":"2026-11-26",
+	"Description":"Summary of the completed colour-corrected author calculation. This is not a rewritten certificate for the 1.1.2 source fingerprint.",
+	"Status":"CertifiedWithinDeclaredDomain",
+	"Checks":{
+		"CurrentModel":true,
+		"SameBareSource":true,
+		"SymbolicGaugeZero":true,
+		"GaugeSourceCurrent":true,
+		"GaugeMixedSourceMatches":true,
+		"UVClosed":true,
+		"IRClosed":true,
+		"FinitePartBuilt":true,
+		"AllRowPolesZero":true,
+		"MixedMassLedgerComplete":true,
+		"FullScalelessLedgerComplete":true,
+		"FiniteConventionIndependentlyVerified":true,
+		"DomainDeclared":true,
+		"LandauM0Scope":true,
+		"BareLoopPayloadMatchesMSbar":true,
+		"BareTreePayloadMatchesMSbar":true,
+		"FiniteAuditRowsConsistent":true,
+		"GaugeComparisonRowsConsistent":true,
+		"FinitePayloadsValid":true,
+		"CurrentBareMeasure":true,
+		"FiniteAmplitudeAssemblyConsistent":true,
+		"BareJobSourceCurrent":true,
+		"GaugePreparationSourceCurrent":true,
+		"MassEvidenceCurrent":true
+	},
+	"OutstandingChecks":[],
+	"FullSMatrixVerified":true,
+	"OriginalCertificateSHA256":"c6965ce54cec5c7db6f804280798004d1ca67316d8ac3074dd704ff908afec15",
+	"CertifiedSourceFingerprint":"41518366765728461228138534301992911700360454831359570550626442297089530416207",
+	"CertifiedModelFingerprint":"56954806288320273215135339523351515465621822288213519752643917074488768101718",
+	"ValidationAlgorithmSHA256":"1d9c644a5c1d9254a78d1b22acbbe2969603a57e5ae2263b88eace56c4defe82",
+	"EvidencePayloadSHA256":{
+		"BareTree":"7aab67205a799d2a44b0692f0a06646ea9c3fcb50aafd6646ea93ffd973bb1dd",
+		"BareOneLoop":"51df3c19055723329b6c3d428dc36adc2f54e9146c849da06eb28b4c9feff425",
+		"MSbarAmplitude":"01e7f6b6dc039b1e5b528b65347749dacd06c310c39b79ee11813ac23a30e161",
+		"GaugeRows":"2680b713f865dcbdcda57a27516a26846794df2b81c40efdd97ca48e8750c8e9",
+		"FiniteAuditRows":"ca57a1203c6b0cbb97582ad9e7e88b8c4ac164966abe5c2930927b3b3d6132b0"
+	},
+	"IRValidityConditions":[
+		"Re[RGZWorkflow`Engine`μ^2] > 0",
+		"Re[-RGZWorkflow`Engine`qqT + RGZWorkflow`Engine`μ^2] > 0",
+		"Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2]\/2 > 0",
+		"Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2] > 0",
+		"-Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2]\/2 > 0",
+		"-Im[Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4]] + Re[-RGZWorkflow`Engine`qqT + (RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2] > 0",
+		"RGZWorkflow`Engine`qqT != 0",
+		"RGZWorkflow`Engine`qqS != 0",
+		"-RGZWorkflow`Engine`qqS - RGZWorkflow`Engine`qqT != 0",
+		"-RGZWorkflow`Engine`qqT != 0",
+		"RGZWorkflow`Parameters`muR2 > 0",
+		"(RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2 - I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4] != 0",
+		"(RGZWorkflow`Engine`m^2 + RGZWorkflow`Engine`μ^2)\/2 + I*Sqrt[RGZWorkflow`Engine`mG^4 - (RGZWorkflow`Engine`m^2 - RGZWorkflow`Engine`μ^2)^2\/4] != 0"
+	],
+	"BranchPrescription":"Continue the RGZ square root and logarithms from the declared Euclidean domain on a common sheet with +i0; crossing a Landau singularity requires a separate boundary analysis.",
+	"Scope":"Two-flavor massless external qqprime; one loop; M -> 0+; conditional complex-mass domain. No all-parameter or inclusive-cross-section claim.",
+	"GaugeComparison":{
+		"Status":"VerifiedSymbolicZero",
+		"ReferenceGauge":1,
+		"AllCoefficientsZero":true,
+		"Statistics":{
+			"Zero":18
+		},
+		"IRPrescription":"DimensionalScalelessZero"
+	},
+	"MassCompletion":{
+		"Status":"MassAndScalelessCoverageVerified",
+		"MassLimitUVIRCertified":true,
+		"ScalelessLedgerComplete":true,
+		"OutstandingChecks":[],
+		"MissingEvidence":[]
+	}
+}

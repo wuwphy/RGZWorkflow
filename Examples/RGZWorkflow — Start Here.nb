@@ -1,195 +1,275 @@
-Notebook[{Cell["RGZWorkflow 1.1.1 \[LongDash] Start Here", "Title"],
-  Cell["Version 1.1.1. The default model includes eta ghosts and two \
+Notebook[
+ {Cell[CellGroupData[{Cell["RGZWorkflow 1.1.2 \[LongDash] Start Here", 
+      "Title", ExpressionUUID -> "720fc6af-60e9-42f9-bf52-a74c1844e42d"], 
+     Cell["Version 1.1.2. The default model includes eta ghosts and two \
 dynamical quark flavours, with distinct-flavour massless external quarks. \
 This notebook includes no computed results. Earlier probe-model checks do not \
-validate the current model. Use a fresh Work directory.", "Text"],
-  Cell["1 - FeynRules: export the actual model", "Section"],
-  Cell["Run in a fresh kernel. Install FeynRules externally and set \
-RGZ_FEYNRULES_DIRECTORY if needed. Keep FeynCalc in a separate kernel.",
-   "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"project", "=",
-        RowBox[{"ParentDirectory", "[", RowBox[{"NotebookDirectory", "[",
-            "]"}], "]"}]}], ";", RowBox[{"Get", "[",
-        RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", ",",
-              "\"RGZWorkflow.wl\""}], "}"}], "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZInitialize", "[", RowBox[{RowBox[{"FileNameJoin", "[",
-              RowBox[{"{", RowBox[{"project", ",", "\"Work\""}], "}"}],
-              "]"}], ",", RowBox[{"\"Display\"", "\[Rule]",
-              "\"Compact\""}]}], "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"FR$Parallel", "=", "False"}], ";",
-      RowBox[{"RGZReport", "[", RowBox[{"RGZLoadFeynRules", "[", "]"}],
-        "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZTreeBenchmark", "[", "60", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZExtractTree", "[", "300", "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZExportVertices", "[", "300", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZExtraTreeAudit", "[", "120", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZOneLoopCoverage", "[", "300", "]"}], "]"}], ";"}]],
-   "Input"], Cell["2 - Restart the kernel: FeynCalc and tree checks",
-   "Section"], Cell["Quit the kernel using the menu, then reload below. The \
-69-entry report covers the original mixed matrix and FP connections; it does \
-not independently validate every free propagator. All vertices includes eta \
-and quark interactions.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"project", "=",
-        RowBox[{"ParentDirectory", "[", RowBox[{"NotebookDirectory", "[",
-            "]"}], "]"}]}], ";", RowBox[{"Get", "[",
-        RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", ",",
-              "\"RGZWorkflow.wl\""}], "}"}], "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZInitialize", "[", RowBox[{RowBox[{"FileNameJoin", "[",
-              RowBox[{"{", RowBox[{"project", ",", "\"Work\""}], "}"}],
-              "]"}], ",", RowBox[{"\"Display\"", "\[Rule]",
-              "\"Compact\""}]}], "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZLoadFeynCalc", "[", "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZCheckPropagators", "[", "300", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZCheckExtraPropagators", "[", "]"}], "]"}], ";",
-      RowBox[{"RGZReport", "[", RowBox[{"RGZCheckOneLoopCoverage", "[",
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZCheckVertices", "[", RowBox[{"60", ",",
-            RowBox[{"\"IDs\"", "\[Rule]", "All"}]}], "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZCheckOrders", "[", RowBox[{"60", ",",
-            RowBox[{"\"IDs\"", "\[Rule]", "All"}], ",",
-            RowBox[{"\"Mode\"", "\[Rule]", "\"Compare\""}]}], "]"}], "]"}],
-      ";"}]], "Input"], Cell["3 - Complete mixed matrix", "Section"],
-  Cell["This step may take a long time. Model enumeration includes bosons, \
-all ghost families and two closed quark flavours. Do not add another eta \
-loop. After interruption, reuse only completed checkpoints with matching \
-fingerprints.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZMonitor", "[", RowBox[{"RGZMixedComputeAll", "[",
-            "12000", "]"}], "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZMixedResult", "[", "1200", "]"}], "]"}], ";",
-      RowBox[{"RGZReport", "[", RowBox[{"RGZSave", "[", "]"}], "]"}], ";"}]],
-   "Input"], Cell["4 - Complete bare amplitude", "Section"],
-  Cell["Continue only after all stages succeed. A bare amplitude alone is not \
-a finite, verified S matrix.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQStart", "[", RowBox[{"600", ",",
-            RowBox[{"\"Gauge\"", "\[Rule]", "0"}], ",",
-            RowBox[{"\"RegulatorMass\"", "\[Rule]", "0"}]}], "]"}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQPrepareSelf", "[", RowBox[{"1800", ",",
-            RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], "]"}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"AV1\"", ",", "1800"}], "]"}],
-        "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"AV2\"", ",", "1800"}], "]"}],
-        "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"Box1\"", ",", "1800"}],
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"Box2\"", ",", "1800"}],
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"NAV1\"", ",", "1800"}],
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQRunPart", "[", RowBox[{"\"NAV2\"", ",", "1800"}],
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"qqSummary", "=",
-        RowBox[{"RGZQQAmplitude", "[", "]"}]}], ";",
-      RowBox[{"RGZReport", "[", "qqSummary", "]"}], ";",
-      RowBox[{"If", "[", RowBox[{RowBox[{"!", RowBox[{"FailureQ", "[",
-              "qqSummary", "]"}]}], ",", RowBox[{"qqResult", "=",
-            RowBox[{"RGZResult", "[", "\"QQAmplitude\"", "]"}]}]}], "]"}],
-      ";"}]], "Input"], Cell["5 - Tree and pure one-loop form factors",
-   "Section"], Cell["Organize the D-dimensional color-spin structures first. \
-Keep evanescent terms; do not remove them with four-dimensional Fierz \
-identities. Successful reconstruction does not prove basis independence or \
-minimality.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQFormFactors", "[", RowBox[{"1200", ",",
-            RowBox[{"\"LoopOrder\"", "\[Rule]", "0"}], ",",
-            RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], "]"}],
-        "]"}], ";", RowBox[{"qqTreeFF", "=", RowBox[{"RGZResult", "[",
-          "\"QQFormFactors\"", "]"}]}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQFormFactors", "[", RowBox[{"1200", ",",
-            RowBox[{"\"LoopOrder\"", "\[Rule]", "1"}], ",",
-            RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], "]"}],
-        "]"}], ";", RowBox[{"qqOneLoopFF", "=",
-        RowBox[{"RGZResult", "[", "\"QQFormFactors\"", "]"}]}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{"If", "[",
-      RowBox[{RowBox[{"AssociationQ", "[", "qqOneLoopFF", "]"}], ",",
-        RowBox[{"KeyTake", "[", RowBox[{"qqOneLoopFF", ",",
-            RowBox[{"{", RowBox[{"\"LoopOrder\"", ",",
-                "\"ReconstructionVerified\"", ",",
-                "\"SpinBasisIndependent\"", ",", "\"File\""}], "}"}]}],
-          "]"}]}], "]"}]], "Input"],
-  Cell["6 - Independent check: general gauge difference", "Section"],
-  Cell["The bare amplitude and form factors are available after section 5. \
-Continue here for the independent general-gauge check; UV/IR and MSbar are in \
-Diagnostics. Recompute this check without assuming a zero result. Compare \
+validate the current model. Use a fresh Work directory.", "Text", 
+      ExpressionUUID -> "834e263a-04cd-42fe-ac25-ea9dc5cccb94"], 
+     Cell[CellGroupData[{Cell["1 - FeynRules: export the actual model", 
+         "Section", ExpressionUUID -> 
+          "bef01db8-b5c6-49e7-9459-32460a775541"], Cell["Run in a fresh \
+kernel. Install FeynRules externally and set RGZ_FEYNRULES_DIRECTORY if \
+needed. Keep FeynCalc in a separate kernel.", "Text", ExpressionUUID -> 
+          "b3800b3f-2cf6-4bdc-97d1-c9942b10aee8"], 
+        Cell[BoxData[RowBox[{RowBox[{"project", "=", RowBox[{
+                "ParentDirectory", "[", RowBox[{"NotebookDirectory", "[", 
+                  "]"}], "]"}]}], ";", RowBox[{"Get", "[", 
+              RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", 
+                    ",", "\"RGZWorkflow.wl\""}], "}"}], "]"}], "]"}], ";"}]], 
+         "Input", ExpressionUUID -> "d0ca78e5-8d28-4c8a-8701-ad5a3425bfd7"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"initialization", 
+                 "=", RowBox[{"RGZInitialize", "[", RowBox[{RowBox[
+                      {"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", 
+                          ",", "\"Work\""}], "}"}], "]"}], ",", RowBox[
+                      {"\"Display\"", "\[Rule]", "\"Compact\""}]}], "]"}]}], 
+               ";", RowBox[{"RGZReport", "[", "initialization", "]"}], ";", 
+               RowBox[{"If", "[", RowBox[{RowBox[{"FailureQ", "[", 
+                     "initialization", "]"}], ",", RowBox[{"Abort", "[", 
+                     "]"}]}], "]"}], ";"}]], "Input"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"FR$Parallel", "=", 
+                 "False"}], ";", RowBox[{"RGZReport", "[", RowBox[
+                  {"RGZLoadFeynRules", "[", "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "f84354cf-b227-4393-a454-2dbfbbcdf027"], 
+           Cell[CellGroupData[{}, Open]]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZTreeBenchmark", "[", "60", "]"}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "a1de898a-3602-4065-8198-6ca03ce9bfdd"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZExtractTree", "[", "300", "]"}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "96aa9a8c-87e8-41a0-8e1d-69acc86d551a"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZExportVertices", "[", "300", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "48ed0b7c-ce89-4d3e-a63d-739a1a0435b0"], 
+           Cell[CellGroupData[{}, Open]]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZExtraTreeAudit", "[", "120", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "cd0c3491-eb3a-4bb7-8cc3-bc6361f5d6a3"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZOneLoopCoverage", "[", "300", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "27943333-a506-48fb-947f-89403208729d"]}, Open]]}, Open]], 
+     Cell[CellGroupData[
+       {Cell["2 - Restart the kernel: FeynCalc and tree checks", "Section", 
+         ExpressionUUID -> "63d5e5e1-79d5-4508-9060-31573e6f65a0"], 
+        Cell["Quit the kernel using the menu, then reload below. The 69-entry \
+report covers the original mixed matrix and FP connections; it does not \
+independently validate every free propagator. All vertices includes eta and \
+quark interactions.", "Text", ExpressionUUID -> 
+          "0ae2e7b0-6f02-4875-9f42-83a5fd11c39c"], 
+        Cell[BoxData[RowBox[{RowBox[{"project", "=", RowBox[{
+                "ParentDirectory", "[", RowBox[{"NotebookDirectory", "[", 
+                  "]"}], "]"}]}], ";", RowBox[{"Get", "[", 
+              RowBox[{"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", 
+                    ",", "\"RGZWorkflow.wl\""}], "}"}], "]"}], "]"}], ";"}]], 
+         "Input", ExpressionUUID -> "a7e2e8fc-7676-4c6e-bee6-3d2658b2a985"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"initialization", 
+                 "=", RowBox[{"RGZInitialize", "[", RowBox[{RowBox[
+                      {"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", 
+                          ",", "\"Work\""}], "}"}], "]"}], ",", RowBox[
+                      {"\"Display\"", "\[Rule]", "\"Compact\""}]}], "]"}]}], 
+               ";", RowBox[{"RGZReport", "[", "initialization", "]"}], ";", 
+               RowBox[{"If", "[", RowBox[{RowBox[{"FailureQ", "[", 
+                     "initialization", "]"}], ",", RowBox[{"Abort", "[", 
+                     "]"}]}], "]"}], ";"}]], "Input"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZLoadFeynCalc", "[", "]"}], "]"}], ";"}]], 
+            "Input"], Cell["Verify the colour contractions before continuing. \
+This changes only the current kernel, never the installed FeynCalc files.", 
+            "Text"], Cell[BoxData[RowBox[{RowBox[{"Get", "[", RowBox[
+                  {"FileNameJoin", "[", RowBox[{"{", RowBox[{"project", ",", 
+                       "\"Tools\"", ",", "\"FeynCalcColourCorrection.wl\""}], 
+                     "}"}], "]"}], "]"}], ";", RowBox[{"colourCheck", "=", 
+                 RowBox[{"rgzFeynCalcColourCorrection", "[", "]"}]}], ";", 
+               RowBox[{"If", "[", RowBox[{RowBox[{"FailureQ", "[", 
+                     "colourCheck", "]"}], ",", RowBox[{RowBox[{"Print", "[", 
+                       "colourCheck", "]"}], ";", RowBox[{"Abort", "[", 
+                       "]"}]}]}], "]"}], ";", RowBox[{"Print", "[", 
+                 "colourCheck", "]"}], ";"}]], "Input"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZCheckPropagators", "[", "300", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "6bf969af-281c-4254-9630-38fe112aaffa"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZCheckExtraPropagators", "[", "]"}], "]"}], ";", 
+               RowBox[{"RGZReport", "[", RowBox[{"RGZCheckOneLoopCoverage", 
+                   "[", "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "ecbd785b-809d-4fac-9c9d-c7a8028295b4"], 
+           Cell[CellGroupData[{}, Open]]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZCheckVertices", "[", RowBox[{"60", ",", 
+                     RowBox[{"\"IDs\"", "\[Rule]", "All"}]}], "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "95a82e83-110c-4a58-8e31-b5b4cce1e35e"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZCheckOrders", "[", RowBox[{"60", ",", RowBox[
+                      {"\"IDs\"", "\[Rule]", "All"}], ",", RowBox[
+                      {"\"Mode\"", "\[Rule]", "\"Compare\""}]}], "]"}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "48139cd0-a309-4bc0-877b-f2c453ae8cf5"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["3 - Complete mixed matrix", "Section", 
+         ExpressionUUID -> "2ac7de1d-225b-4aed-9ca0-96a452e72d46"], 
+        Cell["This step may take a long time. Model enumeration includes \
+bosons, all ghost families and two closed quark flavours. Do not add another \
+eta loop. After interruption, reuse only completed checkpoints with matching \
+fingerprints.", "Text", ExpressionUUID -> 
+          "a43853dc-2610-45e6-80bf-3a51191a6fea"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZMonitor", "[", RowBox[{"RGZMixedComputeAll", 
+                     "[", "12000", "]"}], "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "f276632b-844d-49f7-ac78-a9d521991cf3"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                  {"RGZMixedResult", "[", "1200", "]"}], "]"}], ";", RowBox[
+                {"RGZReport", "[", RowBox[{"RGZSave", "[", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "9ae34a11-4136-4ad6-9cae-9875bf0c024b"], 
+           Cell[CellGroupData[{}, Open]]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["4 - Complete bare amplitude", "Section", 
+         ExpressionUUID -> "040977dc-5ea5-4097-87b1-9bf29919e1a1"], 
+        Cell["Continue only after all stages succeed. A bare amplitude alone \
+is not a finite, verified S matrix.", "Text", ExpressionUUID -> 
+          "b4798e69-557c-402e-a398-c515d9197386"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQStart", "[", RowBox[{"600", ",", RowBox[
+                      {"\"Gauge\"", "\[Rule]", "0"}], ",", RowBox[
+                      {"\"RegulatorMass\"", "\[Rule]", "0"}]}], "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "c36ebe22-f455-4dae-91f6-b28f8d06de4d"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQPrepareSelf", "[", RowBox[{"1800", ",", 
+                     RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], 
+                   "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "686de187-7e07-4900-a460-d930886bb0fd"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQRunPart", "[", RowBox[{"\"AV1\"", ",", 
+                     "1800"}], "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "4fe23b0c-3fa5-4661-8531-a4cb840c57d2"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                  {"RGZQQRunPart", "[", RowBox[{"\"AV2\"", ",", "1800"}], 
+                   "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "07d11d8a-1cce-4127-9a0e-5ea75baf3c07"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQRunPart", "[", RowBox[{"\"Box1\"", ",", 
+                     "1800"}], "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "b11e3855-9c93-4f62-8123-f6cd6c60d7dd"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                  {"RGZQQRunPart", "[", RowBox[{"\"Box2\"", ",", "1800"}], 
+                   "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "b082ece9-842c-4bee-b388-258014ba1e90"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQRunPart", "[", RowBox[{"\"NAV1\"", ",", 
+                     "1800"}], "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "6f3b9ba3-c5c8-41d6-a543-33eb53ad8509"]}, 
+          Open]], Cell[CellGroupData[
+          {Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", RowBox[
+                  {"RGZQQRunPart", "[", RowBox[{"\"NAV2\"", ",", "1800"}], 
+                   "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "b8af8cde-d16a-4863-9a8f-3b8a7bce14a4"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"qqSummary", "=", 
+                 RowBox[{"RGZQQAmplitude", "[", "]"}]}], ";", RowBox[
+                {"RGZReport", "[", "qqSummary", "]"}], ";", RowBox[
+                {"If", "[", RowBox[{RowBox[{"!", RowBox[{"FailureQ", "[", 
+                       "qqSummary", "]"}]}], ",", RowBox[{"qqResult", "=", 
+                     RowBox[{"RGZResult", "[", "\"QQAmplitude\"", "]"}]}]}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "1ac3a124-1fb7-4b8e-b0e2-25ffcbe0236b"]}, Open]]}, Open]], 
+     Cell[CellGroupData[{Cell["5 - Tree and pure one-loop form factors", 
+         "Section", ExpressionUUID -> 
+          "1e26dc99-92a3-4754-b276-61f4b2b7a7e7"], Cell["Organize the \
+D-dimensional color-spin structures first. Keep evanescent terms; do not \
+remove them with four-dimensional Fierz identities. Successful reconstruction \
+does not prove basis independence or minimality.", "Text", 
+         ExpressionUUID -> "cadc9552-e993-49d0-b8c1-4927e7b20e49"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQFormFactors", "[", RowBox[{"1200", ",", 
+                     RowBox[{"\"LoopOrder\"", "\[Rule]", "0"}], ",", 
+                     RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], 
+                   "]"}], "]"}], ";", RowBox[{"qqTreeFF", "=", RowBox[
+                  {"RGZResult", "[", "\"QQFormFactors\"", "]"}]}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "1534a327-5a48-47b6-9ac4-2ea03cfe47dd"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQFormFactors", "[", RowBox[{"1200", ",", 
+                     RowBox[{"\"LoopOrder\"", "\[Rule]", "1"}], ",", 
+                     RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "30"}]}], 
+                   "]"}], "]"}], ";", RowBox[{"qqOneLoopFF", "=", 
+                 RowBox[{"RGZResult", "[", "\"QQFormFactors\"", "]"}]}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "dd6797d9-5b7e-4ec3-8305-00c7fc936581"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{"If", "[", RowBox[
+                {RowBox[{"AssociationQ", "[", "qqOneLoopFF", "]"}], ",", 
+                 RowBox[{"KeyTake", "[", RowBox[{"qqOneLoopFF", ",", 
+                     RowBox[{"{", RowBox[{"\"LoopOrder\"", ",", 
+                         "\"ReconstructionVerified\"", ",", 
+                         "\"SpinBasisIndependent\"", ",", "\"File\""}], 
+                       "}"}]}], "]"}]}], "]"}]], "Input", ExpressionUUID -> 
+             "80d04919-af58-4e92-b699-917448dc58fd"]}, Open]]}, Open]], 
+     Cell[CellGroupData[
+       {Cell["6 - Independent check: general gauge difference", "Section", 
+         ExpressionUUID -> "b818c591-c604-4f76-a6ab-1efac647f9c7"], 
+        Cell["The bare amplitude and form factors are available after section \
+5. Continue here for the independent general-gauge check; UV/IR and MSbar are \
+in Diagnostics. Recompute this check without assuming a zero result. Compare \
 symbolic alpha with reference gauge 1. See the documentation for parameter \
 domains and IR prescriptions. Nonzero redundant coefficients, unreduced \
-integrals and timeouts need further diagnosis.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQGaugeStart", "[", "600", "]"}], "]"}], ";"}]],
-   "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQGaugePrepareSelf", "[", RowBox[{"1800", ",",
-            RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], "]"}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQGaugeEarlyPrepare", "[", RowBox[{"600", ",",
-            RowBox[{"\"ReferenceGauge\"", "\[Rule]", "1"}]}], "]"}], "]"}],
-      ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQGaugeEarlyCheck", "[", RowBox[{"12000", ",",
-            RowBox[{"\"ReferenceGauge\"", "\[Rule]", "1"}], ",",
-            RowBox[{"\"TensorSeconds\"", "\[Rule]", "600"}], ",",
-            RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "120"}], ",",
-            RowBox[{"\"ReduceTensorIntegrals\"", "\[Rule]", "True"}]}],
-          "]"}], "]"}], ";"}]], "Input"],
-  Cell[BoxData[RowBox[{RowBox[{"gaugePacket", "=",
-        RowBox[{"RGZResult", "[", "\"QQGaugeEarly\"", "]"}]}], ";",
-      RowBox[{"gaugeFile", "=", RowBox[{"If", "[",
-          RowBox[{RowBox[{"AssociationQ", "[", "gaugePacket", "]"}], ",",
-            RowBox[{"Lookup", "[", RowBox[{"gaugePacket", ",", "\"File\"",
-                ",", RowBox[{"Missing", "[", "\"NotComputed\"", "]"}]}],
-              "]"}], ",", RowBox[{"Missing", "[", "\"NotComputed\"", "]"}]}],
-          "]"}]}], ";"}]], "Input"],
-  Cell["7 - Restore the fixed-gauge job and save", "Section"],
-  Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[",
-        RowBox[{"RGZQQGaugeRestore", "[", "]"}], "]"}], ";",
-      RowBox[{"RGZReport", "[", RowBox[{"RGZSave", "[", "]"}], "]"}], ";"}]],
-   "Input"], Cell["The restore invalidates derived diagnostics. Keep \
-gaugeFile and pass it explicitly to certification. Continue with section 3 of \
-Diagnostics in this kernel, or save and restore the compatible fixed-gauge \
-job. Rebuild UV/IR and MSbar after restoring. RGZSave saves a workflow packet \
-rather than the entire kernel.", "Text"],
-  Cell["8 - Author electronic reference", "Section"],
-  Cell["This independently readable table is reference data. It does not \
-certify this Work directory. See Paper/provenance.json and \
-Documentation/Reproducibility.md.", "Text"],
-  Cell[BoxData[RowBox[{RowBox[{"paperReference", "=",
-        RowBox[{"RGZPaperResult", "[", "]"}]}], ";",
-      RowBox[{"If", "[", RowBox[{RowBox[{"AssociationQ", "[",
-            "paperReference", "]"}], ",", RowBox[{"KeyTake", "[",
-            RowBox[{"paperReference", ",", RowBox[{"{", RowBox[{"\"Schema\"",
-                  ",", "\"CheckedCoefficients\"", ",", "\"ReferenceOnly\"",
-                  ",", "\"CurrentTaskCertified\""}], "}"}]}], "]"}], ",",
-          "paperReference"}], "]"}]}]], "Input"]},
- StyleDefinitions -> "Default.nb", WindowTitle ->
-  "RGZWorkflow \[LongDash] Start Here"]
+integrals and timeouts need further diagnosis.", "Text", 
+         ExpressionUUID -> "ce6f141a-a8f9-4996-938f-0fe0c91a643a"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQGaugeStart", "[", "600", "]"}], "]"}], ";"}]], 
+            "Input", ExpressionUUID -> 
+             "d01e3f89-ca8e-4fe2-8ca2-a7a5517c1735"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQGaugePrepareSelf", "[", RowBox[{"1800", ",", 
+                     RowBox[{"\"TotalSeconds\"", "\[Rule]", "14400"}]}], 
+                   "]"}], "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "9f486dc0-4eb0-4c37-9055-9f4fa12bc249"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQGaugeEarlyPrepare", "[", RowBox[{"600", ",", 
+                     RowBox[{"\"ReferenceGauge\"", "\[Rule]", "1"}]}], "]"}], 
+                 "]"}], ";"}]], "Input", ExpressionUUID -> 
+             "529479e5-6693-4cdb-9bfa-a31f3cc8c0ae"]}, Open]], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQGaugeEarlyCheck", "[", RowBox[{"12000", ",", 
+                     RowBox[{"\"ReferenceGauge\"", "\[Rule]", "1"}], ",", 
+                     RowBox[{"\"TensorSeconds\"", "\[Rule]", "600"}], ",", 
+                     RowBox[{"\"CoefficientSeconds\"", "\[Rule]", "120"}], 
+                     ",", RowBox[{"\"ReduceTensorIntegrals\"", "\[Rule]", 
+                       "True"}]}], "]"}], "]"}], ";"}]], "Input", 
+            ExpressionUUID -> "7d079419-6dab-48d2-b978-6c1974d0dc84"]}, 
+          Open]], Cell[BoxData[RowBox[{RowBox[{"gaugePacket", "=", 
+              RowBox[{"RGZResult", "[", "\"QQGaugeEarly\"", "]"}]}], ";", 
+            RowBox[{"gaugeFile", "=", RowBox[{"If", "[", RowBox[
+                 {RowBox[{"AssociationQ", "[", "gaugePacket", "]"}], ",", 
+                  RowBox[{"Lookup", "[", RowBox[{"gaugePacket", ",", 
+                      "\"File\"", ",", RowBox[{"Missing", "[", 
+                        "\"NotComputed\"", "]"}]}], "]"}], ",", RowBox[
+                   {"Missing", "[", "\"NotComputed\"", "]"}]}], "]"}]}], 
+            ";"}]], "Input", ExpressionUUID -> 
+          "019f3b65-60ff-4d5c-93b7-9ad601dff3ca"]}, Open]], 
+     Cell[CellGroupData[{Cell["7 - Restore the fixed-gauge job and save", 
+         "Section", ExpressionUUID -> 
+          "d715d423-fb64-4d2c-bca6-97318e5119bb"], 
+        Cell[CellGroupData[{Cell[BoxData[RowBox[{RowBox[{"RGZReport", "[", 
+                 RowBox[{"RGZQQGaugeRestore", "[", "]"}], "]"}], ";", RowBox[
+                {"RGZReport", "[", RowBox[{"RGZSave", "[", "]"}], "]"}], 
+               ";"}]], "Input", ExpressionUUID -> 
+             "21402756-39f9-4c19-8de6-606dedd5b59a"], 
+           Cell[CellGroupData[{}, Open]]}, Open]], Cell["The restore \
+invalidates derived diagnostics. Keep gaugeFile and pass it explicitly to \
+certification. Continue with section 3 of Diagnostics in this kernel, or save \
+and restore the compatible fixed-gauge job. Rebuild UV/IR and MSbar after \
+restoring. RGZSave saves a workflow packet rather than the entire kernel.", 
+         "Text", ExpressionUUID -> "29db50ef-492c-4b90-b748-88a75dc6fbd4"]}, 
+       Open]]}, Open]]}, WindowSize -> {808, 882}, 
+ WindowMargins -> {{460, Automatic}, {Automatic, 50}}, 
+ WindowTitle -> "RGZWorkflow \[LongDash] Start Here", 
+ FrontEndVersion -> "13.3 for Mac OS X ARM (64-bit) (July 24, 2023)", 
+ StyleDefinitions -> "Default.nb", ExpressionUUID -> 
+  "a8340842-0f1b-4d08-b1ae-64f96d36ee45"]

@@ -1,7 +1,11 @@
 [
   [
     "Title",
-    "RGZWorkflow 1.1.0 \u2014 Diagnostics"
+    "RGZWorkflow 1.1.2 — Diagnostics"
+  ],
+  [
+    "Text",
+    "Continue after the Start Here calculation has completed in Work. Use the same FeynCalc kernel, or restore the saved session in section 2. The colour checks must report ColourRulesVerified before diagnostics."
   ],
   [
     "Text",
@@ -13,7 +17,7 @@
   ],
   [
     "Input",
-    "project=ParentDirectory[NotebookDirectory[]];\nIf[MemberQ[$Packages,\"RGZWorkflow`\"],Get[FileNameJoin[{project,\"Tools\",\"DiagnosticsCompatibility.wl\"}]],Get[FileNameJoin[{project,\"RGZWorkflow.wl\"}]]];\nGet[FileNameJoin[{project,\"Tools\",\"WeightedAuditResume.wl\"}]];"
+    "project=ParentDirectory[NotebookDirectory[]];\nIf[MemberQ[$Packages,\"RGZWorkflow`\"],Get[FileNameJoin[{project,\"Tools\",\"DiagnosticsCompatibility.wl\"}]],Get[FileNameJoin[{project,\"RGZWorkflow.wl\"}]]];\nGet[FileNameJoin[{project,\"Tools\",\"WeightedAuditResume.wl\"}]];\nIf[MemberQ[$Packages,\"FeynCalc`\"],\ninitialization=RGZInitialize[FileNameJoin[{project,\"Work\"}],\"Display\"->\"Compact\"];\nRGZReport[initialization];\nIf[FailureQ[initialization],Abort[]];\nGet[FileNameJoin[{project,\"Tools\",\"FeynCalcColourCorrection.wl\"}]];\ncolourCheck=rgzFeynCalcColourCorrection[];\nIf[FailureQ[colourCheck],Print[colourCheck];Abort[]];\nPrint[colourCheck];\n];"
   ],
   [
     "Section",
@@ -25,15 +29,7 @@
   ],
   [
     "Input",
-    "Get[FileNameJoin[{project,\"Tools\",\"DiagnosticsCompatibility.wl\"}]];\nRGZReport[RGZInitialize[FileNameJoin[{project,\"Work\"}],\"Display\"->\"Compact\"]];\nRGZReport[RGZLoadFeynCalc[]];\nRGZReport[RGZRestore[]];\nGet[FileNameJoin[{project,\"Tools\",\"WeightedAuditResume.wl\"}]];"
-  ],
-  [
-    "Text",
-    "Restore the fixed-gauge QQ task and reassemble its saved contributions before automatic form factors. Matching completed task caches are reused; stop if either command fails."
-  ],
-  [
-    "Input",
-    "RGZReport[RGZQQStart[600,\"Gauge\"->0,\"RegulatorMass\"->0]];\nRGZReport[RGZQQAmplitude[]];"
+    "Get[FileNameJoin[{project,\"Tools\",\"DiagnosticsCompatibility.wl\"}]];\ninitialization=RGZInitialize[FileNameJoin[{project,\"Work\"}],\"Display\"->\"Compact\"];\nRGZReport[initialization];\nIf[FailureQ[initialization],Abort[]];\nRGZReport[RGZLoadFeynCalc[]];\nGet[FileNameJoin[{project,\"Tools\",\"FeynCalcColourCorrection.wl\"}]];\ncolourCheck=rgzFeynCalcColourCorrection[];\nIf[FailureQ[colourCheck],Print[colourCheck];Abort[]];\nPrint[colourCheck];\nRGZReport[RGZRestore[]];\nGet[FileNameJoin[{project,\"Tools\",\"WeightedAuditResume.wl\"}]];"
   ],
   [
     "Section",

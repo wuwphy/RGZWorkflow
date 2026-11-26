@@ -1,0 +1,62 @@
+{
+  "schema": "RGZGaugeColourComparison/1",
+  "date": "2026-11-25",
+  "scope": "Ordinary on-shell QQ source/integrand-level colour comparison with symbolic alpha and regulator M",
+  "mixed_graph_inventory": 975,
+  "raw_mixed_graphs_with_alpha": 841,
+  "prior_landau_changed_graphs_rechecked_without_gauge_substitution": 32,
+  "prior_landau_changes_alpha_free": true,
+  "native_auxiliary_projection_comparison": {
+    "Compared": 128,
+    "NonzeroDiagrams": 128,
+    "AllLandauDifferencesZero": false,
+    "WeightedDifferenceZero": false,
+    "WeightedAlphaFree": true,
+    "WeightedGaugeDifferenceZero": true,
+    "Timeout": false
+  },
+  "nav_connections_reconstructed": 73,
+  "nav_connections_with_alpha": 40,
+  "all_nav_connections_unchanged": true,
+  "fresh_feynarts_probe_comparison": {
+    "Method": "Fresh FeynArts probe graphs with symbolic alpha and M; common dummy names in exact colour comparison.",
+    "Rows": [
+      {
+        "Graph": 1,
+        "HasAlpha": true,
+        "HasSUNF": false,
+        "ColourUnchanged": true
+      },
+      {
+        "Graph": 2,
+        "HasAlpha": true,
+        "HasSUNF": false,
+        "ColourUnchanged": true
+      },
+      {
+        "Graph": 3,
+        "HasAlpha": true,
+        "HasSUNF": false,
+        "ColourUnchanged": true
+      },
+      {
+        "Graph": 4,
+        "HasAlpha": true,
+        "HasSUNF": false,
+        "ColourUnchanged": true
+      },
+      {
+        "Graph": 5,
+        "HasAlpha": true,
+        "HasSUNF": false,
+        "ColourUnchanged": true
+      }
+    ],
+    "AllPassed": true
+  },
+  "identity": "u^T [DeltaPi(alpha) - DeltaPi(0)] u = 0",
+  "ordinary_source_level_gauge_difference_preserved": true,
+  "finite_amplitude_unchanged": false,
+  "full_corrected_amplitude_certified": false,
+  "verification_flags_edited": false
+}

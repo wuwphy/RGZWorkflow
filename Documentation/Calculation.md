@@ -73,3 +73,5 @@ A bare amplitude, a zero gauge difference and a finite representation are distin
 The complete load order is visible at the end of [RGZWorkflow.wl](../Kernel/RGZWorkflow.wl). Numerical work remains in `Work/`; it is not part of the source distribution. Historical results are retained when the source changes, but do not become evidence for the changed calculation automatically.
 
 The conventional route never loads the PT engine. Candidate kernels and their task driver are in `Kernel/Pinch/`; both routes use the external-leg and PV tools in `Kernel/Algebra/`. See the [dependency map](../Kernel/README.md).
+
+For the optional candidate self-energy amputation and effective-charge definitions, follow [PT and effective charge](PTEffectiveCharge.md). The ordinary QQ calculation remains independent of that research route.

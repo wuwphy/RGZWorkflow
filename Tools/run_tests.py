@@ -5,7 +5,7 @@ import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, sys, temp
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 SUITES={
  'core':['RunTests.wls','DiagnosticsCompatibility.wls','DiagnosticsNotebook.wls','PaperResult.wls','EvidenceValidation.wls'],
- 'algebra':['FPGhostConvention.wls','QQShiftedPoles.wls','PreparationBoundaries.wls','AssemblyIdentitySafety.wls','GhostBubbleExample.wls','MixedTadpoleExample.wls','QuarkBubbleExample.wls','EvaluateGraphsSafety.wls','MassRestorationSafety.wls','MainRoute.wls','WeightedAuditResume.wls','WeightedScalarIdentity.wls','MixedBackendSafety.wls','PTContinuationSafety.wls','GaugeCheckSafety.wls','PTProvenanceSafety.wls','FixedDenominatorSafety.wls','NAVPinchSafety.wls','AALoopSafety.wls','NAVMatrixSafety.wls','QQScatteringSafety.wls','ScatteringCheckpointSafety.wls'],
+ 'algebra':['FPGhostConvention.wls','QQShiftedPoles.wls','PreparationBoundaries.wls','AssemblyIdentitySafety.wls','GhostBubbleExample.wls','MixedTadpoleExample.wls','QuarkBubbleExample.wls','PTEffectiveChargeExample.wls','EvaluateGraphsSafety.wls','MassRestorationSafety.wls','MainRoute.wls','WeightedAuditResume.wls','WeightedScalarIdentity.wls','MixedBackendSafety.wls','PTContinuationSafety.wls','GaugeCheckSafety.wls','PTProvenanceSafety.wls','FixedDenominatorSafety.wls','NAVPinchSafety.wls','AALoopSafety.wls','NAVMatrixSafety.wls','QQScatteringSafety.wls','ScatteringCheckpointSafety.wls','SelfPreparationResume.wls'],
 }
 
 def work_is_isolated(work):
@@ -40,7 +40,7 @@ def main():
   return re.sub(r'/private/var/' + r'folders/[^\s,\]\}"<>]+','${TEMP}',text)
  snapshot=source_snapshot()
  (out/'source.json').write_text(json.dumps(snapshot,indent=2)+'\n')
- report={'source_sha256':snapshot['sha256'],'release':'1.1.1','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
+ report={'source_sha256':snapshot['sha256'],'release':'1.1.2','suite':args.suite,'date_utc':stamp,'tests':[],'production_data_used':False,'full_amplitude_recomputed':False}
  tests=[("environment","Tools/record_environment.wls")]
  for suite in suites:
   tests.extend((suite,'Tests/'+f) for f in SUITES[suite])

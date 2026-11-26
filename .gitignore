@@ -8,3 +8,5 @@ artifacts/
 .DS_Store
 __pycache__/
 FeynRules/
+Work-*/
+tmp/

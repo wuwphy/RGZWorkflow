@@ -194,6 +194,11 @@ RGZLoadFeynCalc[] := Module[{r},
   $ContextPath=DeleteDuplicates[Join[$ContextPath,Select[{"FeynCalc`","FeynArts`"},MemberQ[$Packages,#]&]]];
  If[!MemberQ[$Packages,"FeynCalc`"] || engineCode["Length[DownValues[FCFAConvert]]"]===0,
   Return[Failure["FeynArtsAddonRequired",<|"Explanation"->"Load FeynCalc with $LoadAddOns={\"FeynArts\"} in a fresh kernel."|>]]];
+ (* Apply the tested SUNF contraction correction before any calculation, including scripts. *)
+ Block[{$Context="Global`",$ContextPath={"Global`","System`"}},
+  Get[FileNameJoin[{$packageRoot,"Tools","FeynCalcColourCorrection.wl"}]];
+  r=ToExpression["Global`rgzFeynCalcColourCorrection[]"]];
+ If[FailureQ[r],Return[r]];
  RGZWorkflow`Engine`modelRGZ=modelBase[];FeynArts`$FAVerbose=0;
  <|"Status"->"FeynCalcLoaded","ModelBase"->modelBase[]|>
 ];

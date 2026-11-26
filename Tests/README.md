@@ -31,3 +31,5 @@ The NAV pinch follow-up extends `NAVPinchSafety.wls` to 62 checks, including ass
 The physics-first source organization adds direct assembly regressions to `QQScatteringSafety.wls`: the full graph sum, one mixed-self measure conversion, unchanged raw self source and output conventions. The general-gauge comparison body was also compared against the pre-organization loaded definition after normalizing sequence grouping.
 
 The zero-temperature scope cleanup removes two Core.wlt tests for the deleted generic developer registry. Physics, loading, continuation and reconstruction tests remain. The two clean notebooks contain no calls to the removed optional interfaces.
+
+`PTEffectiveChargeExample.wls` runs actual two-flavour quark bubbles and verifies amputation, finite subtraction, UV closure, fermion screening, MOM normalization and the one-loop MSbar beta equation. It does not certify the full RGZ PT candidate.

@@ -1,0 +1,16 @@
+{
+	"Checks":{
+		"BareTreePayload":true,
+		"BareLoopPayload":true,
+		"MSbarPayload":true,
+		"GaugeRowsPayload":true,
+		"FiniteRowsPayload":true,
+		"GaugeJobLinked":true,
+		"ValidationCodeUnchanged":true,
+		"GaugeAllRowsZero":true,
+		"NoOutstandingChecks":true
+	},
+	"CertificationStatus":"CertifiedWithinDeclaredDomain",
+	"Scope":"Two-flavor massless external qqprime; one loop; M -> 0+; conditional complex-mass domain. No all-parameter or inclusive-cross-section claim.",
+	"AllPayloadChecksPassed":true
+}

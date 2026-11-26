@@ -8,4 +8,4 @@ The author's exact electronic table is preserved, with a distribution license co
 
 This is reference data, not evidence that the current source tree or Work directory has reproduced the paper. Live certification requires the full linked evidence chain. The PDFs are not bundled in the distribution.
 
-The completed author run was compared separately against this reference; all eight prefactors and 144 coefficients match exactly. See [verification](../Evidence/README.md). The reference file itself remains inert and does not certify another calculation.
+The earlier paper-table agreement is historical. The colour correction in version 1.1.2 changes the finite amplitude, so that agreement is not a claim about this release. The Start Here notebook no longer contains the author-electronic-reference section. The inert reference data and public reader remain available for explicit historical comparisons. See [the correction](../Documentation/ColourCorrection.md).

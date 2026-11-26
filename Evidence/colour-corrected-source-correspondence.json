@@ -1,0 +1,454 @@
+{
+  "schema": "RGZCalculationReleaseCorrespondence/1",
+  "date": "2026-11-26",
+  "calculation_version_label": "1.0.0 (working development source label)",
+  "release_version": "1.1.2",
+  "original_certificate_relabelled": false,
+  "full_pipeline_executed_from_release_tree": false,
+  "conclusion": "All Kernel files except the version/public-loader file and FeynCalc startup file are byte-identical. Differences are version metadata and automatic application of the same tested colour helper that the calculation notebook loaded explicitly. Model companions and both runtime helpers are byte-identical. No physical calculation formula was changed in preparing the release.",
+  "kernel_files": [
+    {
+      "path": "Kernel/Algebra/Coefficients.wl",
+      "calculation_sha256": "889b04afc604a8e8020cee2af51290d21b161a8f222acf8c2a5564239a7998b2",
+      "release_sha256": "889b04afc604a8e8020cee2af51290d21b161a8f222acf8c2a5564239a7998b2",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/ColorSpinBasis.wl",
+      "calculation_sha256": "16824f953f0da85741535bc9c83fa2148d8279dc54df475d16c7715c73ed1134",
+      "release_sha256": "16824f953f0da85741535bc9c83fa2148d8279dc54df475d16c7715c73ed1134",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/CommonDenominator.wl",
+      "calculation_sha256": "8379f234a73647ea96838c153c836ec0869f856d7c44f7efeac440bd8da6563d",
+      "release_sha256": "8379f234a73647ea96838c153c836ec0869f856d7c44f7efeac440bd8da6563d",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/DiracChains.wl",
+      "calculation_sha256": "f5cfe4cb1e28c2aa886f7078e39b5b0eafc190e4a651ad4abc3808838392fc54",
+      "release_sha256": "f5cfe4cb1e28c2aa886f7078e39b5b0eafc190e4a651ad4abc3808838392fc54",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/FiniteCoefficients.wl",
+      "calculation_sha256": "5935e10155a855e2062c78b96465b5a47f30ea05e05b3bb8eefbf859b5706e07",
+      "release_sha256": "5935e10155a855e2062c78b96465b5a47f30ea05e05b3bb8eefbf859b5706e07",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/FourPointMomenta.wl",
+      "calculation_sha256": "c825e0af2364bbad0274076b2af0c9e3351997de349679ba1b64303dbe180ba1",
+      "release_sha256": "c825e0af2364bbad0274076b2af0c9e3351997de349679ba1b64303dbe180ba1",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/GaugeCoefficients.wl",
+      "calculation_sha256": "760dcc6e3077f3b6e45cb965d2204e958b0549e4522f93d9d2c6ee8c53922e56",
+      "release_sha256": "760dcc6e3077f3b6e45cb965d2204e958b0549e4522f93d9d2c6ee8c53922e56",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/LoopPrimitives.wl",
+      "calculation_sha256": "2904c6b60f2caec95e97cbccb7671e8bfce167e15cc39df049b02f766da16f77",
+      "release_sha256": "2904c6b60f2caec95e97cbccb7671e8bfce167e15cc39df049b02f766da16f77",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/MixedIntegrals.wl",
+      "calculation_sha256": "440923de4508accf406c4b8cb2dd8fefa8c3f943d110d994e80c42291a13aec3",
+      "release_sha256": "440923de4508accf406c4b8cb2dd8fefa8c3f943d110d994e80c42291a13aec3",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/MixedPoles.wl",
+      "calculation_sha256": "68217b1b590f4bce10f0fde654eddf982fd2d45cba64bcdb426cb4c86fe644c4",
+      "release_sha256": "68217b1b590f4bce10f0fde654eddf982fd2d45cba64bcdb426cb4c86fe644c4",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/MixedProjection.wl",
+      "calculation_sha256": "e3869655b1b51e42d040fac77673901e3a0ae5e351bac408933b419ae4acba70",
+      "release_sha256": "e3869655b1b51e42d040fac77673901e3a0ae5e351bac408933b419ae4acba70",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/PassarinoVeltman.wl",
+      "calculation_sha256": "835012b094656edd2008d55bfe39092dd02ddc39aa345c455af6da065252770c",
+      "release_sha256": "835012b094656edd2008d55bfe39092dd02ddc39aa345c455af6da065252770c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/ScalarBasis.wl",
+      "calculation_sha256": "93c9671db050607e24a8e1a1292e5c304e503b7dcbcc7545f7b192e2a312d1b1",
+      "release_sha256": "93c9671db050607e24a8e1a1292e5c304e503b7dcbcc7545f7b192e2a312d1b1",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/SpectralCoordinates.wl",
+      "calculation_sha256": "422954bb20b59c3c74b8f86634a556972f98969bde38823ac292081b6614ba76",
+      "release_sha256": "422954bb20b59c3c74b8f86634a556972f98969bde38823ac292081b6614ba76",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/TensorIntegrals.wl",
+      "calculation_sha256": "e249ea1c6848212d14f941b3cb78b6cce6ce9ddf5094a032abe87c5a5bfd75c5",
+      "release_sha256": "e249ea1c6848212d14f941b3cb78b6cce6ce9ddf5094a032abe87c5a5bfd75c5",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Algebra/TwoPointIntegrals.wl",
+      "calculation_sha256": "e27ee31215c39d38d81585b14972663491c9048e8996d66d67bc5aa8a0a4c5e5",
+      "release_sha256": "e27ee31215c39d38d81585b14972663491c9048e8996d66d67bc5aa8a0a4c5e5",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/BRST.wl",
+      "calculation_sha256": "780570bc10c73c921f3956e0a92071f0412672182b39888b2319b4422cae9d8b",
+      "release_sha256": "780570bc10c73c921f3956e0a92071f0412672182b39888b2319b4422cae9d8b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/BRSTAlgebra.wl",
+      "calculation_sha256": "4137208f572e5a9aad162794ce9cb32b520ce02c5610536616653c23fe2ffcdc",
+      "release_sha256": "4137208f572e5a9aad162794ce9cb32b520ce02c5610536616653c23fe2ffcdc",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/BoxWard.wl",
+      "calculation_sha256": "25462c1b039d3d3618901c854b52acecc978febeae36a5af2debc615974fc39a",
+      "release_sha256": "25462c1b039d3d3618901c854b52acecc978febeae36a5af2debc615974fc39a",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/Consistency.wl",
+      "calculation_sha256": "1d9c644a5c1d9254a78d1b22acbbe2969603a57e5ae2263b88eace56c4defe82",
+      "release_sha256": "1d9c644a5c1d9254a78d1b22acbbe2969603a57e5ae2263b88eace56c4defe82",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/GaugeDependence.wl",
+      "calculation_sha256": "93696f7a7e8bfb4fcb73607ad7e0f37cea6eb5691c8d5692142cde5f125bf8ad",
+      "release_sha256": "93696f7a7e8bfb4fcb73607ad7e0f37cea6eb5691c8d5692142cde5f125bf8ad",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/QCDBenchmark.wl",
+      "calculation_sha256": "2f94f8085d30547e2ad3d4cfb6c99dea650bd5f5128938ae4ab0bc697c2aa13b",
+      "release_sha256": "2f94f8085d30547e2ad3d4cfb6c99dea650bd5f5128938ae4ab0bc697c2aa13b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/QCDComparison.wl",
+      "calculation_sha256": "0c78c97bee5ad20ec0e371e66d45c04a0a32d420f01cfcbecfb62b70a9b148d0",
+      "release_sha256": "0c78c97bee5ad20ec0e371e66d45c04a0a32d420f01cfcbecfb62b70a9b148d0",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/QCDLimit.wl",
+      "calculation_sha256": "c0ada747ce8b0f72ef208c4e8be76b7edb8e52b970b13dcdcfd4ae345d8bf108",
+      "release_sha256": "c0ada747ce8b0f72ef208c4e8be76b7edb8e52b970b13dcdcfd4ae345d8bf108",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/QCDParts.wl",
+      "calculation_sha256": "774615e33212ce4c778c39f3182f822767f84fa4c14deea78724907f5f2912a3",
+      "release_sha256": "774615e33212ce4c778c39f3182f822767f84fa4c14deea78724907f5f2912a3",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Identities/ScalarBasis.wl",
+      "calculation_sha256": "96652dfdbd04821f73d84ddc53f0e79ed7e1587b02bf3be95f7b126a06480bd1",
+      "release_sha256": "96652dfdbd04821f73d84ddc53f0e79ed7e1587b02bf3be95f7b126a06480bd1",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/GaugeRuntime.wl",
+      "calculation_sha256": "e00e637b435301944a3047d31e5829900b41e55ded5624379f8d1e96e068795b",
+      "release_sha256": "e00e637b435301944a3047d31e5829900b41e55ded5624379f8d1e96e068795b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/IntegralCache.wl",
+      "calculation_sha256": "15a030519b37f50cdd3547ec44964b6a46efbac74e0f31c1f1085b466de23f91",
+      "release_sha256": "15a030519b37f50cdd3547ec44964b6a46efbac74e0f31c1f1085b466de23f91",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/MixedRuntime.wl",
+      "calculation_sha256": "57360ca25436e9f51863413dbbb8f23b3223f4c97e6f26b9a35755408b22902c",
+      "release_sha256": "57360ca25436e9f51863413dbbb8f23b3223f4c97e6f26b9a35755408b22902c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/PaperReference.wl",
+      "calculation_sha256": "e12cdad34b3528e3ae937042bd0046356e66c82736c16968d9d1ef1b465eb876",
+      "release_sha256": "e12cdad34b3528e3ae937042bd0046356e66c82736c16968d9d1ef1b465eb876",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/Progress.wl",
+      "calculation_sha256": "eb53a1a2446ade9e5f485044f41075f1f58c6a5bd425107e00fbb70d1dd5ad13",
+      "release_sha256": "eb53a1a2446ade9e5f485044f41075f1f58c6a5bd425107e00fbb70d1dd5ad13",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/Resume.wl",
+      "calculation_sha256": "b7863fd0430ec19f7a41966e2278b9c7f26b7de952a2e03ce18c7bc235537ba0",
+      "release_sha256": "b7863fd0430ec19f7a41966e2278b9c7f26b7de952a2e03ce18c7bc235537ba0",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Internal/Session.wl",
+      "calculation_sha256": "e6646c2bc1449568d8a8d84e80b0eb2788751b4c1175a613453af12f3510772b",
+      "release_sha256": "2c4fc0b831f327604e813a07b65e65dbf367edadbc99475a28fc5d478a32d45b",
+      "identical": false
+    },
+    {
+      "path": "Kernel/OneLoop/Amplitude.wl",
+      "calculation_sha256": "08877d28487ddecb7b86636bce91bedc39d450fb7caac8a8ad5cc75260f7f96c",
+      "release_sha256": "08877d28487ddecb7b86636bce91bedc39d450fb7caac8a8ad5cc75260f7f96c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/EvaluateGraphs.wl",
+      "calculation_sha256": "3176943da8cf2c9c081abb8fe15d038821a602509e5922dd19c4f4576c16831f",
+      "release_sha256": "3176943da8cf2c9c081abb8fe15d038821a602509e5922dd19c4f4576c16831f",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/GluonSelfEnergy.wl",
+      "calculation_sha256": "29c56a632ffe283d323928a8bd7b00272fb617ae55fa9311f24e12cfa6bfd68d",
+      "release_sha256": "29c56a632ffe283d323928a8bd7b00272fb617ae55fa9311f24e12cfa6bfd68d",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/MixedMatrices.wl",
+      "calculation_sha256": "de5e5924702e83fa1154b28eef13d97d8f2fcef6a285176b24ebd83cc026f86d",
+      "release_sha256": "de5e5924702e83fa1154b28eef13d97d8f2fcef6a285176b24ebd83cc026f86d",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/MixedSelfEnergy.wl",
+      "calculation_sha256": "eecfc4d6745749592c51517d11c190855ba39e112ad2ee8aa4d544455c11cee6",
+      "release_sha256": "eecfc4d6745749592c51517d11c190855ba39e112ad2ee8aa4d544455c11cee6",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/NonAbelianVertex.wl",
+      "calculation_sha256": "9e7a02ae2678d80bd30cf9239a6e6c62f1e47f02b6a811efe67370e2eb162d35",
+      "release_sha256": "9e7a02ae2678d80bd30cf9239a6e6c62f1e47f02b6a811efe67370e2eb162d35",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/QQMixedSelf.wl",
+      "calculation_sha256": "d8b3d013fa56efde3b4be921b3bed427b45d0e83f165d09979f7772ba0842e10",
+      "release_sha256": "d8b3d013fa56efde3b4be921b3bed427b45d0e83f165d09979f7772ba0842e10",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/QuarkGraphs.wl",
+      "calculation_sha256": "9d7af91c3ae624901384f20c4ef00852fe0000f8d17958699c8a903daf300cb3",
+      "release_sha256": "9d7af91c3ae624901384f20c4ef00852fe0000f8d17958699c8a903daf300cb3",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/QuarkScattering.wl",
+      "calculation_sha256": "eb91e1885b1be0e0ea25dbdd48ed90a9aacb8451e238031c257d1aabfde52216",
+      "release_sha256": "eb91e1885b1be0e0ea25dbdd48ed90a9aacb8451e238031c257d1aabfde52216",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/QuarkSelfEnergy.wl",
+      "calculation_sha256": "e75465ec50d9716fe4fae4cf7c9e6abf80509c1714e42ca74df51bd877d692ed",
+      "release_sha256": "e75465ec50d9716fe4fae4cf7c9e6abf80509c1714e42ca74df51bd877d692ed",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/Topologies.wl",
+      "calculation_sha256": "561e970ab686eed99a902a9c7df101051fe235415f7d1f0b922d4a70808f46de",
+      "release_sha256": "561e970ab686eed99a902a9c7df101051fe235415f7d1f0b922d4a70808f46de",
+      "identical": true
+    },
+    {
+      "path": "Kernel/OneLoop/VertexSum.wl",
+      "calculation_sha256": "4ec0e960bc6e756e9f70b0a6aaf217851ff3b5f78ad3397fb1b85cf949eb76fe",
+      "release_sha256": "4ec0e960bc6e756e9f70b0a6aaf217851ff3b5f78ad3397fb1b85cf949eb76fe",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Pinch/Comparison.wl",
+      "calculation_sha256": "991a3cd215451c867ca0cfcbb00ea5e47a5b19bd3c3f6d1ca255f3af459a67d3",
+      "release_sha256": "991a3cd215451c867ca0cfcbb00ea5e47a5b19bd3c3f6d1ca255f3af459a67d3",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Pinch/Continuation.wl",
+      "calculation_sha256": "0f2df8fb441184d6158b41c282ad6540f80a7a7ffc15ca46a18be1075424e00c",
+      "release_sha256": "0f2df8fb441184d6158b41c282ad6540f80a7a7ffc15ca46a18be1075424e00c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Pinch/Kernels.wl",
+      "calculation_sha256": "ea90552cae41538408e69cc48092de7d0e1c686b4556adc70df8c30ba50f8c3b",
+      "release_sha256": "ea90552cae41538408e69cc48092de7d0e1c686b4556adc70df8c30ba50f8c3b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Pinch/VertexWard.wl",
+      "calculation_sha256": "8ac5b64481618138ed8dc7257c5352705ae9134b39d97ec027583e540c41e06d",
+      "release_sha256": "8ac5b64481618138ed8dc7257c5352705ae9134b39d97ec027583e540c41e06d",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Pinch/Workflow.wl",
+      "calculation_sha256": "05f7ae9f7f0482147d208223e5e74a36529d81ad9f24bf006030fb07a6299cb4",
+      "release_sha256": "05f7ae9f7f0482147d208223e5e74a36529d81ad9f24bf006030fb07a6299cb4",
+      "identical": true
+    },
+    {
+      "path": "Kernel/README.md",
+      "calculation_sha256": "09f948b77e358aac657c0ed45640dd6ecee200c7bd89a7301a82fd776c73d104",
+      "release_sha256": "09f948b77e358aac657c0ed45640dd6ecee200c7bd89a7301a82fd776c73d104",
+      "identical": true
+    },
+    {
+      "path": "Kernel/RGZWorkflow.wl",
+      "calculation_sha256": "6073084185156b841da04bcb4968e4c88c6e3da34b0484a376211be3b3abd1d1",
+      "release_sha256": "07df821f08b830838c138db1785fbf72289cbcc10701f6499f60596d4e34e2e7",
+      "identical": false
+    },
+    {
+      "path": "Kernel/Renormalization/MSbar.wl",
+      "calculation_sha256": "8721d151fb1788956a2e339ff98aff9fb8d373736cf71c478f13720d6d9ddbf0",
+      "release_sha256": "8721d151fb1788956a2e339ff98aff9fb8d373736cf71c478f13720d6d9ddbf0",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/MassLimit.wl",
+      "calculation_sha256": "130b45fb589e1bd57127b09e2ba133ddb46d465519a3ee01ee728bc4ab0bf2a0",
+      "release_sha256": "130b45fb589e1bd57127b09e2ba133ddb46d465519a3ee01ee728bc4ab0bf2a0",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/MassRestoration.wl",
+      "calculation_sha256": "0e83691cbf82a86b71f50e935fac11994b58da7d678e323c4f59af9b1baae39c",
+      "release_sha256": "0e83691cbf82a86b71f50e935fac11994b58da7d678e323c4f59af9b1baae39c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/MixedUVIR.wl",
+      "calculation_sha256": "11e1c022a6f884cec27a2ebd68451210860cc1ce944bc4c4c291c068779a96f4",
+      "release_sha256": "11e1c022a6f884cec27a2ebd68451210860cc1ce944bc4c4c291c068779a96f4",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/QuarkMassLimit.wl",
+      "calculation_sha256": "8668b8ba2ac6d3a928bb1c0630278c0d801dec956812760608bec7f25bc8a9bf",
+      "release_sha256": "8668b8ba2ac6d3a928bb1c0630278c0d801dec956812760608bec7f25bc8a9bf",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/RegulatorLimit.wl",
+      "calculation_sha256": "6ea528fb0c077512309fa79f6c39b5aea9f94944eb7d8df902c3d30edeb10ddf",
+      "release_sha256": "6ea528fb0c077512309fa79f6c39b5aea9f94944eb7d8df902c3d30edeb10ddf",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/ResidualDiagnostics.wl",
+      "calculation_sha256": "ca1b1e7ea8110879bb69cbeadd0149d7ca225ae073cb5c9645091ab61c4881f2",
+      "release_sha256": "ca1b1e7ea8110879bb69cbeadd0149d7ca225ae073cb5c9645091ab61c4881f2",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Renormalization/UVIR.wl",
+      "calculation_sha256": "ba0b899d9222f7381b8a5dcd1157a522b20dd4036f354fb1e0ba6bf0712b518c",
+      "release_sha256": "ba0b899d9222f7381b8a5dcd1157a522b20dd4036f354fb1e0ba6bf0712b518c",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/AuxiliaryFields.wl",
+      "calculation_sha256": "02efaac61c4d057b8128e2acd89ddb5e999c3bbbf13e3bab1e997888a21594b2",
+      "release_sha256": "02efaac61c4d057b8128e2acd89ddb5e999c3bbbf13e3bab1e997888a21594b2",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/FeynmanRules.wl",
+      "calculation_sha256": "42d788353e8e1030b9c9f8aac0500f626ebae438a88c1bb02fd0ac087840266b",
+      "release_sha256": "42d788353e8e1030b9c9f8aac0500f626ebae438a88c1bb02fd0ac087840266b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/InteractionContent.wl",
+      "calculation_sha256": "9d3fb5ea47e6e7e4b8e79a2c6ebeff98b59b1002fb6868db9ef41dfd86d673ca",
+      "release_sha256": "9d3fb5ea47e6e7e4b8e79a2c6ebeff98b59b1002fb6868db9ef41dfd86d673ca",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/LegOrdering.wl",
+      "calculation_sha256": "6eea0fe8285170f1dfd68a68299434b017fdfddf4b1ac554076091fe3587e8bb",
+      "release_sha256": "6eea0fe8285170f1dfd68a68299434b017fdfddf4b1ac554076091fe3587e8bb",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/Permutations.wl",
+      "calculation_sha256": "66a0baa72c9bbf6b7ee1bc91665a6e2d99f9e6d951d5c2c597a56752272eb8f9",
+      "release_sha256": "66a0baa72c9bbf6b7ee1bc91665a6e2d99f9e6d951d5c2c597a56752272eb8f9",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/PropagatorComparison.wl",
+      "calculation_sha256": "67fc8cd448399b25e98d2a25aa6939e771a6f2001cd139e2549ca218d23a1d53",
+      "release_sha256": "67fc8cd448399b25e98d2a25aa6939e771a6f2001cd139e2549ca218d23a1d53",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/Propagators.wl",
+      "calculation_sha256": "d9a36cb76483a74df0eb1c797a710b7bc0545737f7cbae225570337e6a0ee743",
+      "release_sha256": "d9a36cb76483a74df0eb1c797a710b7bc0545737f7cbae225570337e6a0ee743",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/QuadraticAction.wl",
+      "calculation_sha256": "cd3653e45bf939a2b39723ed12d3b24f526e58b28237f4c01b3d068ff5763c2b",
+      "release_sha256": "cd3653e45bf939a2b39723ed12d3b24f526e58b28237f4c01b3d068ff5763c2b",
+      "identical": true
+    },
+    {
+      "path": "Kernel/Tree/VertexRules.wl",
+      "calculation_sha256": "e27edfff9fe4045b09489193d6224f2c60859bfff3245f5761f885f55492dc9f",
+      "release_sha256": "e27edfff9fe4045b09489193d6224f2c60859bfff3245f5761f885f55492dc9f",
+      "identical": true
+    },
+    {
+      "path": "Kernel/init.m",
+      "calculation_sha256": "099cea60bc01bd49c1fffa2953ea8668d4d71aca7749bc426a8a81914512d654",
+      "release_sha256": "099cea60bc01bd49c1fffa2953ea8668d4d71aca7749bc426a8a81914512d654",
+      "identical": true
+    }
+  ],
+  "kernel_differences": [
+    {
+      "path": "Kernel/Internal/Session.wl",
+      "diff": "--- calculation/Kernel/Internal/Session.wl\n\n+++ release/Kernel/Internal/Session.wl\n\n@@ -194,6 +194,11 @@\n\n   $ContextPath=DeleteDuplicates[Join[$ContextPath,Select[{\"FeynCalc`\",\"FeynArts`\"},MemberQ[$Packages,#]&]]];\n  If[!MemberQ[$Packages,\"FeynCalc`\"] || engineCode[\"Length[DownValues[FCFAConvert]]\"]===0,\n   Return[Failure[\"FeynArtsAddonRequired\",<|\"Explanation\"->\"Load FeynCalc with $LoadAddOns={\\\"FeynArts\\\"} in a fresh kernel.\"|>]]];\n+ (* Apply the tested SUNF contraction correction before any calculation, including scripts. *)\n+ Block[{$Context=\"Global`\",$ContextPath={\"Global`\",\"System`\"}},\n+  Get[FileNameJoin[{$packageRoot,\"Tools\",\"FeynCalcColourCorrection.wl\"}]];\n+  r=ToExpression[\"Global`rgzFeynCalcColourCorrection[]\"]];\n+ If[FailureQ[r],Return[r]];\n  RGZWorkflow`Engine`modelRGZ=modelBase[];FeynArts`$FAVerbose=0;\n  <|\"Status\"->\"FeynCalcLoaded\",\"ModelBase\"->modelBase[]|>\n ];"
+    },
+    {
+      "path": "Kernel/RGZWorkflow.wl",
+      "diff": "--- calculation/Kernel/RGZWorkflow.wl\n\n+++ release/Kernel/RGZWorkflow.wl\n\n@@ -10,7 +10,7 @@\n\n    The explicit ordinary-module list below defines commands. Lazy engine prerequisites are listed in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl.\n *)\n \n-(* RGZWorkflow 1.0.0: public API. Loading never starts a calculation. *)\n+(* RGZWorkflow 1.1.2: public API. Loading never starts a calculation. *)\n BeginPackage[\"RGZWorkflow`\"];\n (* 1. Main calculation: model to bare amplitude *)\n RGZInitialize::usage = \"RGZInitialize[workDirectory] creates isolated Data, Cache and Results directories and selects the bundled model. Option QuarkMasses -> {0,0} specifies the two base-model quark masses; full QQ external states currently remain massless.\";\n@@ -111,7 +111,7 @@\n\n If[!AssociationQ[$results], $results = <||>];\n If[!AssociationQ[$stageStatus], $stageStatus = <||>];\n If[!ListQ[$loaded], $loaded = {}];\n-$RGZWorkflowVersion = \"1.0.0\";\n+$RGZWorkflowVersion = \"1.1.2\";\n (* Ordinary definitions only. Lazy calculation-engine loads and their prerequisites\n    are explicit in OneLoop/MixedMatrices.wl and Pinch/Workflow.wl. *)\n Scan[Get, FileNameJoin[{$packageRoot,\"Kernel\",#}]& /@ {"
+    }
+  ],
+  "model_sha256": {
+    "Models/RGZ_W2.6.gen": "0a8dbc5d428a3484a3574fa8da7af8bcc436d66d9fb5df7d136c348d3e7d411a",
+    "Models/RGZ_W2.6.fr": "163f8fbecb7f0a71b2816929b0489dfac7f85c8c9515b5d46902fe0c44fb87d8",
+    "Models/RGZ_W2.6.mod": "8db7a17a20467edfe7caa03793d72a911eb5654458cf25d07440835e48e1ba26"
+  },
+  "runtime_helpers_sha256": {
+    "FeynCalcColourCorrection.wl": "8acc42db1be4e4d626d17d67fc783e5f5ec5b4ec238fe7f8cff6ddc2dc8ee1d8",
+    "SelfPreparationResume.wl": "465eada9c448d4528911b4a16751a89e4c8047f6014fe0d3d203c87e6fcf190e"
+  },
+  "notes": [
+    "The original certificate is bound to its original bare-task and gauge-task fingerprints, not a newly computed release fingerprint.",
+    "The completed author calculation and the release-specific regression are distinct evidence."
+  ]
+}
