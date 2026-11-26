@@ -38,4 +38,4 @@ The saved corrected author run passes all 24 certification checks, the 256-recor
 
 Version 1.1.2 retains the FP cubic-sign and external-ordering comparison correction from [1.1.1](Release-1.1.1.md). That isolated correction leaves the inspected ordinary closed-FP one-loop QQ amplitude unchanged because both vertices in its ghost bubble reverse sign. The independent FeynCalc colour correction in 1.1.2 does change the finite amplitude. Neither statement supersedes the other's scope. See the README version comparison and ColourCorrection.md.
 
-The optional PT Ward notebook and effective-charge tools are research examples, not a new complete PT/background-field or RG-invariance certification. The source regressions, completed author calculation and exact release-source correspondence are recorded separately.
+The subsequent reduced source revision excludes the new PT Ward notebook, effective-charge helper, example, regression and documentation. Existing 1.1.1 PT interfaces are retained. The published ZIP, DOI and historical 32-check report remain unchanged; use the new source manifest and Git commit to identify this packaging revision.

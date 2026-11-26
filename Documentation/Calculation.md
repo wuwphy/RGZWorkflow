@@ -74,4 +74,3 @@ The complete load order is visible at the end of [RGZWorkflow.wl](../Kernel/RGZW
 
 The conventional route never loads the PT engine. Candidate kernels and their task driver are in `Kernel/Pinch/`; both routes use the external-leg and PV tools in `Kernel/Algebra/`. See the [dependency map](../Kernel/README.md).
 
-For the optional candidate self-energy amputation and effective-charge definitions, follow [PT and effective charge](PTEffectiveCharge.md). The ordinary QQ calculation remains independent of that research route.

@@ -21,12 +21,6 @@ This release contains the current reorganized source tree, including the previou
 - Preserve historical certificates; no complete amplitude was regenerated under the 1.1.1 source fingerprint. See Documentation/Release-1.1.1.md and Evidence/fp-sign-review-2026-11-23.json.
 - Version DOI: https://doi.org/10.5281/zenodo.24470745.
 
-## Unreleased PT self-energy and effective-charge research — 2026-11-20
-
-- Add explicitly loaded tools to amputate a completed candidate PT kernel and retain the Minkowski/Euclidean Dyson signs and one loop-measure conversion.
-- Add a fresh-diagram two-flavour quark-sector example checking finite subtraction, screening, local UV closure and the separate MSbar RG equation. Register it in the algebra regression suite.
-- Normalize external/internal scalar-product forms before Euclidean continuation. Add a high-precision Euclidean numerical illustration of the candidate finite kernel.
-- Keep candidate PT completeness and RG invariance unverified; the finite MOM shape requires a separately renormalized input and does not predict IR freezing. Existing calculation sources and production certificates are unchanged.
 
 ## Unreleased shifted NAV denominator correction — 2026-11-13
 
@@ -236,3 +230,8 @@ In an existing stopped kernel, load `Tools/SelfPreparationResume.wl`, then repea
 - Record the completed corrected author calculation, 18 zero gauge rows, complete mass/scaleless coverage and finite certification with no outstanding checks. Preserve original certificate/task identities.
 - Record the exact two-file Kernel difference between the calculation snapshot and 1.1.2; formulas and model companions are unchanged by packaging.
 - Restore historical 1.1.0/1.1.1 notes and the existing FP convention regression. Preserve website and copyable article/software citations.
+
+## Distribution scope — 26 November 2026
+
+- Exclude newly added PT/effective-charge research tools, examples, notebook and documentation from this ordinary QQ distribution. Existing PT interfaces from 1.1.1 are retained. Calculation formulas are unchanged.
+- The previously published 1.1.2 archive and DOI remain historical and unchanged. This subsequent source revision is identified by its Git commit and its own manifest; the earlier 32-check report is not relabelled as a new run.

@@ -32,4 +32,3 @@ The physics-first source organization adds direct assembly regressions to `QQSca
 
 The zero-temperature scope cleanup removes two Core.wlt tests for the deleted generic developer registry. Physics, loading, continuation and reconstruction tests remain. The two clean notebooks contain no calls to the removed optional interfaces.
 
-`PTEffectiveChargeExample.wls` runs actual two-flavour quark bubbles and verifies amputation, finite subtraction, UV closure, fermion screening, MOM normalization and the one-loop MSbar beta equation. It does not certify the full RGZ PT candidate.

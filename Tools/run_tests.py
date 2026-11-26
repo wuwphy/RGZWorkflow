@@ -5,7 +5,7 @@ import argparse, datetime, hashlib, json, os, pathlib, re, subprocess, sys, temp
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 SUITES={
  'core':['RunTests.wls','DiagnosticsCompatibility.wls','DiagnosticsNotebook.wls','PaperResult.wls','EvidenceValidation.wls'],
- 'algebra':['FPGhostConvention.wls','QQShiftedPoles.wls','PreparationBoundaries.wls','AssemblyIdentitySafety.wls','GhostBubbleExample.wls','MixedTadpoleExample.wls','QuarkBubbleExample.wls','PTEffectiveChargeExample.wls','EvaluateGraphsSafety.wls','MassRestorationSafety.wls','MainRoute.wls','WeightedAuditResume.wls','WeightedScalarIdentity.wls','MixedBackendSafety.wls','PTContinuationSafety.wls','GaugeCheckSafety.wls','PTProvenanceSafety.wls','FixedDenominatorSafety.wls','NAVPinchSafety.wls','AALoopSafety.wls','NAVMatrixSafety.wls','QQScatteringSafety.wls','ScatteringCheckpointSafety.wls','SelfPreparationResume.wls'],
+ 'algebra':['FPGhostConvention.wls','QQShiftedPoles.wls','PreparationBoundaries.wls','AssemblyIdentitySafety.wls','GhostBubbleExample.wls','MixedTadpoleExample.wls','QuarkBubbleExample.wls','EvaluateGraphsSafety.wls','MassRestorationSafety.wls','MainRoute.wls','WeightedAuditResume.wls','WeightedScalarIdentity.wls','MixedBackendSafety.wls','PTContinuationSafety.wls','GaugeCheckSafety.wls','PTProvenanceSafety.wls','FixedDenominatorSafety.wls','NAVPinchSafety.wls','AALoopSafety.wls','NAVMatrixSafety.wls','QQScatteringSafety.wls','ScatteringCheckpointSafety.wls','SelfPreparationResume.wls'],
 }
 
 def work_is_isolated(work):

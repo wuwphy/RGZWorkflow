@@ -89,8 +89,8 @@ The author confirms that the current results have now been recomputed and valida
 
 - **Self-preparation and resumption:** [SelfPreparationResume.wl](Tools/SelfPreparationResume.wl) selects one checkpoint input before hashing, reuses verified completed mass-limit sums, and correctly reads the `QQBeforeGauge["QQ"]` snapshot. Read/validation failures propagate, and fallback shares the remaining total time budget. These changes avoid unnecessary matrix replay without changing physical formulas or declaring unfinished results complete.
 - **Progress display:** self-preparation removes a nested `Dynamic` and reports selection, hashing, cache reads and result checks separately. The root loader loads the adapter automatically; existing stopped sessions can load the helper explicitly and resume.
-- **Examples and research:** updated input-only Start Here and Diagnostics notebooks accompany the optional [PT Ward benchmark](<Examples/RGZWorkflow — PT Ward Benchmark.nb>) and [effective-charge example](Documentation/PTEffectiveCharge.md). The PT tools are explicitly loaded research tools; they do not certify PT completeness, RG invariance or a physical infrared freezing prediction.
-- **Validation and packaging:** 32/32 process regressions and 3/3 Python release-tool tests pass. The release includes compact evidence and source correspondence; source-level regressions and full physical certification have distinct scopes. Public calculation interfaces are retained.
+- **Examples:** Start Here and Diagnostics cover the ordinary QQ calculation. Newly developed PT/effective-charge tools and the PT Ward notebook are excluded from this source revision; existing PT interfaces inherited from 1.1.1 remain available.
+- **Validation and packaging:** The frozen published snapshot passed 32/32 process regressions and 3/3 Python release-tool tests. That historical report includes the subsequently excluded optional PT example and is not relabelled as a regression of this reduced source revision. The release includes compact evidence and source correspondence; source-level regressions and full physical certification have distinct scopes. Public calculation interfaces are retained.
 
 Use an **empty `Work/`** for a new release run. Do not copy earlier caches or `Session.wxf`; rerun Start Here sections 1–7 and Diagnostics. Keep FeynRules and FeynCalc in separate kernels. Start Here no longer contains section 8, the author-electronic-reference comparison; the historical table and reader remain available explicitly. See [the complete 1.1.2 notes](Documentation/Release-1.1.2.md) and [change history](CHANGELOG.md).
 
@@ -100,7 +100,7 @@ Use an **empty `Work/`** for a new release run. Do not copy earlier caches or `S
 | --- | --- |
 | `RGZWorkflow.wl`, `Kernel/`, `PacletInfo.wl` | Entry point and calculation source snapshot |
 | `Models/` | The matching `.fr`, `.gen` and `.mod` model companions |
-| `Examples/` | Main calculation and diagnostics notebooks, optional PT benchmark and small physical examples |
+| `Examples/` | Main calculation and diagnostics notebooks and small physical examples |
 | `Tools/` | Required audit adapters, notebook builder, comparison and validation tools |
 | `Documentation/` | Installation, scope, main API and reproduction sequence |
 | `Paper/` | Inert reference coefficient table and provenance |
@@ -137,3 +137,7 @@ Checks use isolated work directories. `--suite core` needs no external physics p
 ## License and attribution
 
 The author confirmed on 2026-10-28 that the included code, models and electronic reference table may be distributed under GPL-3.0-or-later, with necessary permissions obtained. This confirmation does not apply the code license to the manuscript or external software. Machine-readable citation metadata are in [CITATION.cff](CITATION.cff).
+
+## Source revision after publication
+
+This source revision excludes the newly added PT/effective-charge research material. The published 1.1.2 ZIP and Zenodo archive are retained unchanged; they predate this packaging reduction. Identify this subsequent source revision by its Git commit and source manifest when reproducing it. Ordinary QQ calculation formulas are unchanged.
