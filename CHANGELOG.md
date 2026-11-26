@@ -234,4 +234,4 @@ In an existing stopped kernel, load `Tools/SelfPreparationResume.wl`, then repea
 ## Distribution scope — 26 November 2026
 
 - Exclude newly added PT/effective-charge research tools, examples, notebook and documentation from this ordinary QQ distribution. Existing PT interfaces from 1.1.1 are retained. Calculation formulas are unchanged.
-- The previously published 1.1.2 archive and DOI remain historical and unchanged. This subsequent source revision is identified by its Git commit and its own manifest; the earlier 32-check report is not relabelled as a new run.
+- Correct the GitHub 1.1.2 package, tag, validation attachment and checksums together; retain the initial commit in Git history. The reduced distribution passes 31 checks; do not relabel the earlier 32-check report. Zenodo file replacement is a separate archival operation.
