@@ -41,6 +41,7 @@ For a small derivation before the full run, follow the [quark-bubble walkthrough
 | --- | --- |
 | RGZWorkflow, all versions (concept DOI) | [10.5281/zenodo.23724291](https://doi.org/10.5281/zenodo.23724291) |
 | Version 1.1.2 | [10.5281/zenodo.24564596](https://doi.org/10.5281/zenodo.24564596) |
+| Version 1.1.1 | [10.5281/zenodo.24470745](https://doi.org/10.5281/zenodo.24470745) |
 | Version 1.1.0 used for a calculation | [10.5281/zenodo.24212586](https://doi.org/10.5281/zenodo.24212586) |
 
 Use the version DOI for reproducible citations of a specific calculation; use the concept DOI when referring to the project across versions. The software BibTeX below identifies version 1.1.2 using its version-specific DOI. The 1.1.0 DOI above remains historical.
@@ -82,7 +83,7 @@ The tested FeynCalc **10.1.0 and 10.2.1 release archives** contain the duplicate
 
 **The finite amplitude changes, while the gauge difference remains zero.** Some individual gauge-dependent diagrams do change: their correction cancels only after the physical external-leg-weighted sum. This is not an assertion that every gauge-dependent diagram is unaffected, nor a full PT/background-field proof. The corrected author run passes **24/24 certification checks** within the declared IR conditions and branch prescription, with no outstanding checks. See [completed validation and source correspondence](Documentation/ColourCorrectedValidation.md).
 
-The original certificate remains bound to the actual calculation source. Version metadata and automatic loading of the identical colour helper distinguish the release tree; those differences are explicitly recorded. The full pipeline was not separately rerun from the release-labelled tree. Historical paper-table equality predates the finite correction and is not claimed for the corrected result.
+The author confirms that the current results have now been recomputed and validated with **RGZWorkflow 1.1.2**, starting from an empty `Work/`. Cite the 1.1.2 version DOI for these results. The archived validation package attached to the release records the earlier corrected calculation and its exact source correspondence; it is retained unchanged and is not relabelled as evidence from this subsequent release-version run. Historical paper-table equality predates the finite correction and is not claimed for the corrected result.
 
 ### Other implementation changes in 1.1.2
 
